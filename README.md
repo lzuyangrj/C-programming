@@ -34,6 +34,16 @@ python scripts/evaluate_space_charge.py
 
 Each case is run **with** and **without** beam space charge (`ElectricFieldOFF` / `MagneticFieldOFF`). Guiding fields stay uniform.
 
+Results at 100 kW (\(7.8\times10^{12}\) protons/bunch), ideal \(E_y\) and \(B_y=0.1\,\mathrm{T}\):
+
+| Case | \(\sigma\) no SC [mm] | \(\sigma\) with SC [mm] | Profile expansion | Particle rms \(\Delta x\) |
+|---|---:|---:|---:|---:|
+| Injection electrons (80 MeV) | 24.45 | 24.45 | ~0% | 0.08 mm |
+| Extraction electrons (1.6 GeV) | 9.76 | 9.76 | ~0% | 0.11 mm |
+| Injection \(\mathrm{H}_2^+\) | 25.14 | 29.20 | **+16.1%** | 4.65 mm |
+
+The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’09 cage design). Ions remain in the cage for microseconds and see several bunches, so space charge broadens the measured profile.
+
 ## Quick start (LHC 6.5 TeV electron tracking)
 
 This repo includes the documentation’s [electron-tracking example](https://ipmsim.gitlab.io/Virtual-IPM/examples.html#electron-tracking-complete-example), adapted for local paths and current model names (`Gaussian` field model, `InterpolatingIPM` device).
