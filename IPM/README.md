@@ -48,7 +48,7 @@ The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’
 
 ## Guiding-\(B\) scan (0, 50, 100, 200 G)
 
-Scan of the cage magnetic field in **electron mode** and **ion mode** (\(\mathrm{H}_2^+\), the lightest ToF peak), at both injection (80 MeV) and extraction (1.6 GeV). Units: \(1\,\mathrm{G} = 10^{-4}\,\mathrm{T}\), so 50/100/200 G = 5/10/20 mT. Each point is space-charge on vs off, **100000** particles.
+Scan of the cage magnetic field in **electron mode** and **ion mode** (\(\mathrm{H}_2^+\), the lightest ToF peak), at both injection (80 MeV) and extraction (1.6 GeV). Units: \(1\,\mathrm{G} = 10^{-4}\,\mathrm{T}\), so 50/100/200 G = 5/10/20 mT. Each point is space-charge on vs off, **100000** particles. Collection stays \(\approx 100\%\) over this scan (cage gap 231 mm).
 
 ```bash
 ./scripts/run_bscan_study.sh
@@ -56,6 +56,17 @@ python scripts/evaluate_bscan.py
 ```
 
 Configs: `configs/csns_rcs_ipm/bscan/`. Summary: `output/csns_bscan_summary.csv`. Extraction ion trains use the RCS RF at 2.444 MHz (bunch spacing 409.2 ns).
+
+Space-charge profile expansion \(\sigma_\mathrm{on}/\sigma_\mathrm{off}-1\):
+
+| \(B\) | Inj. e− | Ext. e− | Inj. \(\mathrm{H}_2^+\) | Ext. \(\mathrm{H}_2^+\) |
+|---:|---:|---:|---:|---:|
+| 0 G | −19.37% | **+47.30%** | +18.05% | **+31.00%** |
+| 50 G | −6.21% | −8.42% | +18.05% | +31.00% |
+| 100 G | +1.37% | +10.05% | +18.03% | +30.99% |
+| 200 G | +0.15% | +0.82% | +17.98% | +30.93% |
+
+Electrons: the proton bunch focuses opposite-sign secondaries when \(B=0\). Injection compresses; extraction over-kicks and the detected profile widens. By **200 G** both electron profiles are restored to \(\lesssim 1\%\) (the PAC’09 0.1 T = 1000 G design is well above this). Ions: cyclotron radii at \(\le 200\,\mathrm{G}\) are metres, so \(B\) does not suppress the ion space-charge expansion. Extraction \(\mathrm{H}_2^+\) expands more than injection (\(\sim 31\%\) vs \(\sim 18\%\)) because the bunch is shorter, smaller, and more relativistic.
 
 ## Quick start (LHC 6.5 TeV electron tracking)
 

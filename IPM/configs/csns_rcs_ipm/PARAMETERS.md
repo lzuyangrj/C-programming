@@ -32,3 +32,14 @@ Injection-ion profile expansion at 100 kW (same 100000-particle runs as `output/
 | H₂⁺ | 2 u | 24.955 mm | 29.003 mm | +16.22% |
 | H₂O⁺ | 18 u | 24.955 mm | 27.773 mm | +11.30% |
 | N₂⁺ | 28 u | 24.955 mm | 27.394 mm | +9.77% |
+
+Guiding-\(B\) scan (0–200 G) at injection and extraction, e-mode and H₂⁺ ion-mode (`output/csns_bscan_summary.csv`):
+
+| \(B\) [G] | Inj. e− | Ext. e− | Inj. H₂⁺ | Ext. H₂⁺ |
+|---:|---:|---:|---:|---:|
+| 0 | −19.37% | +47.30% | +18.05% | +31.00% |
+| 50 | −6.21% | −8.42% | +18.05% | +31.00% |
+| 100 | +1.37% | +10.05% | +18.03% | +30.99% |
+| 200 | +0.15% | +0.82% | +17.98% | +30.93% |
+
+200 G restores electron profiles; ion expansion is essentially independent of \(B\) in this range. Extraction H₂⁺ expands more than injection because the 1.6 GeV bunch is shorter (20 ns), smaller (10×8 mm), and more relativistic. The 0.1 T residual-gas ion numbers above use the PAC’09 design field and differ slightly from the 0–200 G ion scan for that reason.
