@@ -61,7 +61,14 @@ Configs: `configs/csns_rcs_ipm/bscan/`. Summary: `output/csns_bscan_summary.csv`
 
 ### Fine e-mode scan (0–200 G, step 5 G) and 10 mm injection
 
-Electron mode only, \(\Delta B = 5\,\mathrm{G}\), plus a repeat of the residual-gas / ion scans with injection \(\sigma_x=10\,\mathrm{mm}\) (\(\sigma_y=8\,\mathrm{mm}\), same 5:4 aspect as 25×20).
+Electron mode only, \(\Delta B = 5\,\mathrm{G}\) from **0 to 250 G**, plus a repeat of the residual-gas / ion scans with injection \(\sigma_x=10\,\mathrm{mm}\) (\(\sigma_y=8\,\mathrm{mm}\), same 5:4 aspect as 25×20).
+
+Ion-mode beam-size scan (\(\sigma_x=3\)–\(20\,\mathrm{mm}\), 1 mm step) at injection and extraction, and e-mode \(B\) scans, at 100–500 kW:
+
+```bash
+./scripts/run_extended_scans.sh
+python scripts/evaluate_extended.py
+```
 
 ```bash
 ./scripts/run_fine_bscan_study.sh

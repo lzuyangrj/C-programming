@@ -5,10 +5,14 @@ __pycache__/
 output/*.csv
 output/bscan/*.csv
 output/bscan5/*.csv
+output/bscan5_power/*.csv
+output/ionsize/*.csv
 !output/csns_space_charge_summary.csv
 !output/csns_space_charge_summary_sig10.csv
 !output/csns_bscan_summary.csv
 !output/csns_bscan5_summary.csv
+!output/csns_bscan_power_summary.csv
+!output/csns_ionsize_summary.csv
 plots/*.png
 !plots/csns_space_charge_impact.png
 !plots/csns_space_charge_impact_sig10.png
@@ -18,5 +22,10 @@ plots/*.png
 !plots/csns_bscan_ion_profiles.png
 !plots/csns_bscan5_expansion.png
 !plots/csns_bscan5_electron_profiles.png
+!plots/csns_bscan_power_expansion.png
+!plots/csns_ionsize_expansion.png
+!plots/csns_ionsize_sigma.png
 configs/csns_rcs_ipm/bscan5/*.xml
+configs/csns_rcs_ipm/bscan5_power/*.xml
+configs/csns_rcs_ipm/ionsize/*.xml
 *.log

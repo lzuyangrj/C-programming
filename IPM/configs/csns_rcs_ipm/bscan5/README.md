@@ -6,4 +6,4 @@ XML files in this directory are generated (not stored in git):
 python scripts/generate_csns_configs.py --fine-bscan
 ```
 
-41 field values (0–200 G, step 5 G) × {injection 25×20 mm, extraction 10×8 mm, injection 10×8 mm} × {SC on, SC off} = 246 configs. See `scripts/run_fine_bscan_study.sh`.
+51 field values (0–250 G, step 5 G) × {injection 25×20 mm, extraction 10×8 mm, injection 10×8 mm} × {SC on, SC off} = 306 configs. Power and ion-size scans: `python scripts/generate_csns_configs.py --fine-bscan --extended` and `scripts/run_extended_scans.sh`.

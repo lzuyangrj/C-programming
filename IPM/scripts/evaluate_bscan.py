@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-B_SCAN_GS = (0, 50, 100, 200)
+B_SCAN_GS = (0, 50, 100, 200, 250)
 FAMILIES = [
     ("injection_electrons", "Injection 80 MeV, e−"),
     ("extraction_electrons", "Extraction 1.6 GeV, e−"),
@@ -161,7 +161,7 @@ def plot_profiles(output_dir: Path, plot_dir: Path, mode: str) -> None:
         titles = ["Injection H₂⁺", "Extraction H₂⁺"]
         fname = "csns_bscan_ion_profiles.png"
 
-    fig, axes = plt.subplots(2, 4, figsize=(16.0, 7.6), sharey=False)
+    fig, axes = plt.subplots(2, len(B_SCAN_GS), figsize=(18.0, 7.6), sharey=False)
     drawn_legend = False
     for row, (key, title) in enumerate(zip(keys, titles)):
         for col, b_gs in enumerate(B_SCAN_GS):

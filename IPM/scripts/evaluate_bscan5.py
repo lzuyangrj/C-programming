@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate e-mode guiding-B scan: 0–200 G in 5 G steps."""
+"""Evaluate e-mode guiding-B scan: 0–250 G in 5 G steps."""
 
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evaluate_bscan import load_xy, stats, summarize_pair  # noqa: E402
 
-B_SCAN5_GS = tuple(range(0, 201, 5))
-PROFILE_GS = (0, 50, 100, 150, 200)
+B_SCAN5_GS = tuple(range(0, 251, 5))
+PROFILE_GS = (0, 50, 100, 150, 200, 250)
 FAMILIES = [
     ("injection_electrons", "Injection 80 MeV, e− (25×20 mm)"),
     ("extraction_electrons", "Extraction 1.6 GeV, e− (10×8 mm)"),
@@ -86,7 +86,7 @@ def main() -> None:
     fig.savefig(plot_dir / "csns_bscan5_expansion.png", dpi=150)
     print(f"Wrote {plot_dir / 'csns_bscan5_expansion.png'}")
 
-    fig, axes = plt.subplots(3, 5, figsize=(16.5, 9.2))
+    fig, axes = plt.subplots(3, 6, figsize=(19.0, 9.2))
     drawn_legend = False
     for row, (key, title) in enumerate(FAMILIES):
         for col, b_gs in enumerate(PROFILE_GS):
@@ -126,7 +126,7 @@ def main() -> None:
     print(f"Wrote {plot_dir / 'csns_bscan5_electron_profiles.png'}")
 
     ion_rows = []
-    for b_gs in (0, 50, 100, 200):
+    for b_gs in (0, 50, 100, 200, 250):
         stem = f"csns_{ION_SIG10}_b{b_gs}G"
         row = summarize_pair(
             args.ion_dir / f"{stem}_sc_on.csv",

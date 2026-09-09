@@ -10,6 +10,8 @@ OUT = ROOT / "configs" / "csns_rcs_ipm"
 BSCAN_OUT = OUT / "bscan"
 BSCAN5_OUT = OUT / "bscan5"
 SIG10_OUT = OUT / "sig10"
+POWER_BSCAN_OUT = OUT / "bscan5_power"
+IONSIZE_OUT = OUT / "ionsize"
 
 # Parameters from NIMA 1092 (2026) 171809 and the cited CSNS RCS IPM papers.
 # See configs/csns_rcs_ipm/PARAMETERS.md.
@@ -19,8 +21,11 @@ E_Y = V_CAGE / GAP_M  # ~108 kV/m; paper quotes ~110 kV/m
 B_Y_DESIGN = 0.1  # PAC’09 cage design, 1000 G
 N_PER_BUNCH_100KW = 1.56e13 / 2.0
 GS_TO_T = 1.0e-4  # 1 G = 1e-4 T
-B_SCAN_GS = (0, 50, 100, 200)
-B_SCAN5_GS = tuple(range(0, 201, 5))  # e-mode fine scan
+B_SCAN_GS = (0, 50, 100, 200, 250)
+B_SCAN5_GS = tuple(range(0, 251, 5))  # e-mode fine scan
+POWERS_KW = (100, 200, 300, 400, 500)
+SIZE_MM = tuple(range(3, 21))  # ion-mode σ_x scan
+ASPECT_YX = 0.8  # σ_y / σ_x (25:20 painted beam)
 # Injection σ_x = 10 mm; σ_y = 8 mm keeps the 25:20 painted-beam aspect ratio.
 INJ_SIG10_XY = "[ 10000, 8000 ]"
 
@@ -232,6 +237,7 @@ def electron_case(
     b_tag: str | None = None,
     config_dir: Path = OUT,
     csv_dir: str = "output",
+    n_bunch: float | None = None,
 ) -> Path:
     stem = _stem(name, sc_on, b_tag)
     csv = f"{csv_dir}/csns_{stem}.csv"
@@ -240,7 +246,7 @@ def electron_case(
         energy_unit=energy_unit,
         sigma_t_ns=sigma_t_ns,
         sigma_xy_um=sigma_xy_um,
-        n_bunch=N_PER_BUNCH_100KW,
+        n_bunch=N_PER_BUNCH_100KW if n_bunch is None else n_bunch,
         e_off=not sc_on,
         b_off=not sc_on,
         train=single_bunch_train(),
@@ -280,9 +286,11 @@ def ion_case(
     config_dir: Path = OUT,
     csv_dir: str = "output",
     sigma_xy_um: str | None = None,
+    n_bunch: float | None = None,
 ) -> Path:
     spec = BEAMS[beam_key]
     sigma = sigma_xy_um if sigma_xy_um is not None else spec["sigma_xy_um"]
+    pop = N_PER_BUNCH_100KW if n_bunch is None else n_bunch
     stem = _stem(slug, sc_on, b_tag)
     csv = f"{csv_dir}/csns_{stem}.csv"
     # Generation-only bunch (fields off) so ions are created from a single passage.
@@ -291,7 +299,7 @@ def ion_case(
         energy_unit=spec["energy_unit"],
         sigma_t_ns=spec["sigma_t_ns"],
         sigma_xy_um=sigma,
-        n_bunch=N_PER_BUNCH_100KW,
+        n_bunch=pop,
         e_off=True,
         b_off=True,
         train=single_bunch_train(),
@@ -302,7 +310,7 @@ def ion_case(
         energy_unit=spec["energy_unit"],
         sigma_t_ns=spec["sigma_t_ns"],
         sigma_xy_um=sigma,
-        n_bunch=N_PER_BUNCH_100KW,
+        n_bunch=pop,
         e_off=not sc_on,
         b_off=not sc_on,
         train=circular_train(3, spec["spacing_ns"], spec["offset_ns"]),
@@ -393,6 +401,16 @@ def b_tag(b_gs: int) -> str:
     return f"b{b_gs}G"
 
 
+def n_bunch_at_power(power_kw: float) -> float:
+    return N_PER_BUNCH_100KW * (power_kw / 100.0)
+
+
+def sigma_xy_um(sigma_x_mm: float) -> str:
+    sx = sigma_x_mm * 1e3
+    sy = sigma_x_mm * ASPECT_YX * 1e3
+    return f"[ {sx:.0f}, {sy:.0f} ]"
+
+
 def write_bscan_configs() -> list[Path]:
     """B-field scan: 0, 50, 100, 200 G; injection/extraction; e-mode and H₂⁺ ion-mode."""
     BSCAN_OUT.mkdir(parents=True, exist_ok=True)
@@ -445,6 +463,7 @@ def _electron_from_beam(
     config_dir: Path,
     csv_dir: str,
     sigma_xy_um: str | None = None,
+    n_bunch: float | None = None,
 ) -> Path:
     spec = BEAMS[beam_key]
     return electron_case(
@@ -461,6 +480,7 @@ def _electron_from_beam(
         b_tag=b_tag,
         config_dir=config_dir,
         csv_dir=csv_dir,
+        n_bunch=n_bunch,
     )
 
 
@@ -502,7 +522,7 @@ def write_sig10_design_configs() -> list[Path]:
 
 
 def write_fine_emode_bscan() -> list[Path]:
-    """E-mode B scan: 0–200 G step 5 G; painted and 10 mm injection; extraction."""
+    """E-mode B scan: 0–250 G step 5 G; painted and 10 mm injection; extraction."""
     BSCAN5_OUT.mkdir(parents=True, exist_ok=True)
     families = (
         ("injection", "injection_electrons", None),
@@ -527,6 +547,60 @@ def write_fine_emode_bscan() -> list[Path]:
                         sigma_xy_um=sigma,
                     )
                 )
+    return paths
+
+
+def write_emode_power_bscan() -> list[Path]:
+    """E-mode 0–250 G / 5 G at 200–500 kW (SC on). SC-off reused from 100 kW."""
+    POWER_BSCAN_OUT.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for power_kw in POWERS_KW:
+        if power_kw == 100:
+            continue
+        pop = n_bunch_at_power(power_kw)
+        for b_gs in B_SCAN5_GS:
+            tag = b_tag(b_gs)
+            b_y = b_gs * GS_TO_T
+            for beam_key in ("injection", "extraction"):
+                paths.append(
+                    _electron_from_beam(
+                        f"{beam_key}_electrons_p{power_kw}kW",
+                        beam_key,
+                        sc_on=True,
+                        b_y=b_y,
+                        b_tag=tag,
+                        config_dir=POWER_BSCAN_OUT,
+                        csv_dir="output/bscan5_power",
+                        n_bunch=pop,
+                    )
+                )
+    return paths
+
+
+def write_ion_size_scan() -> list[Path]:
+    """Ion-mode H₂⁺: σ_x = 3–20 mm, injection and extraction, 100–500 kW."""
+    IONSIZE_OUT.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for sigma_mm in SIZE_MM:
+        xy = sigma_xy_um(sigma_mm)
+        for beam_key in ("injection", "extraction"):
+            for power_kw in POWERS_KW:
+                pop = n_bunch_at_power(power_kw)
+                sc_flags = (True, False) if power_kw == 100 else (True,)
+                for sc_on in sc_flags:
+                    paths.append(
+                        ion_case(
+                            f"{beam_key}_ions_s{sigma_mm}mm_p{power_kw}kw",
+                            rest_energy=H2_REST_ENERGY,
+                            sc_on=sc_on,
+                            beam_key=beam_key,
+                            b_y=B_Y_DESIGN,
+                            config_dir=IONSIZE_OUT,
+                            csv_dir="output/ionsize",
+                            sigma_xy_um=xy,
+                            n_bunch=pop,
+                        )
+                    )
     return paths
 
 
@@ -559,7 +633,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--fine-bscan",
         action="store_true",
-        help="Also write e-mode 0–200 G / 5 G configs (246 XML files).",
+        help="Also write e-mode 0–250 G / 5 G configs.",
+    )
+    parser.add_argument(
+        "--extended",
+        action="store_true",
+        help="Write e-mode power B-scans (200–500 kW) and ion size scans.",
     )
     args = parser.parse_args(argv)
     write_design_b_configs()
@@ -568,6 +647,9 @@ def main(argv: list[str] | None = None) -> None:
     write_sig10_ion_bscan()
     if args.fine_bscan:
         write_fine_emode_bscan()
+    if args.extended:
+        write_emode_power_bscan()
+        write_ion_size_scan()
 
 
 if __name__ == "__main__":

@@ -15,7 +15,9 @@ Instrument numbers that the NIMA article uses are also tabulated in the cited IB
 | Cage bias | 25 kV | \(E_y = V/d \approx 108\,\mathrm{kV/m}\) (~110 kV/m in the paper) |
 | Guiding \(B\) (design study) | 0.1 T, parallel to \(E\) | PAC’09 cage design (1000 G) |
 | Guiding \(B\) (scan) | 0, 50, 100, 200 G | \(1\,\mathrm{G}=10^{-4}\,\mathrm{T}\) → 0, 5, 10, 20 mT |
-| Guiding \(B\) (e-mode fine) | 0–200 G, step 5 G | Electron mode only |
+| Guiding \(B\) (e-mode fine) | 0–250 G, step 5 G | Electron mode only |
+| Beam power scan | 100–500 kW | \(N_b \propto P\); 100 kW is \(7.8\times10^{12}\)/bunch |
+| Ion-mode \(\sigma_x\) scan | 3–20 mm, step 1 mm | \(\sigma_y=0.8\,\sigma_x\); H₂⁺; inj. and ext. |
 | Injection \(\sigma\) (repeat) | 10 mm × 8 mm | Same 5:4 aspect as 25×20; \(\sigma_x=10\,\mathrm{mm}\) |
 | Extraction RF / bunch spacing | 2.444 MHz → 409.2 ns | RCS \(h=2\); used for extraction ion trains |
 | Transverse \(\sigma\) (inj.) | 25 mm × 20 mm | Painted beam; PAC’09 quotes \(E_{x,\mathrm{sc}}\approx20\,\mathrm{kV/m}\) at the IPM |
