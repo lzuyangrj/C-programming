@@ -68,7 +68,7 @@
     </ParticleTracking>
     <Simulation>
         <RNGSeed>1234</RNGSeed>
-        <NumberOfParticles>1200</NumberOfParticles>
+        <NumberOfParticles>100000</NumberOfParticles>
         <TimeRange>
             <SimulationTime unit="ns">220</SimulationTime>
             <NumberOfTimeSteps>8000</NumberOfTimeSteps>

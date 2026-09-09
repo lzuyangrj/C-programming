@@ -179,7 +179,7 @@ def electron_case(
     sim_unit: str,
     n_steps: int,
     sc_on: bool,
-    n_particles: int = 1200,
+    n_particles: int = 100000,
 ) -> None:
     tag = "sc_on" if sc_on else "sc_off"
     csv = f"output/csns_{name}_{tag}.csv"
@@ -214,7 +214,7 @@ def electron_case(
     write(f"{name}_{tag}.xml", xml)
 
 
-def ion_injection_case(*, sc_on: bool, n_particles: int = 800) -> None:
+def ion_injection_case(*, sc_on: bool, n_particles: int = 100000) -> None:
     tag = "sc_on" if sc_on else "sc_off"
     csv = f"output/csns_injection_ions_{tag}.csv"
     # Generation-only bunch (fields off) so ions are created from a single passage.

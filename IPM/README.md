@@ -25,7 +25,7 @@ virtual-ipm-gui
 Uses the CSNS RCS beam and IPM parameters from
 [NIMA 1092 (2026) 171809](https://doi.org/10.1016/j.nima.2026.171809)
 (ideal uniform cage \(E_y\approx 108\,\mathrm{kV/m}\), \(B_y=0.1\,\mathrm{T}\)).
-Details: `configs/csns_rcs_ipm/PARAMETERS.md`.
+Number of simulated secondaries: **100000** per run (`NumberOfParticles`).
 
 ```bash
 ./scripts/run_space_charge_study.sh
