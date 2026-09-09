@@ -20,6 +20,20 @@ pip install 'Virtual-IPM[GUI]'
 virtual-ipm-gui
 ```
 
+## CSNS RCS IPM — space-charge impact
+
+Uses the CSNS RCS beam and IPM parameters from
+[NIMA 1092 (2026) 171809](https://doi.org/10.1016/j.nima.2026.171809)
+(ideal uniform cage \(E_y\approx 108\,\mathrm{kV/m}\), \(B_y=0.1\,\mathrm{T}\)).
+Details: `configs/csns_rcs_ipm/PARAMETERS.md`.
+
+```bash
+./scripts/run_space_charge_study.sh
+python scripts/evaluate_space_charge.py
+```
+
+Each case is run **with** and **without** beam space charge (`ElectricFieldOFF` / `MagneticFieldOFF`). Guiding fields stay uniform.
+
 ## Quick start (LHC 6.5 TeV electron tracking)
 
 This repo includes the documentation’s [electron-tracking example](https://ipmsim.gitlab.io/Virtual-IPM/examples.html#electron-tracking-complete-example), adapted for local paths and current model names (`Gaussian` field model, `InterpolatingIPM` device).
