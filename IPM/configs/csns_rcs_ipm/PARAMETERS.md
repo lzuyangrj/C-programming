@@ -13,7 +13,9 @@ Instrument numbers that the NIMA article uses are also tabulated in the cited IB
 | RF / bunch spacing | 1.02 MHz → 980 ns (inj.) | Two-bunch harmonic |
 | Field-cage aperture | 220 mm × 231 mm | Collection gap 231 mm |
 | Cage bias | 25 kV | \(E_y = V/d \approx 108\,\mathrm{kV/m}\) (~110 kV/m in the paper) |
-| Guiding \(B\) | 0.1 T, parallel to \(E\) | Ideal static cage field (PAC’09 design) |
+| Guiding \(B\) (design study) | 0.1 T, parallel to \(E\) | PAC’09 cage design (1000 G) |
+| Guiding \(B\) (scan) | 0, 50, 100, 200 G | \(1\,\mathrm{G}=10^{-4}\,\mathrm{T}\) → 0, 5, 10, 20 mT |
+| Extraction RF / bunch spacing | 2.444 MHz → 409.2 ns | RCS \(h=2\); used for extraction ion trains |
 | Transverse \(\sigma\) (inj.) | 25 mm × 20 mm | Painted beam; PAC’09 quotes \(E_{x,\mathrm{sc}}\approx20\,\mathrm{kV/m}\) at the IPM |
 | Transverse \(\sigma\) (ext.) | 10 mm × 8 mm | Adiabatic damping of the painted beam |
 | Residual gas (electrons) | Hydrogen (`VoitkivDDCS`) | Virtual-IPM DDCS only supports H/He; paper’s H₂ peak |

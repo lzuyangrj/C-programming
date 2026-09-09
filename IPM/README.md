@@ -46,6 +46,17 @@ Results at 100 kW (\(7.8\times10^{12}\) protons/bunch), **100000** tracked parti
 
 The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’09 cage design). Ions stay in the cage for microseconds and see the bunch field; lighter ions are kicked more (\(\Delta v = q\int E_\mathrm{sc}\,dt / m\)), so expansion falls from \(\mathrm{H}_2^+\) to \(\mathrm{H}_2\mathrm{O}^+\) to \(\mathrm{N}_2^+\). Virtual-IPM’s Voitkiv DDCS for **electrons** only supports H/He, so electron ionization uses a hydrogen target; ion rest masses are 2 u / 18 u / 28 u.
 
+## Guiding-\(B\) scan (0, 50, 100, 200 G)
+
+Scan of the cage magnetic field in **electron mode** and **ion mode** (\(\mathrm{H}_2^+\), the lightest ToF peak), at both injection (80 MeV) and extraction (1.6 GeV). Units: \(1\,\mathrm{G} = 10^{-4}\,\mathrm{T}\), so 50/100/200 G = 5/10/20 mT. Each point is space-charge on vs off, **100000** particles.
+
+```bash
+./scripts/run_bscan_study.sh
+python scripts/evaluate_bscan.py
+```
+
+Configs: `configs/csns_rcs_ipm/bscan/`. Summary: `output/csns_bscan_summary.csv`. Extraction ion trains use the RCS RF at 2.444 MHz (bunch spacing 409.2 ns).
+
 ## Quick start (LHC 6.5 TeV electron tracking)
 
 This repo includes the documentation’s [electron-tracking example](https://ipmsim.gitlab.io/Virtual-IPM/examples.html#electron-tracking-complete-example), adapted for local paths and current model names (`Gaussian` field model, `InterpolatingIPM` device).
