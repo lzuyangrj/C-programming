@@ -22,3 +22,11 @@ Instrument numbers that the NIMA article uses are also tabulated in the cited IB
 | Simulated secondaries | **100000** | `NumberOfParticles` |
 
 Space charge in Virtual-IPM is the beam `BunchElectricField` (`Gaussian`) plus the Lorentz-boosted beam \(B\). It is switched **off** with `ElectricFieldOFF` and `MagneticFieldOFF`. Guiding cage fields stay uniform in both cases.
+
+Injection-ion profile expansion at 100 kW (same 100000-particle runs as `output/csns_space_charge_summary.csv`):
+
+| Residual-gas ion | Rest mass | \(\sigma\) no SC | \(\sigma\) with SC | Expansion |
+|---|---:|---:|---:|---:|
+| H₂⁺ | 2 u | 24.955 mm | 29.003 mm | +16.22% |
+| H₂O⁺ | 18 u | 24.955 mm | 27.773 mm | +11.30% |
+| N₂⁺ | 28 u | 24.955 mm | 27.394 mm | +9.77% |

@@ -34,15 +34,17 @@ python scripts/evaluate_space_charge.py
 
 Each case is run **with** and **without** beam space charge (`ElectricFieldOFF` / `MagneticFieldOFF`). Guiding fields stay uniform.
 
-Results at 100 kW (\(7.8\times10^{12}\) protons/bunch), **100000** tracked particles, ideal \(E_y\) and \(B_y=0.1\,\mathrm{T}\):
+Results at 100 kW (\(7.8\times10^{12}\) protons/bunch), **100000** tracked particles, ideal \(E_y\) and \(B_y=0.1\,\mathrm{T}\). Residual-gas ions follow the paper’s three ToF peaks: hydrogen (\(\mathrm{H}_2^+\)), water vapor (\(\mathrm{H}_2\mathrm{O}^+\)), and nitrogen (\(\mathrm{N}_2^+\)).
 
 | Case | N detected | \(\sigma\) no SC [mm] | \(\sigma\) with SC [mm] | Profile expansion | Particle rms \(\Delta x\) |
 |---|---:|---:|---:|---:|---:|
-| Injection electrons (80 MeV) | 100030 | 24.994 | 24.994 | ~0% | 0.082 mm |
-| Extraction electrons (1.6 GeV) | 100011 | 9.977 | 9.977 | ~0% | 0.109 mm |
-| Injection \(\mathrm{H}_2^+\) | 99988 | 24.955 | 29.003 | **+16.22%** | 4.68 mm |
+| Injection electrons (80 MeV, H₂ target) | 100030 | 24.994 | 24.994 | ~0% | 0.082 mm |
+| Extraction electrons (1.6 GeV, H₂ target) | 100011 | 9.977 | 9.977 | ~0% | 0.109 mm |
+| Injection \(\mathrm{H}_2^+\) (2 u) | 99988 | 24.955 | 29.003 | **+16.22%** | 4.68 mm |
+| Injection \(\mathrm{H}_2\mathrm{O}^+\) (18 u) | 99988 | 24.955 | 27.773 | **+11.30%** | 3.34 mm |
+| Injection \(\mathrm{N}_2^+\) (28 u) | 99988 | 24.955 | 27.394 | **+9.77%** | 2.89 mm |
 
-The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’09 cage design). Ions remain in the cage longer and see the bunch field; hydrogen, water vapor, and nitrogen are simulated as \(\mathrm{H}_2^+\), \(\mathrm{H}_2\mathrm{O}^+\), and \(\mathrm{N}_2^+\) (the three ToF peaks in the paper). Virtual-IPM’s Voitkiv DDCS for **electrons** only supports H/He, so electron ionization uses a hydrogen target.
+The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’09 cage design). Ions stay in the cage for microseconds and see the bunch field; lighter ions are kicked more (\(\Delta v = q\int E_\mathrm{sc}\,dt / m\)), so expansion falls from \(\mathrm{H}_2^+\) to \(\mathrm{H}_2\mathrm{O}^+\) to \(\mathrm{N}_2^+\). Virtual-IPM’s Voitkiv DDCS for **electrons** only supports H/He, so electron ionization uses a hydrogen target; ion rest masses are 2 u / 18 u / 28 u.
 
 ## Quick start (LHC 6.5 TeV electron tracking)
 
