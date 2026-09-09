@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<!-- Fast smoke-test variant of the LHC 6.5 TeV electron example. -->
+<Virtual-IPM>
+    <Beams>
+        <Beam>
+            <Parameters>
+                <Energy unit="TeV">6.5</Energy>
+                <BunchPopulation>1.3e11</BunchPopulation>
+                <ParticleType>
+                    <ChargeNumber>1</ChargeNumber>
+                    <RestEnergy unit="MeV">%(proton mass energy equivalent in MeV)</RestEnergy>
+                </ParticleType>
+            </Parameters>
+            <BunchShape>
+                <Parameters>
+                    <LongitudinalSigmaLabFrame unit="ns">1.25 / 4</LongitudinalSigmaLabFrame>
+                    <TransverseSigma unit="um">[ 229, 257 ]</TransverseSigma>
+                </Parameters>
+                <Model>Gaussian</Model>
+            </BunchShape>
+            <BunchElectricField>
+                <Model>Gaussian</Model>
+            </BunchElectricField>
+            <BunchTrain>
+                <Type>SingleBunch</Type>
+            </BunchTrain>
+        </Beam>
+    </Beams>
+    <Device>
+        <Parameters>
+            <XBoundaries unit="mm">[ -42.5, 42.5 ]</XBoundaries>
+            <YBoundaries unit="mm">[ -42.5, 42.5 ]</YBoundaries>
+        </Parameters>
+        <Model>InterpolatingIPM</Model>
+    </Device>
+    <ParticleGeneration>
+        <Parameters>
+            <ZPosition unit="m">0</ZPosition>
+            <Ionization>
+                <Parameters>
+                    <GasType>Hydrogen</GasType>
+                    <ScatteringAngleBins>100</ScatteringAngleBins>
+                    <ScatteringAngleBoundaries unit="rad">[ 0.0, %(pi) ]</ScatteringAngleBoundaries>
+                    <EnergyBoundaries unit="eV">[ 0.001, 300.0 ]</EnergyBoundaries>
+                    <EnergyBins>300</EnergyBins>
+                </Parameters>
+            </Ionization>
+        </Parameters>
+        <Model>VoitkivDDCS</Model>
+    </ParticleGeneration>
+    <ParticleTracking>
+        <Model>Boris</Model>
+    </ParticleTracking>
+    <GuidingFields>
+        <Electric>
+            <Parameters>
+                <ElectricField unit="V/m">[ 0, 4e3 / 85e-3, 0 ]</ElectricField>
+            </Parameters>
+            <Model>UniformElectricField</Model>
+        </Electric>
+        <Magnetic>
+            <Parameters>
+                <MagneticField unit="T">[ 0, 0.2, 0 ]</MagneticField>
+            </Parameters>
+            <Model>UniformMagneticField</Model>
+        </Magnetic>
+    </GuidingFields>
+    <Simulation>
+        <RNGSeed>1234</RNGSeed>
+        <NumberOfParticles>200</NumberOfParticles>
+        <TimeRange>
+            <SimulationTime unit="ns">10</SimulationTime>
+            <NumberOfTimeSteps>2000</NumberOfTimeSteps>
+        </TimeRange>
+        <ParticleType>
+            <ChargeNumber>-1</ChargeNumber>
+            <RestEnergy unit="MeV">%(electron mass energy equivalent in MeV)</RestEnergy>
+        </ParticleType>
+        <Output>
+            <Parameters>
+                <Filename>output/lhc_6p5tev_electrons_smoke.csv</Filename>
+            </Parameters>
+            <Recorder>BasicRecorder</Recorder>
+        </Output>
+    </Simulation>
+</Virtual-IPM>
