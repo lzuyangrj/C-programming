@@ -8,6 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "configs" / "csns_rcs_ipm"
 BSCAN_OUT = OUT / "bscan"
+BSCAN5_OUT = OUT / "bscan5"
+SIG10_OUT = OUT / "sig10"
 
 # Parameters from NIMA 1092 (2026) 171809 and the cited CSNS RCS IPM papers.
 # See configs/csns_rcs_ipm/PARAMETERS.md.
@@ -18,6 +20,9 @@ B_Y_DESIGN = 0.1  # PAC’09 cage design, 1000 G
 N_PER_BUNCH_100KW = 1.56e13 / 2.0
 GS_TO_T = 1.0e-4  # 1 G = 1e-4 T
 B_SCAN_GS = (0, 50, 100, 200)
+B_SCAN5_GS = tuple(range(0, 201, 5))  # e-mode fine scan
+# Injection σ_x = 10 mm; σ_y = 8 mm keeps the 25:20 painted-beam aspect ratio.
+INJ_SIG10_XY = "[ 10000, 8000 ]"
 
 PROTON = "%(proton mass energy equivalent in MeV)"
 H2_REST_ENERGY = f"2 * {PROTON}"
@@ -274,8 +279,10 @@ def ion_case(
     b_tag: str | None = None,
     config_dir: Path = OUT,
     csv_dir: str = "output",
+    sigma_xy_um: str | None = None,
 ) -> Path:
     spec = BEAMS[beam_key]
+    sigma = sigma_xy_um if sigma_xy_um is not None else spec["sigma_xy_um"]
     stem = _stem(slug, sc_on, b_tag)
     csv = f"{csv_dir}/csns_{stem}.csv"
     # Generation-only bunch (fields off) so ions are created from a single passage.
@@ -283,7 +290,7 @@ def ion_case(
         energy=spec["energy"],
         energy_unit=spec["energy_unit"],
         sigma_t_ns=spec["sigma_t_ns"],
-        sigma_xy_um=spec["sigma_xy_um"],
+        sigma_xy_um=sigma,
         n_bunch=N_PER_BUNCH_100KW,
         e_off=True,
         b_off=True,
@@ -294,7 +301,7 @@ def ion_case(
         energy=spec["energy"],
         energy_unit=spec["energy_unit"],
         sigma_t_ns=spec["sigma_t_ns"],
-        sigma_xy_um=spec["sigma_xy_um"],
+        sigma_xy_um=sigma,
         n_bunch=N_PER_BUNCH_100KW,
         e_off=not sc_on,
         b_off=not sc_on,
@@ -428,9 +435,139 @@ def write_bscan_configs() -> list[Path]:
     return paths
 
 
-def main() -> None:
+def _electron_from_beam(
+    slug: str,
+    beam_key: str,
+    *,
+    sc_on: bool,
+    b_y: float,
+    b_tag: str | None,
+    config_dir: Path,
+    csv_dir: str,
+    sigma_xy_um: str | None = None,
+) -> Path:
+    spec = BEAMS[beam_key]
+    return electron_case(
+        slug,
+        energy=spec["energy"],
+        energy_unit=spec["energy_unit"],
+        sigma_t_ns=spec["sigma_t_ns"],
+        sigma_xy_um=sigma_xy_um if sigma_xy_um is not None else spec["sigma_xy_um"],
+        sim_time=spec["e_sim_time"],
+        sim_unit=spec["e_sim_unit"],
+        n_steps=8000,
+        sc_on=sc_on,
+        b_y=b_y,
+        b_tag=b_tag,
+        config_dir=config_dir,
+        csv_dir=csv_dir,
+    )
+
+
+def write_sig10_design_configs() -> list[Path]:
+    """0.1 T residual-gas study with injection σ_x = 10 mm (σ_y = 8 mm)."""
+    SIG10_OUT.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for sc_on in (True, False):
+        paths.append(
+            _electron_from_beam(
+                "injection_electrons_sig10",
+                "injection",
+                sc_on=sc_on,
+                b_y=B_Y_DESIGN,
+                b_tag=None,
+                config_dir=SIG10_OUT,
+                csv_dir="output",
+                sigma_xy_um=INJ_SIG10_XY,
+            )
+        )
+        for slug, rest in (
+            ("injection_ions_sig10", H2_REST_ENERGY),
+            ("injection_h2o_ions_sig10", f"18 * {PROTON}"),
+            ("injection_n2_ions_sig10", f"28 * {PROTON}"),
+        ):
+            paths.append(
+                ion_case(
+                    slug,
+                    rest_energy=rest,
+                    sc_on=sc_on,
+                    beam_key="injection",
+                    b_y=B_Y_DESIGN,
+                    config_dir=SIG10_OUT,
+                    csv_dir="output",
+                    sigma_xy_um=INJ_SIG10_XY,
+                )
+            )
+    return paths
+
+
+def write_fine_emode_bscan() -> list[Path]:
+    """E-mode B scan: 0–200 G step 5 G; painted and 10 mm injection; extraction."""
+    BSCAN5_OUT.mkdir(parents=True, exist_ok=True)
+    families = (
+        ("injection", "injection_electrons", None),
+        ("extraction", "extraction_electrons", None),
+        ("injection", "injection_electrons_sig10", INJ_SIG10_XY),
+    )
+    paths: list[Path] = []
+    for b_gs in B_SCAN5_GS:
+        tag = b_tag(b_gs)
+        b_y = b_gs * GS_TO_T
+        for beam_key, slug, sigma in families:
+            for sc_on in (True, False):
+                paths.append(
+                    _electron_from_beam(
+                        slug,
+                        beam_key,
+                        sc_on=sc_on,
+                        b_y=b_y,
+                        b_tag=tag,
+                        config_dir=BSCAN5_OUT,
+                        csv_dir="output/bscan5",
+                        sigma_xy_um=sigma,
+                    )
+                )
+    return paths
+
+
+def write_sig10_ion_bscan() -> list[Path]:
+    """Repeat the 0/50/100/200 G ion-mode scan at injection σ = 10×8 mm."""
+    BSCAN_OUT.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for b_gs in B_SCAN_GS:
+        for sc_on in (True, False):
+            paths.append(
+                ion_case(
+                    "injection_ions_sig10",
+                    rest_energy=H2_REST_ENERGY,
+                    sc_on=sc_on,
+                    beam_key="injection",
+                    b_y=b_gs * GS_TO_T,
+                    b_tag=b_tag(b_gs),
+                    config_dir=BSCAN_OUT,
+                    csv_dir="output/bscan",
+                    sigma_xy_um=INJ_SIG10_XY,
+                )
+            )
+    return paths
+
+
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--fine-bscan",
+        action="store_true",
+        help="Also write e-mode 0–200 G / 5 G configs (246 XML files).",
+    )
+    args = parser.parse_args(argv)
     write_design_b_configs()
     write_bscan_configs()
+    write_sig10_design_configs()
+    write_sig10_ion_bscan()
+    if args.fine_bscan:
+        write_fine_emode_bscan()
 
 
 if __name__ == "__main__":

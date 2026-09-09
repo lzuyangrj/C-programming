@@ -59,6 +59,18 @@ python scripts/evaluate_bscan.py
 
 Configs: `configs/csns_rcs_ipm/bscan/`. Summary: `output/csns_bscan_summary.csv`. Extraction ion trains use the RCS RF at 2.444 MHz (bunch spacing 409.2 ns).
 
+### Fine e-mode scan (0–200 G, step 5 G) and 10 mm injection
+
+Electron mode only, \(\Delta B = 5\,\mathrm{G}\), plus a repeat of the residual-gas / ion scans with injection \(\sigma_x=10\,\mathrm{mm}\) (\(\sigma_y=8\,\mathrm{mm}\), same 5:4 aspect as 25×20).
+
+```bash
+./scripts/run_fine_bscan_study.sh
+python scripts/evaluate_bscan5.py
+python scripts/evaluate_space_charge.py --set sig10
+```
+
+Summaries: `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`.
+
 Space-charge profile expansion \(\sigma_\mathrm{on}/\sigma_\mathrm{off}-1\):
 
 | \(B\) | Inj. e− | Ext. e− | Inj. \(\mathrm{H}_2^+\) | Ext. \(\mathrm{H}_2^+\) |

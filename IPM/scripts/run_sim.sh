@@ -25,6 +25,6 @@ else
   exit 1
 fi
 
-mkdir -p output output/bscan plots
+mkdir -p output output/bscan output/bscan5 plots
 echo "Running: $VIPM $CONFIG $*"
 exec "$VIPM" "$CONFIG" "$@"

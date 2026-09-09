@@ -11,13 +11,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-CASES = [
-    ("injection_electrons", "Injection 80 MeV, e− (H₂ target)"),
-    ("extraction_electrons", "Extraction 1.6 GeV, e− (H₂ target)"),
-    ("injection_ions", "Injection 80 MeV, H₂⁺"),
-    ("injection_h2o_ions", "Injection 80 MeV, H₂O⁺"),
-    ("injection_n2_ions", "Injection 80 MeV, N₂⁺"),
+CASES_NOMINAL = [
+    ("injection_electrons", "Injection 80 MeV, e− (25×20 mm)"),
+    ("extraction_electrons", "Extraction 1.6 GeV, e− (10×8 mm)"),
+    ("injection_ions", "Injection 80 MeV, H₂⁺ (25×20 mm)"),
+    ("injection_h2o_ions", "Injection 80 MeV, H₂O⁺ (25×20 mm)"),
+    ("injection_n2_ions", "Injection 80 MeV, N₂⁺ (25×20 mm)"),
 ]
+CASES_SIG10 = [
+    ("injection_electrons_sig10", "Injection 80 MeV, e− (10×8 mm)"),
+    ("extraction_electrons", "Extraction 1.6 GeV, e− (10×8 mm)"),
+    ("injection_ions_sig10", "Injection 80 MeV, H₂⁺ (10×8 mm)"),
+    ("injection_h2o_ions_sig10", "Injection 80 MeV, H₂O⁺ (10×8 mm)"),
+    ("injection_n2_ions_sig10", "Injection 80 MeV, N₂⁺ (10×8 mm)"),
+]
+CASES = CASES_NOMINAL
 
 
 def _col(df: pd.DataFrame, names: list[str]) -> str:
@@ -54,14 +62,26 @@ def main() -> None:
     parser.add_argument("--output-dir", default="output", type=Path)
     parser.add_argument("--plot", default="plots/csns_space_charge_impact.png")
     parser.add_argument("--summary", default="output/csns_space_charge_summary.csv")
+    parser.add_argument(
+        "--set",
+        dest="case_set",
+        choices=("nominal", "sig10"),
+        default="nominal",
+        help="nominal 25×20 mm injection, or sig10 10×8 mm injection",
+    )
     args = parser.parse_args()
+    cases = CASES_SIG10 if args.case_set == "sig10" else CASES_NOMINAL
+    if args.case_set == "sig10" and args.plot == "plots/csns_space_charge_impact.png":
+        args.plot = "plots/csns_space_charge_impact_sig10.png"
+    if args.case_set == "sig10" and args.summary == "output/csns_space_charge_summary.csv":
+        args.summary = "output/csns_space_charge_summary_sig10.csv"
 
     rows = []
     fig, axes = plt.subplots(2, 3, figsize=(14.5, 8.0), sharey=False)
     axes_flat = list(axes.ravel())
     drawn = 0
 
-    for ax, (key, title) in zip(axes_flat, CASES):
+    for ax, (key, title) in zip(axes_flat, cases):
         on_path = args.output_dir / f"csns_{key}_sc_on.csv"
         off_path = args.output_dir / f"csns_{key}_sc_off.csv"
         if not on_path.is_file() or not off_path.is_file():
@@ -115,8 +135,8 @@ def main() -> None:
             ax.legend(fontsize=8)
         drawn += 1
 
-    if len(CASES) < len(axes_flat):
-        for ax in axes_flat[len(CASES):]:
+    if len(cases) < len(axes_flat):
+        for ax in axes_flat[len(cases):]:
             ax.axis("off")
 
     fig.tight_layout()
