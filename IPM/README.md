@@ -34,13 +34,13 @@ python scripts/evaluate_space_charge.py
 
 Each case is run **with** and **without** beam space charge (`ElectricFieldOFF` / `MagneticFieldOFF`). Guiding fields stay uniform.
 
-Results at 100 kW (\(7.8\times10^{12}\) protons/bunch), ideal \(E_y\) and \(B_y=0.1\,\mathrm{T}\):
+Results at 100 kW (\(7.8\times10^{12}\) protons/bunch), **100000** tracked particles, ideal \(E_y\) and \(B_y=0.1\,\mathrm{T}\):
 
-| Case | \(\sigma\) no SC [mm] | \(\sigma\) with SC [mm] | Profile expansion | Particle rms \(\Delta x\) |
-|---|---:|---:|---:|---:|
-| Injection electrons (80 MeV) | 24.45 | 24.45 | ~0% | 0.08 mm |
-| Extraction electrons (1.6 GeV) | 9.76 | 9.76 | ~0% | 0.11 mm |
-| Injection \(\mathrm{H}_2^+\) | 25.14 | 29.20 | **+16.1%** | 4.65 mm |
+| Case | N detected | \(\sigma\) no SC [mm] | \(\sigma\) with SC [mm] | Profile expansion | Particle rms \(\Delta x\) |
+|---|---:|---:|---:|---:|---:|
+| Injection electrons (80 MeV) | 100030 | 24.994 | 24.994 | ~0% | 0.082 mm |
+| Extraction electrons (1.6 GeV) | 100011 | 9.977 | 9.977 | ~0% | 0.109 mm |
+| Injection \(\mathrm{H}_2^+\) | 99988 | 24.955 | 29.003 | **+16.22%** | 4.68 mm |
 
 The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’09 cage design). Ions remain in the cage for microseconds and see several bunches, so space charge broadens the measured profile.
 
