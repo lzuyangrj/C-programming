@@ -47,11 +47,62 @@ At the PAC’09 design field, **electron mode is faithful**: space charge does n
 
 ---
 
-## 3. Takeaways
+## 3. Fine e-mode scan (0–200 G, step 5 G)
 
-1. **Electron IPM** at CSNS RCS: a few hundred gauss is enough to kill space-charge distortion; 0.1 T is conservative. Do not run e-mode without \(B\).
-2. **Ion IPM** cannot be rescued by 0–200 G. Expect **~10–16%** injection expansion (N₂⁺ → H₂⁺) at 0.1 T, and **~31%** for H₂⁺ at extraction. If ion mode is used for profiles, a space-charge correction (or electron mode) is required.
-3. Among residual gases, **hydrogen is the worst actor**; water and nitrogen are milder but still biased.
-4. These runs assume an ideal uniform cage. Real field non-uniformity and MCP mapping are not included.
+Electron mode only; 41 field values; 100000 particles; SC on vs off.
 
-CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`. Re-run: `./scripts/run_space_charge_study.sh`, `./scripts/run_bscan_study.sh`.
+![Fine e-mode expansion vs B](plots/csns_bscan5_expansion.png)
+
+| \(B\) [G] | Inj. e− (25×20 mm) | Ext. e− (10×8 mm) | Inj. e− (10×8 mm) |
+|---:|---:|---:|---:|
+| 0 | −19.4% | +47.3% | −45.7% |
+| 25 | −15.2% | −29.1% | −49.9% |
+| 50 | −6.2% | −8.4% | −17.2% |
+| 75 | +0.3% | +34.4% | +12.4% |
+| 100 | +1.4% | +10.0% | +9.3% |
+| 150 | −0.4% | −3.6% | −4.0% |
+| 200 | +0.15% | +0.82% | +1.57% |
+
+The expansion **oscillates** with \(B\) (focusing / over-focusing of opposite-sign electrons). Thresholds after which \(|\Delta|\) stays below a given value:
+
+| Beam | \(|\Delta|<5\%\) | \(|\Delta|<2\%\) | \(|\Delta|<1\%\) |
+|---|---:|---:|---:|
+| Injection 25×20 mm | 55 G | 65 G | **110 G** |
+| Extraction 10×8 mm | 150 G | 195 G | **200 G** |
+| Injection 10×8 mm | 110 G | 165 G | not reached by 200 G (+1.6%) |
+
+Painted injection is the easiest electron case. A **smaller or denser** beam (extraction, or injection at 10 mm) needs \(\sim 200\,\mathrm{G}\) and still has a percent-level residual; **0.1 T removes it**.
+
+![Fine-scan electron profiles](plots/csns_bscan5_electron_profiles.png)
+
+---
+
+## 4. Injection RMS 10 mm (repeat)
+
+Injection \(\sigma_x=10\,\mathrm{mm}\), \(\sigma_y=8\,\mathrm{mm}\) (same 5:4 aspect as 25×20). Energy, bunch length, and charge unchanged (80 MeV, 120 ns, \(7.8\times10^{12}\)).
+
+![0.1 T residual-gas profiles at 10 mm injection](plots/csns_space_charge_impact_sig10.png)
+
+Design field \(B_y=0.1\,\mathrm{T}\):
+
+| Case | \(\sigma\) no SC [mm] | \(\sigma\) with SC [mm] | Expansion | vs 25×20 mm |
+|---|---:|---:|---:|---:|
+| Injection e− (10×8) | 10.00 | 10.00 | ~0% | still ~0% |
+| Extraction e− (unchanged) | 9.98 | 9.98 | ~0% | — |
+| Injection H₂⁺ | 9.98 | 18.68 | **+87.2%** | was +16.2% |
+| Injection H₂O⁺ | 9.98 | 16.91 | **+69.5%** | was +11.3% |
+| Injection N₂⁺ | 9.98 | 16.08 | **+61.1%** | was +9.8% |
+
+H₂⁺ at 0–200 G is **+97–98%** (independent of \(B\)); 0.1 T only trims that to +87%. Peak bunch \(E_x\) scales up when the same charge is packed into a 2.5× smaller transverse size, so **relative** ion expansion grows by \(\sim 5\times\).
+
+---
+
+## 5. Takeaways
+
+1. **Electron IPM:** painted injection (25×20 mm) is undistorted above **~110 G**. Extraction and 10 mm injection still oscillate through 200 G; **0.1 T is enough** in all three e-mode cases. Do not run e-mode without \(B\).
+2. **Ion IPM** is not helped by 0–200 G. At 0.1 T, injection expansion is **~10–16%** for a 25×20 mm beam and **~61–87%** for a 10×8 mm beam (N₂⁺ → H₂⁺). Extraction H₂⁺ (already 10×8 mm, 1.6 GeV) is **~31%**.
+3. Shrinking the injection beam without reducing bunch charge makes ion-mode space charge **much worse**. Electron mode at 0.1 T stays clean.
+4. Among residual gases, **hydrogen is the worst actor**.
+5. Cage fields are ideal and uniform; MCP mapping is not in these runs.
+
+CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`. Re-run: `./scripts/run_space_charge_study.sh`, `./scripts/run_bscan_study.sh`, `./scripts/run_fine_bscan_study.sh`.

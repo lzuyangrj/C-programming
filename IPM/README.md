@@ -71,6 +71,27 @@ python scripts/evaluate_space_charge.py --set sig10
 
 Summaries: `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`.
 
+E-mode expansion on the 5 G grid (selected points):
+
+| \(B\) [G] | Inj. 25×20 e− | Ext. 10×8 e− | Inj. 10×8 e− |
+|---:|---:|---:|---:|
+| 0 | −19.4% | +47.3% | −45.7% |
+| 50 | −6.2% | −8.4% | −17.2% |
+| 100 | +1.4% | +10.0% | +9.3% |
+| 150 | −0.4% | −3.6% | −4.0% |
+| 200 | +0.15% | +0.82% | +1.57% |
+
+\(|\Delta|\) stays \(<1\%\) from **110 G** (painted injection) and **200 G** (extraction). 10 mm injection is still +1.6% at 200 G; at 0.1 T it is ~0%.
+
+Injection 10×8 mm at **0.1 T**:
+
+| Case | \(\sigma\) no SC | \(\sigma\) with SC | Expansion |
+|---|---:|---:|---:|
+| Injection e− | 10.00 mm | 10.00 mm | ~0% |
+| Injection H₂⁺ / H₂O⁺ / N₂⁺ | 9.98 mm | 18.68 / 16.91 / 16.08 mm | **+87.2 / +69.5 / +61.1%** |
+
+H₂⁺ at 0–200 G with this beam is +97–98%. Smaller \(\sigma\) at the same bunch charge raises \(E_\mathrm{sc}\) and the relative ion expansion by about \(5\times\) versus 25×20 mm.
+
 Space-charge profile expansion \(\sigma_\mathrm{on}/\sigma_\mathrm{off}-1\):
 
 | \(B\) | Inj. e− | Ext. e− | Inj. \(\mathrm{H}_2^+\) | Ext. \(\mathrm{H}_2^+\) |

@@ -45,3 +45,14 @@ Guiding-\(B\) scan (0–200 G) at injection and extraction, e-mode and H₂⁺ i
 | 200 | +0.15% | +0.82% | +17.98% | +30.93% |
 
 200 G restores electron profiles; ion expansion is essentially independent of \(B\) in this range. Extraction H₂⁺ expands more than injection because the 1.6 GeV bunch is shorter (20 ns), smaller (10×8 mm), and more relativistic. The 0.1 T residual-gas ion numbers above use the PAC’09 design field and differ slightly from the 0–200 G ion scan for that reason.
+
+Fine e-mode scan (0–200 G, step 5 G): \(|\Delta|<1\%\) thereafter at 110 G (injection 25×20 mm) and 200 G (extraction). Injection 10×8 mm e− is still +1.57% at 200 G.
+
+Injection 10×8 mm repeat at 0.1 T (`output/csns_space_charge_summary_sig10.csv`):
+
+| Residual-gas ion | \(\sigma\) no SC | \(\sigma\) with SC | Expansion |
+|---|---:|---:|---:|
+| e− | 10.00 mm | 10.00 mm | ~0% |
+| H₂⁺ | 9.98 mm | 18.68 mm | +87.2% |
+| H₂O⁺ | 9.98 mm | 16.91 mm | +69.5% |
+| N₂⁺ | 9.98 mm | 16.08 mm | +61.1% |
