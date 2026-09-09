@@ -68,7 +68,7 @@ def circular_train(n_bunches: int, spacing_ns: float, offset_ns: float) -> str:
                 <Type>CircularBunchTrain</Type>"""
 
 
-def device_and_fields() -> str:
+def device_and_fields(*, e_y: float, b_y: float) -> str:
     half_x = 220e-3 / 2 * 1e3  # mm
     half_y = GAP_M / 2 * 1e3
     return f"""    <Device>
@@ -81,13 +81,13 @@ def device_and_fields() -> str:
     <GuidingFields>
         <Electric>
             <Parameters>
-                <ElectricField unit="V/m">[ 0, {E_Y:.6e}, 0 ]</ElectricField>
+                <ElectricField unit="V/m">[ 0, {e_y:.6e}, 0 ]</ElectricField>
             </Parameters>
             <Model>UniformElectricField</Model>
         </Electric>
         <Magnetic>
             <Parameters>
-                <MagneticField unit="T">[ 0, {B_Y}, 0 ]</MagneticField>
+                <MagneticField unit="T">[ 0, {b_y}, 0 ]</MagneticField>
             </Parameters>
             <Model>UniformMagneticField</Model>
         </Magnetic>
@@ -197,7 +197,7 @@ def electron_case(
         "    <Beams>\n"
         + beam
         + "\n    </Beams>\n"
-        + device_and_fields()
+        + device_and_fields(e_y=E_Y, b_y=B_Y)
         + "\n"
         + electron_generation()
         + "\n"
@@ -245,7 +245,8 @@ def ion_injection_case(*, sc_on: bool, n_particles: int = 800) -> None:
         + "\n"
         + track
         + "\n    </Beams>\n"
-        + device_and_fields()
+        # Ions are collected at the lower y-boundary, so E_y is reversed vs electron mode.
+        + device_and_fields(e_y=-E_Y, b_y=B_Y)
         + "\n"
         + ion_generation()
         + "\n"

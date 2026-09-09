@@ -65,7 +65,7 @@
     <GuidingFields>
         <Electric>
             <Parameters>
-                <ElectricField unit="V/m">[ 0, 1.082251e+05, 0 ]</ElectricField>
+                <ElectricField unit="V/m">[ 0, -1.082251e+05, 0 ]</ElectricField>
             </Parameters>
             <Model>UniformElectricField</Model>
         </Electric>

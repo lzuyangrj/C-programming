@@ -68,11 +68,17 @@ def main() -> None:
 
         xi_on, xf_on, n_on, nd_on = load_xy(on_path)
         xi_off, xf_off, n_off, nd_off = load_xy(off_path)
+        if nd_on == 0 or nd_off == 0:
+            ax.set_title(f"{title}\n(no DETECTED particles)")
+            ax.set_xlabel("x [mm]")
+            continue
         s_i = stats(xi_on)
         s_on = stats(xf_on)
         s_off = stats(xf_off)
         expansion = 100.0 * (s_on["rms"] / s_off["rms"] - 1.0) if s_off["rms"] else float("nan")
         vs_true = 100.0 * (s_on["rms"] / s_i["rms"] - 1.0) if s_i["rms"] else float("nan")
+        n_common = min(len(xf_on), len(xf_off))
+        dx = xf_on[:n_common] - xf_off[:n_common]
         rows.append(
             {
                 "case": key,
@@ -83,10 +89,13 @@ def main() -> None:
                 "sigma_sc_on_mm": s_on["rms"],
                 "expansion_vs_no_sc_pct": expansion,
                 "expansion_vs_initial_pct": vs_true,
+                "rms_particle_dx_mm": float(np.sqrt(np.mean(dx**2))),
+                "max_abs_particle_dx_mm": float(np.max(np.abs(dx))),
             }
         )
 
-        lim = np.nanmax(np.abs(np.concatenate([xf_on, xf_off, xi_on])))
+        stacked = np.concatenate([xf_on, xf_off, xi_on])
+        lim = float(np.nanmax(np.abs(stacked))) if stacked.size else 1.0
         edges = np.linspace(-lim * 1.05, lim * 1.05, 45)
         ax.hist(xi_on, bins=edges, histtype="step", linewidth=1.4, label="initial", color="0.45")
         ax.hist(xf_off, bins=edges, histtype="step", linewidth=1.8, label="no space charge")
@@ -118,7 +127,10 @@ def main() -> None:
             writer.writerows(rows)
         print(f"Wrote {summary_path}")
         print()
-        print(f"{'case':<24} {'σ_init':>8} {'σ_off':>8} {'σ_on':>8} {'Δ vs off':>10} {'Δ vs init':>10}")
+        print(
+            f"{'case':<24} {'σ_init':>8} {'σ_off':>8} {'σ_on':>8} "
+            f"{'Δ vs off':>10} {'Δ vs init':>10} {'rms Δx':>8}"
+        )
         for row in rows:
             print(
                 f"{row['case']:<24} "
@@ -126,7 +138,8 @@ def main() -> None:
                 f"{row['sigma_sc_off_mm']:8.3f} "
                 f"{row['sigma_sc_on_mm']:8.3f} "
                 f"{row['expansion_vs_no_sc_pct']:9.2f}% "
-                f"{row['expansion_vs_initial_pct']:9.2f}%"
+                f"{row['expansion_vs_initial_pct']:9.2f}% "
+                f"{row['rms_particle_dx_mm']:8.3f}"
             )
     else:
         raise SystemExit("No completed case pairs found in output/")

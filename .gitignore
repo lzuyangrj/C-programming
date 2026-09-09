@@ -3,7 +3,9 @@
 __pycache__/
 *.pyc
 output/*.csv
+!output/csns_space_charge_summary.csv
 plots/*.png
+!plots/csns_space_charge_impact.png
 *.log
 
 # Prerequisites
