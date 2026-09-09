@@ -96,7 +96,7 @@ def main() -> None:
 
         stacked = np.concatenate([xf_on, xf_off, xi_on])
         lim = float(np.nanmax(np.abs(stacked))) if stacked.size else 1.0
-        edges = np.linspace(-lim * 1.05, lim * 1.05, 45)
+        edges = np.linspace(-lim * 1.05, lim * 1.05, 81)
         ax.hist(xi_on, bins=edges, histtype="step", linewidth=1.4, label="initial", color="0.45")
         ax.hist(xf_off, bins=edges, histtype="step", linewidth=1.8, label="no space charge")
         ax.hist(xf_on, bins=edges, histtype="step", linewidth=1.8, label="with space charge")
