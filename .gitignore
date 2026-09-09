@@ -1,13 +1,3 @@
-# Virtual-IPM / Python
-.venv/
-__pycache__/
-*.pyc
-output/*.csv
-!output/csns_space_charge_summary.csv
-plots/*.png
-!plots/csns_space_charge_impact.png
-*.log
-
 # Prerequisites
 *.d
 
@@ -32,7 +22,7 @@ plots/*.png
 *.la
 *.lo
 
-# Shared objects (inc. Windows DLLs)
+# Shared objects (incl. Windows DLLs)
 *.dll
 *.so
 *.so.*
@@ -60,3 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Local Python env (IPM project)
+.venv/
+IPM/.venv/
