@@ -1,15 +1,12 @@
 # IPM — Virtual-IPM simulations
 
-Standalone CSNS RCS IPM project (Virtual-IPM 2.3.1). Run all commands from this `IPM/` directory.
-
-Working setup for [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) (v2.3.1), a modular simulator for electron/ion transport in Ionization Profile Monitors (IPM) and related devices (e.g. BIF).
+CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) 2.3.1.
 
 Docs: [Introduction](https://ipmsim.gitlab.io/Virtual-IPM/introduction.html) · [Install](https://ipmsim.gitlab.io/Virtual-IPM/installation.html) · [Usage](https://ipmsim.gitlab.io/Virtual-IPM/usage.html) · [Examples](https://ipmsim.gitlab.io/Virtual-IPM/examples.html)
 
 ## Setup
 
 ```bash
-cd IPM
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
