@@ -13,6 +13,10 @@ CASES=(
   configs/csns_rcs_ipm/extraction_electrons_sc_on.xml
   configs/csns_rcs_ipm/injection_ions_sc_off.xml
   configs/csns_rcs_ipm/injection_ions_sc_on.xml
+  configs/csns_rcs_ipm/injection_h2o_ions_sc_off.xml
+  configs/csns_rcs_ipm/injection_h2o_ions_sc_on.xml
+  configs/csns_rcs_ipm/injection_n2_ions_sc_off.xml
+  configs/csns_rcs_ipm/injection_n2_ions_sc_on.xml
 )
 
 mkdir -p output plots

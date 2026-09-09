@@ -16,8 +16,9 @@ Instrument numbers that the NIMA article uses are also tabulated in the cited IB
 | Guiding \(B\) | 0.1 T, parallel to \(E\) | Ideal static cage field (PAC’09 design) |
 | Transverse \(\sigma\) (inj.) | 25 mm × 20 mm | Painted beam; PAC’09 quotes \(E_{x,\mathrm{sc}}\approx20\,\mathrm{kV/m}\) at the IPM |
 | Transverse \(\sigma\) (ext.) | 10 mm × 8 mm | Adiabatic damping of the painted beam |
-| Residual gas (electrons) | Hydrogen (`VoitkivDDCS`) | Dominant species in the paper is \(\mathrm{H}_2\) |
-| Ions | \(\mathrm{H}_2^+\) at rest (`ZeroMomentum`) | Paper ToF identification |
+| Residual gas (electrons) | Hydrogen (`VoitkivDDCS`) | Virtual-IPM DDCS only supports H/He; paper’s H₂ peak |
+| Ions | H₂⁺, H₂O⁺, N₂⁺ at rest (`ZeroMomentum`) | Paper ToF: hydrogen, vapor, nitrogen |
+| Ion rest masses | 2 u / 18 u / 28 u | Multiples of the proton mass |
 | Simulated secondaries | **100000** | `NumberOfParticles` |
 
 Space charge in Virtual-IPM is the beam `BunchElectricField` (`Gaussian`) plus the Lorentz-boosted beam \(B\). It is switched **off** with `ElectricFieldOFF` and `MagneticFieldOFF`. Guiding cage fields stay uniform in both cases.

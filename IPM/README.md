@@ -42,7 +42,7 @@ Results at 100 kW (\(7.8\times10^{12}\) protons/bunch), **100000** tracked parti
 | Extraction electrons (1.6 GeV) | 100011 | 9.977 | 9.977 | ~0% | 0.109 mm |
 | Injection \(\mathrm{H}_2^+\) | 99988 | 24.955 | 29.003 | **+16.22%** | 4.68 mm |
 
-The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’09 cage design). Ions remain in the cage for microseconds and see several bunches, so space charge broadens the measured profile.
+The 0.1 T guiding field suppresses electron-profile distortion (as in the PAC’09 cage design). Ions remain in the cage longer and see the bunch field; hydrogen, water vapor, and nitrogen are simulated as \(\mathrm{H}_2^+\), \(\mathrm{H}_2\mathrm{O}^+\), and \(\mathrm{N}_2^+\) (the three ToF peaks in the paper). Virtual-IPM’s Voitkiv DDCS for **electrons** only supports H/He, so electron ionization uses a hydrogen target.
 
 ## Quick start (LHC 6.5 TeV electron tracking)
 

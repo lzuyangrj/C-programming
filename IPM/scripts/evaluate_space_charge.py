@@ -12,9 +12,11 @@ import numpy as np
 import pandas as pd
 
 CASES = [
-    ("injection_electrons", "Injection 80 MeV, electrons"),
-    ("extraction_electrons", "Extraction 1.6 GeV, electrons"),
-    ("injection_ions", "Injection 80 MeV, H2+ ions"),
+    ("injection_electrons", "Injection 80 MeV, e− (H₂ target)"),
+    ("extraction_electrons", "Extraction 1.6 GeV, e− (H₂ target)"),
+    ("injection_ions", "Injection 80 MeV, H₂⁺"),
+    ("injection_h2o_ions", "Injection 80 MeV, H₂O⁺"),
+    ("injection_n2_ions", "Injection 80 MeV, N₂⁺"),
 ]
 
 
@@ -55,10 +57,11 @@ def main() -> None:
     args = parser.parse_args()
 
     rows = []
-    fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.2), sharey=False)
+    fig, axes = plt.subplots(2, 3, figsize=(14.5, 8.0), sharey=False)
+    axes_flat = list(axes.ravel())
     drawn = 0
 
-    for ax, (key, title) in zip(axes, CASES):
+    for ax, (key, title) in zip(axes_flat, CASES):
         on_path = args.output_dir / f"csns_{key}_sc_on.csv"
         off_path = args.output_dir / f"csns_{key}_sc_off.csv"
         if not on_path.is_file() or not off_path.is_file():
@@ -112,6 +115,10 @@ def main() -> None:
             ax.legend(fontsize=8)
         drawn += 1
 
+    if len(CASES) < len(axes_flat):
+        for ax in axes_flat[len(CASES):]:
+            ax.axis("off")
+
     fig.tight_layout()
     plot_path = Path(args.plot)
     plot_path.parent.mkdir(parents=True, exist_ok=True)
@@ -128,12 +135,12 @@ def main() -> None:
         print(f"Wrote {summary_path}")
         print()
         print(
-            f"{'case':<24} {'σ_init':>8} {'σ_off':>8} {'σ_on':>8} "
+            f"{'case':<22} {'σ_init':>8} {'σ_off':>8} {'σ_on':>8} "
             f"{'Δ vs off':>10} {'Δ vs init':>10} {'rms Δx':>8}"
         )
         for row in rows:
             print(
-                f"{row['case']:<24} "
+                f"{row['case']:<22} "
                 f"{row['sigma_initial_mm']:8.3f} "
                 f"{row['sigma_sc_off_mm']:8.3f} "
                 f"{row['sigma_sc_on_mm']:8.3f} "

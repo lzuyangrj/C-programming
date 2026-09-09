@@ -214,9 +214,15 @@ def electron_case(
     write(f"{name}_{tag}.xml", xml)
 
 
-def ion_injection_case(*, sc_on: bool, n_particles: int = 100000) -> None:
+def ion_injection_case(
+    *,
+    slug: str,
+    rest_energy: str,
+    sc_on: bool,
+    n_particles: int = 100000,
+) -> None:
     tag = "sc_on" if sc_on else "sc_off"
-    csv = f"output/csns_injection_ions_{tag}.csv"
+    csv = f"output/csns_{slug}_{tag}.csv"
     # Generation-only bunch (fields off) so ions are created from a single passage.
     gen = beam_xml(
         energy="80",
@@ -256,11 +262,11 @@ def ion_injection_case(*, sc_on: bool, n_particles: int = 100000) -> None:
             sim_unit="us",
             n_steps=8000,
             charge=1,
-            rest_energy="2 * %(proton mass energy equivalent in MeV)",
+            rest_energy=rest_energy,
             filename=csv,
         )
     )
-    write(f"injection_ions_{tag}.xml", xml)
+    write(f"{slug}_{tag}.xml", xml)
 
 
 def main() -> None:
@@ -311,8 +317,24 @@ def main() -> None:
         n_steps=8000,
         sc_on=False,
     )
-    ion_injection_case(sc_on=True)
-    ion_injection_case(sc_on=False)
+    # Residual-gas ions identified in the CSNS RCS IPM paper: H2, H2O (vapor), N2.
+    proton = "%(proton mass energy equivalent in MeV)"
+    for sc_on in (True, False):
+        ion_injection_case(
+            slug="injection_ions",
+            rest_energy=f"2 * {proton}",
+            sc_on=sc_on,
+        )
+        ion_injection_case(
+            slug="injection_h2o_ions",
+            rest_energy=f"18 * {proton}",
+            sc_on=sc_on,
+        )
+        ion_injection_case(
+            slug="injection_n2_ions",
+            rest_energy=f"28 * {proton}",
+            sc_on=sc_on,
+        )
 
 
 if __name__ == "__main__":
