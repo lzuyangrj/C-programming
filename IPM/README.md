@@ -89,7 +89,7 @@ E-mode expansion on the 5 G grid (selected points):
 | 200 | +0.15% | +0.82% | +1.57% |
 | 250 | −0.15% | −0.03% | −0.85% |
 
-\(|\Delta|\) stays \(<1\%\) from **110 G** (painted injection), **240 G** (extraction), and **250 G** (10 mm injection). At 200–500 kW, 250 G still keeps e-mode \(\lesssim 1\%\). Ion-mode size/power scan: `output/csns_ionsize_summary.csv`.
+\(|\Delta|\) stays \(<1\%\) from **110 G** (painted injection), **240 G** (extraction), and **250 G** (10 mm injection). At 200–500 kW, 250 G still keeps e-mode \(\lesssim 1\%\). Ion-mode size/power scan (H₂⁺, H₂O⁺, N₂⁺): `output/csns_ionsize_summary.csv`, `plots/csns_ionsize_obtained.png` (true vs obtained beam size).
 
 Injection 10×8 mm at **0.1 T**:
 
