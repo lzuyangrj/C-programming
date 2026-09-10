@@ -40,10 +40,12 @@ Run counts at the time of planning (`--matrix`):
 | A B-scan inj. e− σx = 10 mm, 100–500 kW | 366 | 102 | 264 |
 | B size scan inj. e− 3–20 mm (new points) | 516 | 2 | 514 |
 | B size scan ext. e− 3–20 mm (new points) | 516 | 17 | 499 |
-| C cage voltage 15/20/30/35 kV, inj. e− 10 mm | 168 | 0 | 168 |
+| C cage voltage 15/20/30/35 kV, inj. e− 10 mm | 168 | 27 | 141 |
 | D beam offset inj. e− 10 mm, 4 offsets | 60 | 0 | 60 |
 | D beam offset ext. e− 10 mm, 4 offsets | 60 | 0 | 60 |
-| **Total** | **2418** | **733** | **1685** |
+| **Total** | **2418** | **760** | **1658** |
+
+**Status: planned, not executed.** Estimated cost of the remaining runs: ~1 min each, ~7 h wall time at `JOBS=4`, ~27 MB per CSV (~45 GB).
 
 File naming in `output/emode/`: A/B `csns_{beam}_electrons_s{σx}mm_p{P}kw_b{B}G_sc_{on,off}.csv`; C `..._s10mm_v{V}kv_p{P}kw_...`; D `..._s10mm_dx{dx}mm_dy{dy}mm_p{P}kw_...` (negative offsets written as `m5`).
 

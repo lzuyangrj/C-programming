@@ -159,12 +159,12 @@ Block C: 15, 20, 30, 35 kV (\(E_y\) = 65–152 kV/m); 25 kV baseline from Block 
 | A B-scan inj. e− σx = 10 mm | 366 | 102 | 264 |
 | B size scan inj. e− (new points) | 516 | 2 | 514 |
 | B size scan ext. e− (new points) | 516 | 17 | 499 |
-| C cage voltage, inj. e− 10 mm | 168 | 0 | 168 |
+| C cage voltage, inj. e− 10 mm | 168 | 27 | 141 |
 | D beam offset, inj. e− 10 mm | 60 | 0 | 60 |
 | D beam offset, ext. e− 10 mm | 60 | 0 | 60 |
-| **Total** | **2418** | **733** | **1685** |
+| **Total** | **2418** | **760** | **1658** |
 
-Results follow after the runs: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`; figures 12–17.
+**Status: planned, not executed.** The 1658 new runs (~1 min each, ~7 h at 4 parallel jobs, ~45 GB of particle CSVs) have not been launched. `./scripts/run_emode_replan.sh --matrix` reprints the table; `./scripts/run_emode_replan.sh` runs the missing points and `python scripts/evaluate_emode.py` produces `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv` and the figures `plots/csns_emode_*.png`.
 
 ---
 
