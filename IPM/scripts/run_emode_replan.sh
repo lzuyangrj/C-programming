@@ -20,7 +20,16 @@ PYTHONPATH="$ROOT/scripts${PYTHONPATH:+:$PYTHONPATH}" python -c \
   'from generate_csns_configs import link_existing_emode_outputs as L; print(f"reused {L(verbose=False)} existing e-mode CSVs")'
 python scripts/generate_csns_configs.py --emode-matrix
 
-mapfile -t CASES < <(find configs/csns_rcs_ipm/emode -name '*.xml' | sort)
+# Order: Block C (voltage), Block D (offset), Block A reference beams, then Block B sizes.
+mapfile -t CASES < <(
+  {
+    find configs/csns_rcs_ipm/emode -name '*_v*kv_*.xml' | sort
+    find configs/csns_rcs_ipm/emode -name '*_dx*mm_dy*mm_*.xml' | sort
+    find configs/csns_rcs_ipm/emode \( -name 'injection_electrons_s25mm_*.xml' \
+      -o -name 'extraction_electrons_s10mm_p*.xml' -o -name 'injection_electrons_s10mm_p*.xml' \) | sort
+    find configs/csns_rcs_ipm/emode -name '*.xml' | sort
+  } | awk '!seen[$0]++'
+)
 
 if [[ ${#CASES[@]} -eq 0 ]]; then
   echo "No e-mode replan configs found" >&2
