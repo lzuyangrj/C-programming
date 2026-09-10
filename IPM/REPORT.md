@@ -157,16 +157,45 @@ Block C: **5–30 kV, step 5 kV** (\(E_y\) = 22–130 kV/m). Block D: \((\Delta 
 | Block / family | runs | done | to run |
 |---|---:|---:|---:|
 | A B-scan inj. e− 25×25 mm | 366 | 0 | 366 |
-| A B-scan ext. e− 10×10 mm | 366 | 0 | 366 |
+| A B-scan ext. e− 10×10 mm | 366 | ~160 | ~206 |
 | A B-scan inj. e− 10×10 mm | 366 | 0 | 366 |
 | B size scan inj. e− (new points) | 516 | 0 | 516 |
-| B size scan ext. e− (new points) | 516 | 0 | 516 |
-| C cage voltage 5–30 kV, inj. e− 10×10 mm | 252 | 0 | 252 |
-| D beam offset, inj. e− 10×10 mm | 60 | 0 | 60 |
-| D beam offset, ext. e− 10×10 mm | 60 | 0 | 60 |
-| **Total** | **2502** | **0** | **2502** |
+| B size scan ext. e− (new points) | 516 | 3 | 513 |
+| C cage voltage 5–30 kV, inj. e− 10×10 mm | 252 | **252** | 0 |
+| D beam offset, inj. e− 10×10 mm | 60 | **60** | 0 |
+| D beam offset, ext. e− 10×10 mm | 60 | **60** | 0 |
+| **Total** | **2502** | **~533** | **~1969** |
 
-**Status: planned, not executed.** The 2502 runs (~1 min each, ~10.5 h at 4 parallel jobs, ~68 GB of particle CSVs) have not been launched. `./scripts/run_emode_replan.sh --matrix` reprints the table; `./scripts/run_emode_replan.sh` runs the missing points and `python scripts/evaluate_emode.py` produces `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv` and the figures `plots/csns_emode_*.png`.
+**Status: running** (`JOBS=4`). Blocks **C and D are complete**. Block A is on the extraction 10×10 mm \(B\)-scan. Remaining wall time ~6–8 h.
+
+### Block C — cage voltage (complete)
+
+Injection 80 MeV, round 10×10 mm. Expansion \(\sigma_\mathrm{on}/\sigma_\mathrm{off}-1\) at 100 and 500 kW:
+
+![E-mode cage voltage](plots/csns_emode_voltage.png)
+
+| \(V\) | \(B=0\) 100 / 500 kW | 100 G | 200 G | 300 G |
+|---|---|---|---|---|
+| 5 kV | +58% / +29% | −0.5% / +2.9% | ~0% / +0.2% | ~0% |
+| 15 kV | −15% / +65% | −5.4% / +0.2% | ~0% | +0.5% / ~0% |
+| 25 kV | −48% / +80% | +9.0% / +1.9% | +1.3% / ~0% | +0.6% / −0.1% |
+| 30 kV | −50% / +83% | +10% / +12% | +0.7% / +1.5% | +0.1% / +0.6% |
+
+Lower cage voltage (longer drift) does **not** simply make space charge worse: at \(B=0\) the 100 kW profile goes from expansion (+58% at 5 kV) to compression (−48% at 25 kV). By **300 G** every voltage is \(\lesssim 1\%\) except 30 kV at 500 kW (+0.6%). 0.1 T removes the residual.
+
+### Block D — beam offset (complete)
+
+Round 10×10 mm; offsets (+5, 0), (+10, 0), (0, +5), (0, −5) mm. Expansion and centroid shift vs no SC:
+
+![E-mode beam offset](plots/csns_emode_offset.png)
+
+At **300 G** and **0.1 T**, expansion stays \(\lesssim 1\%\) for every offset. Centroid shift vs no-SC is \(\lesssim 0.2\,\mathrm{mm}\) at injection and \(\lesssim 0.6\,\mathrm{mm}\) at extraction (500 kW, 300 G), and \(\lesssim 0.2\,\mathrm{mm}\) at 0.1 T. A few-mm orbit offset does not undo the \(B\) recovery. \(y\)-offsets (toward/away from the detector) change the low-\(B\) expansion more than \(x\)-offsets.
+
+### Blocks A–B (in progress)
+
+Partial extraction 10×10 mm: \(|\Delta|<1\%\) thereafter at **240 G** (100 kW) and **190 G** (200 kW); at 300 G already −0.11% / −0.24%. Full curves after the remaining runs.
+
+CSV: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`. Re-run missing points: `./scripts/run_emode_replan.sh`.
 
 ---
 
@@ -215,3 +244,11 @@ Block C: **5–30 kV, step 5 kV** (\(E_y\) = 22–130 kV/m). Block D: \((\Delta 
 **Fig. 11.** True beam size vs obtained beam size (same scan as Fig. 10). Dashed line: obtained = true.
 
 ![Fig. 11](plots/csns_ionsize_obtained.png)
+
+**Fig. 12.** Replanned e-mode, Block C: cage voltage 5–30 kV on injection 10×10 mm (100 and 500 kW).
+
+![Fig. 12](plots/csns_emode_voltage.png)
+
+**Fig. 13.** Replanned e-mode, Block D: beam offset on 10×10 mm injection and extraction.
+
+![Fig. 13](plots/csns_emode_offset.png)
