@@ -51,6 +51,108 @@ Run counts (`--matrix`):
 
 **Status: planned, not executed.** Estimated cost: ~1 min per run, ~10.5 h wall time at `JOBS=4`, ~27 MB per CSV (~68 GB).
 
+## Detailed matrix
+
+Held fixed in every run unless a block scans that axis.
+
+| Quantity | Value |
+|---|---|
+| Mode | electrons only (Voitkiv DDCS, `GasType` Hydrogen) |
+| Particles | 100000 |
+| Tracker | Boris, 8000 steps |
+| Cage | 220 mm × 231 mm, detector at \(y_\min\) |
+| \(E_y\) (A, B, D) | \(25\,\mathrm{kV}/231\,\mathrm{mm} = 1.082251\times10^5\,\mathrm{V/m}\) |
+| Beam | protons, \(Z=1\); **round** \(\sigma_y=\sigma_x\) |
+| Injection | 80 MeV, \(\sigma_t=120\,\mathrm{ns}\), sim 1100 ns |
+| Extraction | 1.6 GeV, \(\sigma_t=20\,\mathrm{ns}\), sim 220 ns |
+| Bunch train | `SingleBunch` |
+| Space charge | Gaussian bunch \(E\) + Lorentz-boosted bunch \(B\); off = those fields off |
+| SC-off | once per geometry at 100 kW, reused at other powers (\(N_b\) does not enter the trajectory) |
+| RNG | 1234 |
+
+Bunch population \(N_b = 7.80\times10^{12}\times(P/100\,\mathrm{kW})\):
+
+| \(P\) [kW] | 100 | 200 | 300 | 400 | 500 |
+|---|---:|---:|---:|---:|---:|
+| \(N_b\) | \(7.80\times10^{12}\) | \(1.56\times10^{13}\) | \(2.34\times10^{13}\) | \(3.12\times10^{13}\) | \(3.90\times10^{13}\) |
+
+### Block A — \(B\) scan
+
+Cartesian product, one family at a time.
+
+| Axis | Values | \(n\) |
+|---|---|---:|
+| Family | inj. 80 MeV 25×25 mm; ext. 1.6 GeV 10×10 mm; inj. 80 MeV 10×10 mm | 3 |
+| \(B_y\) | 0, 5, 10, …, 300 G (\(B_y = B[\mathrm{G}]\times10^{-4}\,\mathrm{T}\)) | 61 |
+| \(P\) | 100, 200, 300, 400, 500 kW | 5 |
+| SC | on at every \(P\); off at 100 kW only | 6 / family / \(B\) |
+
+Runs: \(3\times 61\times 6 = 1098\). Per family: \(61\times 6 = 366\).
+
+### Block B — size scan
+
+| Axis | Values | \(n\) |
+|---|---|---:|
+| Stage | inj. 80 MeV; ext. 1.6 GeV | 2 |
+| \(\sigma_x=\sigma_y\) | 3, 4, 5, …, 20 mm | 18 |
+| \(B_y\) | 0, 100, 200, 300 G, and 0.1 T (1000 G) | 5 |
+| \(P\) | 100, 200, 300, 400, 500 kW | 5 |
+| SC | on ×5 + off ×1 | 6 / stage / \(\sigma\) / \(B\) |
+
+Full product: \(2\times 18\times 5\times 6 = 1080\).
+
+**Overlap with A** (counted once in the total): the two 10×10 mm families at \(B\in\{0,100,200,300\}\,\mathrm{G}\) (not 1000 G — that field is Block B only). \(2\times 4\times 6 = 48\).
+
+New Block B points: \(1080-48=1032\) (516 per stage).
+
+### Block C — cage voltage (inj. 10×10 mm)
+
+| Axis | Values | \(n\) |
+|---|---|---:|
+| Stage / size | inj. 80 MeV, 10×10 mm | 1 |
+| Cage \(V\) | 5, 10, 15, 20, 25, 30 kV | 6 |
+| \(E_y=V/231\,\mathrm{mm}\) | 21.6, 43.3, 64.9, 86.6, 108.2, 129.9 kV/m | 6 |
+| \(B_y\) | 0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300 G, and 0.1 T | 14 |
+| \(P\) | 100, 500 kW | 2 |
+| SC | on ×2 + off ×1 | 3 / \(V\) / \(B\) |
+
+Runs: \(6\times 14\times 3 = 252\). The 25 kV / 10×10 mm / injection family of Block A is the same beam and voltage as C at \(B\in\{0,25,\ldots,300\}\,\mathrm{G}\), but C still writes its own `s10x10mm_v25kv` files so the voltage block is self-contained (evaluator does not mix A and C filenames).
+
+### Block D — beam offset (10×10 mm)
+
+| Axis | Values | \(n\) |
+|---|---|---:|
+| Stage | inj. 80 MeV; ext. 1.6 GeV | 2 |
+| Size | 10×10 mm | 1 |
+| \((\Delta x,\Delta y)\) | (+5, 0), (+10, 0), (0, +5), (0, −5) mm | 4 |
+| \(B_y\) | 0, 100, 200, 300 G, 0.1 T | 5 |
+| \(P\) | 100, 500 kW | 2 |
+| SC | on ×2 + off ×1 | 3 / stage / offset / \(B\) |
+| Cage \(V\) | 25 kV | 1 |
+
+Runs: \(2\times 4\times 5\times 3 = 120\) (60 per stage). \(+y\) is away from the detector. Centred \((\Delta x,\Delta y)=(0,0)\) is Block A at the same \(B\) and \(P\), not repeated.
+
+`TransverseOffset` is in millimetres in the XML; a 2000-particle smoke test of (+10, 0) mm put the detected centroid at \(x=+10.0\,\mathrm{mm}\).
+
+### Totals
+
+| | A | B new | A∩B (in A, not double-counted) | C | D | **Grand** |
+|---|---:|---:|---:|---:|---:|---:|
+| SC on | 915 | 860 | 40 | 168 | 80 | **2023** |
+| SC off | 183 | 172 | 8 | 84 | 40 | **479** |
+| All | 1098 | 1032 | 48 | 252 | 120 | **2502** |
+
+A SC-on: \(3\times 61\times 5=915\); A SC-off: \(3\times 61=183\). B-new SC-on: \(1032\times 5/6=860\); B-new SC-off: \(1032/6=172\).
+
+### Not in this plan
+
+- Ion mode
+- Elliptical beams (\(\sigma_y=0.8\sigma_x\)); those remain the closed §1–6 results
+- Bunch-length \(\sigma_t\) scan; mid-ramp energy
+- Circular bunch train / second-bunch check
+- Gas species (Voitkiv H/He only)
+- MCP / non-uniform cage fields
+
 File naming in `output/emode/`: A/B `csns_{beam}_electrons_s{σ}x{σ}mm_p{P}kw_b{B}G_sc_{on,off}.csv`; C `..._s10x10mm_v{V}kv_p{P}kw_...`; D `..._s10x10mm_dx{dx}mm_dy{dy}mm_p{P}kw_...` (negative offsets written as `m5`).
 
 Outputs: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`; `plots/csns_emode_bscan300.png`, `csns_emode_bscan300_tail.png`, `csns_emode_size_expansion.png`, `csns_emode_size_obtained.png`, `csns_emode_voltage.png`, `csns_emode_offset.png`.
