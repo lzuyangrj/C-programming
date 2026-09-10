@@ -47,9 +47,9 @@ At the PAC’09 design field, **electron mode is faithful**: space charge does n
 
 ---
 
-## 3. Fine e-mode scan (0–200 G, step 5 G)
+## 3. Fine e-mode scan (0–250 G, step 5 G)
 
-Electron mode only; 41 field values; 100000 particles; SC on vs off.
+Electron mode only; 51 field values; 100000 particles; SC on vs off.
 
 ![Fine e-mode expansion vs B](plots/csns_bscan5_expansion.png)
 
@@ -62,16 +62,9 @@ Electron mode only; 41 field values; 100000 particles; SC on vs off.
 | 100 | +1.4% | +10.0% | +9.3% |
 | 150 | −0.4% | −3.6% | −4.0% |
 | 200 | +0.15% | +0.82% | +1.57% |
+| 250 | −0.15% | −0.03% | −0.85% |
 
-The expansion **oscillates** with \(B\) (focusing / over-focusing of opposite-sign electrons). Thresholds after which \(|\Delta|\) stays below a given value:
-
-| Beam | \(|\Delta|<5\%\) | \(|\Delta|<2\%\) | \(|\Delta|<1\%\) |
-|---|---:|---:|---:|
-| Injection 25×20 mm | 55 G | 65 G | **110 G** |
-| Extraction 10×8 mm | 150 G | 195 G | **200 G** |
-| Injection 10×8 mm | 110 G | 165 G | not reached by 200 G (+1.6%) |
-
-Painted injection is the easiest electron case. A **smaller or denser** beam (extraction, or injection at 10 mm) needs \(\sim 200\,\mathrm{G}\) and still has a percent-level residual; **0.1 T removes it**.
+The expansion **oscillates** with \(B\) (focusing / over-focusing of opposite-sign electrons). Thresholds after which \(|\Delta|\) stays below 1%: painted injection **110 G**, extraction **240 G**, 10 mm injection **250 G**. **0.1 T removes the residual** in all three cases.
 
 ![Fine-scan electron profiles](plots/csns_bscan5_electron_profiles.png)
 
@@ -93,16 +86,47 @@ Design field \(B_y=0.1\,\mathrm{T}\):
 | Injection H₂O⁺ | 9.98 | 16.91 | **+69.5%** | was +11.3% |
 | Injection N₂⁺ | 9.98 | 16.08 | **+61.1%** | was +9.8% |
 
-H₂⁺ at 0–200 G is **+97–98%** (independent of \(B\)); 0.1 T only trims that to +87%. Peak bunch \(E_x\) scales up when the same charge is packed into a 2.5× smaller transverse size, so **relative** ion expansion grows by \(\sim 5\times\).
+H₂⁺ at 0–250 G is **+97%** (independent of \(B\)); 0.1 T only trims that to +87%. Peak bunch \(E_x\) scales up when the same charge is packed into a 2.5× smaller transverse size, so **relative** ion expansion grows by \(\sim 5\times\).
 
 ---
 
-## 5. Takeaways
+## 5. E-mode \(B\) scan vs beam power (100–500 kW)
 
-1. **Electron IPM:** painted injection (25×20 mm) is undistorted above **~110 G**. Extraction and 10 mm injection still oscillate through 200 G; **0.1 T is enough** in all three e-mode cases. Do not run e-mode without \(B\).
-2. **Ion IPM** is not helped by 0–200 G. At 0.1 T, injection expansion is **~10–16%** for a 25×20 mm beam and **~61–87%** for a 10×8 mm beam (N₂⁺ → H₂⁺). Extraction H₂⁺ (already 10×8 mm, 1.6 GeV) is **~31%**.
-3. Shrinking the injection beam without reducing bunch charge makes ion-mode space charge **much worse**. Electron mode at 0.1 T stays clean.
+Same 0–250 G / 5 G e-mode scan at painted injection and extraction. Bunch population \(N_b \propto P\) (100 kW = \(7.8\times10^{12}\)/bunch). SC-off trajectories are independent of \(P\) and are reused.
+
+![E-mode expansion vs B and power](plots/csns_bscan_power_expansion.png)
+
+| \(B=250\,\mathrm{G}\) | 100 kW | 200 kW | 300 kW | 400 kW | 500 kW |
+|---|---:|---:|---:|---:|---:|
+| Injection e− (25×20 mm) | −0.15% | −0.32% | −0.46% | −0.48% | −0.39% |
+| Extraction e− (10×8 mm) | −0.03% | +0.19% | +0.10% | +0.41% | +0.88% |
+
+Low \(B\) gets worse with power (injection at 0 G: −19% → −52%). By **250 G** every power is still \(\lesssim 1\%\). \(|\Delta|<1\%\) thereafter needs ~110–160 G at injection and ~190–240 G at extraction (higher \(P\) needs a bit more \(B\)).
+
+---
+
+## 6. Ion-mode size scan (3–20 mm) vs power
+
+H₂⁺, \(B_y=0.1\,\mathrm{T}\), \(\sigma_x = 3\ldots20\,\mathrm{mm}\) (1 mm), \(\sigma_y=0.8\,\sigma_x\), injection and extraction, 100–500 kW.
+
+![Ion-mode expansion vs beam size and power](plots/csns_ionsize_expansion.png)
+
+| \(\sigma_x\) | Inj. 100 kW | Inj. 500 kW | Ext. 100 kW | Ext. 500 kW |
+|---:|---:|---:|---:|---:|
+| 3 mm | +790% | +1786% | +60% | +237% |
+| 10 mm | +87% | +428% | +29% | +132% |
+| 20 mm | +24% | +138% | +15% | +70% |
+
+Injection (long 120 ns bunch, non-relativistic) is far worse than extraction at the same \(\sigma_x\). Expansion grows as the beam shrinks and as power rises. Ion mode at a small, high-power injection beam is not a usable profile.
+
+---
+
+## 7. Takeaways
+
+1. **Electron IPM:** 250 G finishes the recovery that 200 G almost completed (10 mm injection −0.85%). At 100–500 kW, **250 G keeps e-mode within 1%**. 0.1 T remains conservative.
+2. **Ion IPM** is not helped by 0–250 G. Distortion scales up with power and down with \(\sigma_x\).
+3. A **small injection beam at high power** is the worst ion-mode case (hundreds of percent). Extraction is milder but still +70% at 20 mm / 500 kW.
 4. Among residual gases, **hydrogen is the worst actor**.
 5. Cage fields are ideal and uniform; MCP mapping is not in these runs.
 
-CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`. Re-run: `./scripts/run_space_charge_study.sh`, `./scripts/run_bscan_study.sh`, `./scripts/run_fine_bscan_study.sh`.
+CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`, `output/csns_bscan_power_summary.csv`, `output/csns_ionsize_summary.csv`. Re-run: `./scripts/run_extended_scans.sh`.
