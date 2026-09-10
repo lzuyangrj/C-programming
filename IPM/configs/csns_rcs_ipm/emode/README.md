@@ -51,15 +51,17 @@ Run counts (`--matrix`):
 
 **Status: complete** (2502 / 2502). Results: `REPORT.md` §8.
 
-## Fine C/D (planned, not run)
+## Fine C/D (running)
 
 Coarse C/D undersample the region that actually moves: the 10–15 kV sign flip at \(B=0\), the 0–150 G oscillations (25 G is too coarse; Block A used 5 G only at 25 kV), and \(\Delta y\). \(\Delta x\) is translation-invariant for a Gaussian bunch in a uniform cage. Write-up: `REPORT.md` §9.
 
 ```bash
-python scripts/generate_csns_configs.py --emode-fine-cd-matrix   # counts only; no XMLs
+python scripts/generate_csns_configs.py --emode-fine-cd-matrix
+./scripts/run_emode_fine_cd.sh --matrix
+JOBS=4 ./scripts/run_emode_fine_cd.sh
 ```
 
-This is **not** part of `--emode-replan` / `run_emode_replan.sh`. Do not generate configs or launch Virtual-IPM until execution is requested.
+This is **not** part of `--emode-replan` / `run_emode_replan.sh`. SKIP if the CSV exists.
 
 Held fixed: 100000 e−, Voitkiv H₂, round 10×10 mm, SC-off at 100 kW shared, \(P=100,500\,\mathrm{kW}\). Reuse coarse C (252), coarse D (120), Block A 25 kV / 5 G, and Block A centred \(\Delta y=0\).
 

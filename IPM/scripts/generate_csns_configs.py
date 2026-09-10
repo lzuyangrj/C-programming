@@ -44,11 +44,11 @@ EMODE_CHECK_POWERS_KW = (100, 500)
 EMODE_OFFSETS_MM = ((5, 0), (10, 0), (0, 5), (0, -5))
 EMODE_OFFSET_B_GS = (0, 100, 200, 300, 1000)
 EMODE_OFFSET_BEAMS = (("injection", 10), ("extraction", 10))
-# Fine C/D (plan only). Print with --emode-fine-cd-matrix. Do not mix into
-# --emode-replan and do not write XMLs from these grids until execution is
-# requested. 25 kV / 5 G is Block A (same physics as C at design voltage);
-# Δy = 0 is Block A (centred 10×10 mm). Δx is not refined: coarse D showed
-# translation invariance in x for a Gaussian bunch in a uniform cage.
+# Fine C/D. Print with --emode-fine-cd-matrix; write with --emode-fine-cd.
+# Do not mix into --emode-replan. 25 kV / 5 G is Block A (same physics as C
+# at design voltage); Δy = 0 is Block A (centred 10×10 mm). Δx is not
+# refined: coarse D showed translation invariance in x for a Gaussian bunch
+# in a uniform cage.
 EMODE_FINE_VOLTAGES_KV = tuple(range(5, 31, 1))
 EMODE_FINE_DIAG_B_GS = (0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 1000)
 EMODE_FINE_VOLT_BFINE_KV = (10, 12, 15, 18, 20)
@@ -819,6 +819,16 @@ def offset_csv_name(beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on
     return f"csns_{offset_slug(beam, dx, dy, power_kw)}_{b_tag(b_gs)}_{tag}.csv"
 
 
+def volt_xml_path(v_kv: int, power_kw: int, b_gs: int, sc_on: bool) -> Path:
+    return EMODE_OUT / f"{_stem(volt_slug(v_kv, power_kw), sc_on, b_tag(b_gs))}.xml"
+
+
+def offset_xml_path(
+    beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on: bool
+) -> Path:
+    return EMODE_OUT / f"{_stem(offset_slug(beam, dx, dy, power_kw), sc_on, b_tag(b_gs))}.xml"
+
+
 def write_emode_replan() -> list[Path]:
     """Write the replanned e-mode matrix (Blocks A–D)."""
     EMODE_OUT.mkdir(parents=True, exist_ok=True)
@@ -868,6 +878,88 @@ def write_emode_replan() -> list[Path]:
             )
         )
     return paths
+
+
+def write_emode_fine_cd() -> list[Path]:
+    """Write fine C/D XMLs in run order C1, C2, D1, D2 (duplicates skipped)."""
+    EMODE_OUT.mkdir(parents=True, exist_ok=True)
+    seen: set[Path] = set()
+    paths: list[Path] = []
+
+    def add_volt(v_kv: int, power_kw: int, b_gs: int, sc_on: bool) -> None:
+        dest = volt_xml_path(v_kv, power_kw, b_gs, sc_on)
+        if dest in seen:
+            return
+        seen.add(dest)
+        paths.append(
+            _electron_from_beam(
+                volt_slug(v_kv, power_kw),
+                "injection",
+                sc_on=sc_on,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=EMODE_OUT,
+                csv_dir="output/emode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                e_y=v_kv * 1e3 / GAP_M,
+            )
+        )
+
+    def add_offset(
+        beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on: bool
+    ) -> None:
+        dest = offset_xml_path(beam, dx, dy, power_kw, b_gs, sc_on)
+        if dest in seen:
+            return
+        seen.add(dest)
+        paths.append(
+            _electron_from_beam(
+                offset_slug(beam, dx, dy, power_kw),
+                beam,
+                sc_on=sc_on,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=EMODE_OUT,
+                csv_dir="output/emode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                offset_mm=(dx, dy),
+            )
+        )
+
+    for v_kv, power_kw, b_gs, sc_on in emode_fine_c1_voltage_points():
+        add_volt(v_kv, power_kw, b_gs, sc_on)
+    for v_kv, power_kw, b_gs, sc_on in emode_fine_c2_voltage_points():
+        add_volt(v_kv, power_kw, b_gs, sc_on)
+    for beam, dx, dy, power_kw, b_gs, sc_on in emode_fine_d1_offset_points():
+        add_offset(beam, dx, dy, power_kw, b_gs, sc_on)
+    for beam, dx, dy, power_kw, b_gs, sc_on in emode_fine_d2_offset_points():
+        add_offset(beam, dx, dy, power_kw, b_gs, sc_on)
+    return paths
+
+
+def emode_fine_cd_xml_relpaths() -> list[str]:
+    """Relative XML paths in run order C1, C2, D1, D2 (duplicates skipped)."""
+    seen: set[str] = set()
+    rels: list[str] = []
+
+    def add(path: Path) -> None:
+        rel = str(path.relative_to(ROOT)) if path.is_absolute() else str(path)
+        if rel in seen:
+            return
+        seen.add(rel)
+        rels.append(rel)
+
+    for pt in emode_fine_c1_voltage_points():
+        add(volt_xml_path(*pt))
+    for pt in emode_fine_c2_voltage_points():
+        add(volt_xml_path(*pt))
+    for pt in emode_fine_d1_offset_points():
+        add(offset_xml_path(*pt))
+    for pt in emode_fine_d2_offset_points():
+        add(offset_xml_path(*pt))
+    return rels
 
 
 def emode_matrix_report(emode_dir: Path | None = None) -> str:
@@ -1109,8 +1201,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--emode-fine-cd-matrix",
         action="store_true",
-        help="Print the planned fine C/D matrix with reuse / new counts and exit. "
-        "Does not write XMLs.",
+        help="Print the fine C/D matrix with reuse / new counts and exit.",
+    )
+    parser.add_argument(
+        "--emode-fine-cd",
+        action="store_true",
+        help="Write fine C/D XMLs (C1, C2, D1, D2). Does not mix into --emode-replan.",
+    )
+    parser.add_argument(
+        "--emode-fine-cd-list",
+        action="store_true",
+        help="Print fine C/D XML paths in run order and exit.",
     )
     args = parser.parse_args(argv)
     if args.emode_matrix:
@@ -1118,6 +1219,9 @@ def main(argv: list[str] | None = None) -> None:
         return
     if args.emode_fine_cd_matrix:
         print(emode_fine_cd_matrix_report())
+        return
+    if args.emode_fine_cd_list:
+        print("\n".join(emode_fine_cd_xml_relpaths()))
         return
     write_design_b_configs()
     write_bscan_configs()
@@ -1130,6 +1234,8 @@ def main(argv: list[str] | None = None) -> None:
         write_ion_size_scan()
     if args.emode_replan:
         write_emode_replan()
+    if args.emode_fine_cd:
+        write_emode_fine_cd()
 
 
 if __name__ == "__main__":

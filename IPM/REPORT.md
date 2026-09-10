@@ -194,9 +194,9 @@ CSV: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`. Re-run: `./
 
 ---
 
-## 9. Fine scan of Blocks C and D (plan only — not run)
+## 9. Fine scan of Blocks C and D
 
-Coarse C (5 kV × 25 G) and D (four offsets × 100 G) are complete. This section is the follow-up matrix. **No XMLs were generated and Virtual-IPM was not launched.** Print the counts with:
+Coarse C (5 kV × 25 G) and D (four offsets × 100 G) are complete. This section is the follow-up matrix. **Status: running** via `./scripts/run_emode_fine_cd.sh`. Print the counts with:
 
 ```bash
 python scripts/generate_csns_configs.py --emode-fine-cd-matrix
