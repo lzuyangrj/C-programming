@@ -25,6 +25,6 @@ else
   exit 1
 fi
 
-mkdir -p output output/bscan output/bscan5 output/bscan5_power output/ionsize plots
+mkdir -p output output/bscan output/bscan5 output/bscan5_power output/ionsize output/emode plots
 echo "Running: $VIPM $CONFIG $*"
 exec "$VIPM" "$CONFIG" "$@"

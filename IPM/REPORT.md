@@ -135,7 +135,24 @@ The dashed line on the obtained plot is **obtained = true**. Points above it are
 4. Among residual gases at **injection**, **hydrogen is the worst actor**. At **extraction**, H₂O⁺ and N₂⁺ inflate more than H₂⁺ (longer ToF).
 5. Cage fields are ideal and uniform; MCP mapping is not in these runs.
 
-CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`, `output/csns_bscan_power_summary.csv`, `output/csns_ionsize_summary.csv`. Re-run: `./scripts/run_extended_scans.sh`.
+CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`, `output/csns_bscan_power_summary.csv`, `output/csns_ionsize_summary.csv`, `output/csns_emode_summary.csv`, `output/csns_emode_sig10_summary.csv`. Closed 5 G / ion grids: `./scripts/run_extended_scans.sh`. E-mode replan: `./scripts/run_emode_replan.sh`.
+
+---
+
+## 8. E-mode parameter-scan replan
+
+The 0–250 G / 5 G campaign (sections 3 and 5) is the **high-resolution \(B\) reference** and is **closed**. It oversampled \(B\) once painted injection had recovered (~110 G) and never scanned beam size in e-mode. The 10 mm injection family — the most \(B\)-hungry case at 100 kW — was also missing from the 200–500 kW grid.
+
+New matrix (Voitkiv H₂, 100000 particles, SC on vs off; off reused across power):
+
+| Scan | \(\sigma_x\) | \(B\) | Power | Stage |
+|---|---|---|---|---|
+| Size × diagnostic \(B\) × \(P\) | 3–20 mm, 1 mm (\(\sigma_y=0.8\sigma_x\)) | 0, 250 G, 0.1 T | 100–500 kW | injection + extraction |
+| 10 mm injection \(B\times P\) fill-in | 10×8 mm | 50, 100, 150, 200 G | 200–500 kW | injection |
+
+Diagnostic fields: **0** (largest space-charge kick), **250 G** (previous \(\lesssim 1\%\) edge), **0.1 T** (PAC’09 design). Matching CSVs from the closed scans are reused.
+
+Results follow after the new runs (summaries `output/csns_emode_summary.csv`, `output/csns_emode_sig10_summary.csv`; figures 12–14).
 
 ---
 

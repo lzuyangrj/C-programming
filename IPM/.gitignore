@@ -7,12 +7,15 @@ output/bscan/*.csv
 output/bscan5/*.csv
 output/bscan5_power/*.csv
 output/ionsize/*.csv
+output/emode/*.csv
 !output/csns_space_charge_summary.csv
 !output/csns_space_charge_summary_sig10.csv
 !output/csns_bscan_summary.csv
 !output/csns_bscan5_summary.csv
 !output/csns_bscan_power_summary.csv
 !output/csns_ionsize_summary.csv
+!output/csns_emode_summary.csv
+!output/csns_emode_sig10_summary.csv
 plots/*.png
 !plots/csns_space_charge_impact.png
 !plots/csns_space_charge_impact_sig10.png
@@ -26,7 +29,11 @@ plots/*.png
 !plots/csns_ionsize_expansion.png
 !plots/csns_ionsize_sigma.png
 !plots/csns_ionsize_obtained.png
+!plots/csns_emode_expansion.png
+!plots/csns_emode_obtained.png
+!plots/csns_emode_sig10_power.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml
+configs/csns_rcs_ipm/emode/*.xml
 *.log

@@ -63,11 +63,18 @@ Configs: `configs/csns_rcs_ipm/bscan/`. Summary: `output/csns_bscan_summary.csv`
 
 Electron mode only, \(\Delta B = 5\,\mathrm{G}\) from **0 to 250 G**, plus a repeat of the residual-gas / ion scans with injection \(\sigma_x=10\,\mathrm{mm}\) (\(\sigma_y=8\,\mathrm{mm}\), same 5:4 aspect as 25×20).
 
-Ion-mode beam-size scan (\(\sigma_x=3\)–\(20\,\mathrm{mm}\), 1 mm step) at injection and extraction, and e-mode \(B\) scans, at 100–500 kW:
+Ion-mode beam-size scan (\(\sigma_x=3\)–\(20\,\mathrm{mm}\), 1 mm step) at injection and extraction, and the closed e-mode 5 G \(B\) scans, at 100–500 kW:
 
 ```bash
 ./scripts/run_extended_scans.sh
 python scripts/evaluate_extended.py
+```
+
+Replanned e-mode scans (size × diagnostic \(B\) × power; does not re-run the 5 G grid):
+
+```bash
+./scripts/run_emode_replan.sh
+python scripts/evaluate_emode.py
 ```
 
 ```bash
