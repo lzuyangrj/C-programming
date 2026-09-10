@@ -2,7 +2,7 @@
 
 CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) 2.3.1.
 
-**Results note:** [REPORT.md](REPORT.md) — brief write-up of the 100000-particle space-charge and \(B\)-scan studies.
+**Results note:** [REPORT.md](REPORT.md) — write-up and **all figures** (appendix).
 
 Docs: [Introduction](https://ipmsim.gitlab.io/Virtual-IPM/introduction.html) · [Install](https://ipmsim.gitlab.io/Virtual-IPM/installation.html) · [Usage](https://ipmsim.gitlab.io/Virtual-IPM/usage.html) · [Examples](https://ipmsim.gitlab.io/Virtual-IPM/examples.html)
 

@@ -30,6 +30,8 @@ At the PAC’09 design field, **electron mode is faithful**: space charge does n
 
 ![Expansion and collection vs B](plots/csns_bscan_expansion.png)
 
+![σ_x vs B at injection and extraction](plots/csns_bscan_sigma.png)
+
 | \(B\) | Inj. e− | Ext. e− | Inj. H₂⁺ | Ext. H₂⁺ |
 |---:|---:|---:|---:|---:|
 | 0 G | −19.4% | **+47.3%** | +18.1% | **+31.0%** |
@@ -134,3 +136,51 @@ The dashed line on the obtained plot is **obtained = true**. Points above it are
 5. Cage fields are ideal and uniform; MCP mapping is not in these runs.
 
 CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`, `output/csns_bscan_power_summary.csv`, `output/csns_ionsize_summary.csv`. Re-run: `./scripts/run_extended_scans.sh`.
+
+---
+
+## Appendix. All figures
+
+**Fig. 1.** Residual-gas profiles at design \(B_y=0.1\,\mathrm{T}\) (100 kW, painted injection + extraction electrons; H₂⁺, H₂O⁺, N₂⁺).
+
+![Fig. 1](plots/csns_space_charge_impact.png)
+
+**Fig. 2.** Coarse \(B\) scan: expansion and collection (0, 50, 100, 200, 250 G).
+
+![Fig. 2](plots/csns_bscan_expansion.png)
+
+**Fig. 3.** Coarse \(B\) scan: \(\sigma_x\) vs \(B\) (e− and H₂⁺, injection and extraction).
+
+![Fig. 3](plots/csns_bscan_sigma.png)
+
+**Fig. 4.** Coarse \(B\) scan: electron \(x\) profiles.
+
+![Fig. 4](plots/csns_bscan_electron_profiles.png)
+
+**Fig. 5.** Coarse \(B\) scan: H₂⁺ \(x\) profiles.
+
+![Fig. 5](plots/csns_bscan_ion_profiles.png)
+
+**Fig. 6.** Fine e-mode scan, 0–250 G step 5 G: expansion and \(\sigma_x\).
+
+![Fig. 6](plots/csns_bscan5_expansion.png)
+
+**Fig. 7.** Fine e-mode scan: \(x\) profiles at 0, 50, 100, 150, 200, 250 G (painted injection, extraction, 10 mm injection).
+
+![Fig. 7](plots/csns_bscan5_electron_profiles.png)
+
+**Fig. 8.** Repeat at injection \(10\times 8\,\mathrm{mm}\), \(B_y=0.1\,\mathrm{T}\).
+
+![Fig. 8](plots/csns_space_charge_impact_sig10.png)
+
+**Fig. 9.** E-mode \(B\) scan vs beam power (100–500 kW).
+
+![Fig. 9](plots/csns_bscan_power_expansion.png)
+
+**Fig. 10.** Ion-mode expansion vs true \(\sigma_x\) for H₂⁺, H₂O⁺, N₂⁺ (injection and extraction, 100–500 kW).
+
+![Fig. 10](plots/csns_ionsize_expansion.png)
+
+**Fig. 11.** True beam size vs obtained beam size (same scan as Fig. 10). Dashed line: obtained = true.
+
+![Fig. 11](plots/csns_ionsize_obtained.png)
