@@ -26,7 +26,6 @@ from generate_csns_configs import (  # noqa: E402
     POWERS_KW,
     SIZE_MM,
     emode_csv_name,
-    link_existing_emode_outputs,
     offset_csv_name,
     volt_csv_name,
 )
@@ -39,8 +38,7 @@ def b_label(b_gs: int) -> str:
 
 
 def ref_title(beam: str, sigma_mm: int) -> str:
-    sy = round(sigma_mm * 0.8)
-    return f"{BEAM_TITLES[beam]}, e− ({sigma_mm}×{sy} mm)"
+    return f"{BEAM_TITLES[beam]}, e− ({sigma_mm}×{sigma_mm} mm)"
 
 
 def emode_paths(emode_dir: Path, beam: str, sigma_mm: int, power_kw: int, b_gs: int):
@@ -169,7 +167,7 @@ def plot_offset(rows: list[dict], plot_dir: Path) -> None:
                 axes[1, col].plot(
                     xs, [r["centroid_shift_vs_no_sc_mm"] for r in series], "o" + ls, ms=3.5, lw=1.1, label=label
                 )
-        axes[0, col].set_title(f"{BEAM_TITLES[beam]}, e− (10×8 mm)")
+        axes[0, col].set_title(f"{BEAM_TITLES[beam]}, e− (10×10 mm)")
         axes[0, col].axhline(0.0, color="0.5", lw=0.8)
         axes[1, col].axhline(0.0, color="0.5", lw=0.8)
         axes[1, col].set_xlabel("B [G]")
@@ -369,7 +367,6 @@ def main() -> None:
     args = parser.parse_args()
     args.plot_dir.mkdir(parents=True, exist_ok=True)
 
-    link_existing_emode_outputs(args.emode_dir, verbose=False)
     b_rows = collect_bscan_rows(args.emode_dir)
     size_rows = collect_size_rows(args.emode_dir)
     v_rows = collect_voltage_rows(args.emode_dir)

@@ -16,7 +16,8 @@ Instrument numbers that the NIMA article uses are also tabulated in the cited IB
 | Guiding \(B\) (design study) | 0.1 T, parallel to \(E\) | PAC’09 cage design (1000 G) |
 | Guiding \(B\) (scan) | 0, 50, 100, 200 G | \(1\,\mathrm{G}=10^{-4}\,\mathrm{T}\) → 0, 5, 10, 20 mT |
 | Guiding \(B\) (e-mode fine) | 0–250 G, step 5 G | Closed high-resolution \(B\) reference (painted inj., extraction, 10 mm inj. at 100 kW; painted + extraction at 200–500 kW) |
-| E-mode replan \(B\) scan | **0–300 G, step 5 G** | Painted inj. 25×20, ext. 10×8, inj. 10×8; 100–500 kW |
+| E-mode replan beams | **round**, \(\sigma_y=\sigma_x\) | All replan blocks; 25×25 inj., 10×10 ext. and inj., \(\sigma\times\sigma\) size scan |
+| E-mode replan \(B\) scan | **0–300 G, step 5 G** | Inj. 25×25, ext. 10×10, inj. 10×10; 100–500 kW |
 | E-mode replan size-scan \(B\) | 0, 100, 200, 300 G, 0.1 T | Checkpoints from the same grid plus the design field |
 | Beam power scan | 100–500 kW | \(N_b \propto P\); 100 kW is \(7.8\times10^{12}\)/bunch |
 | Ion-mode \(\sigma_x\) scan | 3–20 mm, step 1 mm | \(\sigma_y=0.8\,\sigma_x\); H₂⁺/H₂O⁺/N₂⁺; inj. and ext. |

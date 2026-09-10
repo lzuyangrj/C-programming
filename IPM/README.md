@@ -70,7 +70,7 @@ Ion-mode beam-size scan (\(\sigma_x=3\)–\(20\,\mathrm{mm}\), 1 mm step) at inj
 python scripts/evaluate_extended.py
 ```
 
-Replanned e-mode scans — \(B\) 0–300 G / 5 G for painted injection, extraction, and 10 mm injection at 100–500 kW; \(\sigma_x=3\)–20 mm size scans at 0/100/200/300 G and 0.1 T; a cage-voltage scan (5–30 kV, 10×10 mm injection beam) and a beam-offset check on the 10 mm beams (existing CSVs are reused, see `configs/csns_rcs_ipm/emode/README.md`):
+Replanned e-mode scans, all with **round beams** (\(\sigma_y=\sigma_x\)) — \(B\) 0–300 G / 5 G for 25×25 mm injection, 10×10 mm extraction, and 10×10 mm injection at 100–500 kW; \(\sigma=3\)–20 mm size scans at 0/100/200/300 G and 0.1 T; a cage-voltage scan (5–30 kV) and a beam-offset check on the 10×10 mm beams (plan only, see `configs/csns_rcs_ipm/emode/README.md`):
 
 ```bash
 ./scripts/run_emode_replan.sh --matrix   # show run counts only

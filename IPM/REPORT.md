@@ -141,30 +141,32 @@ CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `o
 
 ## 8. E-mode parameter-scan replan (0–300 G, step 5 G)
 
-The 0–250 G / 5 G campaign (sections 3 and 5) stopped where extraction at 500 kW was still +0.88% and 10 mm injection −0.85%, never ran the 10 mm injection family above 100 kW, and never scanned beam size in e-mode. The replan extends the grid to **300 G**, completes the 10 mm injection × power family, and adds an e-mode size scan. All 0–250 G and 0.1 T results already on disk are reused as-is.
+The 0–250 G / 5 G campaign (sections 3 and 5) stopped where extraction at 500 kW was still +0.88% and 10 mm injection −0.85%, never ran the 10 mm injection family above 100 kW, and never scanned beam size, cage voltage, or beam offset in e-mode. The replan extends the grid to **300 G**, completes the 10 mm injection × power family, and adds size, voltage, and offset scans.
 
-| Block | Beams | \(\sigma_x\) | \(B\) | Power |
+**All blocks use round beams, \(\sigma_y=\sigma_x\)** (25×25 mm painted injection; 10×10 mm extraction and small injection; \(\sigma\times\sigma\) in the size scan). Sections 1–6 used elliptical beams (25×20, 10×8), so none of those runs are reused: every point below is new.
+
+| Block | Beams | \(\sigma_x=\sigma_y\) | \(B\) | Power |
 |---|---|---|---|---|
-| **A** \(B\)-scan | inj. 80 MeV 25×20; ext. 1.6 GeV 10×8; inj. 80 MeV 10×8 | 25 / 10 / 10 mm | **0–300 G, step 5 G** (61 values) | 100–500 kW |
-| **B** size scan | inj. 80 MeV; ext. 1.6 GeV | **3–20 mm, step 1 mm** (\(\sigma_y=0.8\sigma_x\)) | 0, 100, 200, 300 G, 0.1 T | 100–500 kW |
-| **C** cage voltage | inj. 80 MeV **10×10 mm** | 10 mm | 0–300 G step 25 G, 0.1 T | 100, 500 kW |
-| **D** beam offset | inj. 80 MeV, ext. 1.6 GeV (10×8 mm) | 10 mm | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW |
+| **A** \(B\)-scan | inj. 80 MeV; ext. 1.6 GeV; inj. 80 MeV | 25 / 10 / 10 mm | **0–300 G, step 5 G** (61 values) | 100–500 kW |
+| **B** size scan | inj. 80 MeV; ext. 1.6 GeV | **3–20 mm, step 1 mm** | 0, 100, 200, 300 G, 0.1 T | 100–500 kW |
+| **C** cage voltage | inj. 80 MeV | 10 mm | 0–300 G step 25 G, 0.1 T | 100, 500 kW |
+| **D** beam offset | inj. 80 MeV; ext. 1.6 GeV | 10 mm | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW |
 
-Block C: **5–30 kV, step 5 kV** (\(E_y\) = 22–130 kV/m) on a round 10×10 mm beam (\(\sigma_y\) reset to 10 mm), 25 kV included in the block. Block D: \((\Delta x,\Delta y)\) = (+5, 0), (+10, 0), (0, +5), (0, −5) mm; \(+y\) is away from the detector. SC on at every power; SC off once (100 kW) per case since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
+Block C: **5–30 kV, step 5 kV** (\(E_y\) = 22–130 kV/m). Block D: \((\Delta x,\Delta y)\) = (+5, 0), (+10, 0), (0, +5), (0, −5) mm; \(+y\) is away from the detector. Centred / 25 kV baselines come from Block A. SC on at every power; SC off once (100 kW) per case since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
 
 | Block / family | runs | done | to run |
 |---|---:|---:|---:|
-| A B-scan inj. e− σx = 25 mm | 366 | 306 | 60 |
-| A B-scan ext. e− σx = 10 mm | 366 | 306 | 60 |
-| A B-scan inj. e− σx = 10 mm | 366 | 102 | 264 |
-| B size scan inj. e− (new points) | 516 | 2 | 514 |
-| B size scan ext. e− (new points) | 516 | 17 | 499 |
+| A B-scan inj. e− 25×25 mm | 366 | 0 | 366 |
+| A B-scan ext. e− 10×10 mm | 366 | 0 | 366 |
+| A B-scan inj. e− 10×10 mm | 366 | 0 | 366 |
+| B size scan inj. e− (new points) | 516 | 0 | 516 |
+| B size scan ext. e− (new points) | 516 | 0 | 516 |
 | C cage voltage 5–30 kV, inj. e− 10×10 mm | 252 | 0 | 252 |
-| D beam offset, inj. e− 10 mm | 60 | 0 | 60 |
-| D beam offset, ext. e− 10 mm | 60 | 0 | 60 |
-| **Total** | **2502** | **733** | **1769** |
+| D beam offset, inj. e− 10×10 mm | 60 | 0 | 60 |
+| D beam offset, ext. e− 10×10 mm | 60 | 0 | 60 |
+| **Total** | **2502** | **0** | **2502** |
 
-**Status: planned, not executed.** The 1769 new runs (~1 min each, ~7.5 h at 4 parallel jobs, ~48 GB of particle CSVs) have not been launched. `./scripts/run_emode_replan.sh --matrix` reprints the table; `./scripts/run_emode_replan.sh` runs the missing points and `python scripts/evaluate_emode.py` produces `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv` and the figures `plots/csns_emode_*.png`.
+**Status: planned, not executed.** The 2502 runs (~1 min each, ~10.5 h at 4 parallel jobs, ~68 GB of particle CSVs) have not been launched. `./scripts/run_emode_replan.sh --matrix` reprints the table; `./scripts/run_emode_replan.sh` runs the missing points and `python scripts/evaluate_emode.py` produces `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv` and the figures `plots/csns_emode_*.png`.
 
 ---
 

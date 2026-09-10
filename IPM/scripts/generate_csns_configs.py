@@ -27,17 +27,17 @@ B_SCAN5_GS = tuple(range(0, 251, 5))  # e-mode fine scan
 POWERS_KW = (100, 200, 300, 400, 500)
 SIZE_MM = tuple(range(3, 21))  # ion-mode and e-mode σ_x scan
 ASPECT_YX = 0.8  # σ_y / σ_x (25:20 painted beam)
-# E-mode replan. Block A: full B grid 0–300 G / 5 G for the three reference
-# beams at every power. Block B: σ_x = 3–20 mm size scan at checkpoint fields
-# taken from the same grid, plus the 0.1 T design field.
+# E-mode replan. All blocks use ROUND beams (σ_y = σ_x); the earlier elliptical
+# runs (25×20, 10×8) are therefore not reused here.
+# Block A: full B grid 0–300 G / 5 G for the three reference beams at every
+# power. Block B: σ_x = 3–20 mm size scan at checkpoint fields taken from the
+# same grid, plus the 0.1 T design field.
 EMODE_BSCAN_GS = tuple(range(0, 301, 5))
 EMODE_SIZE_B_GS = (0, 100, 200, 300, 1000)
-# (beam stage, σ_x in mm) reference beams for Block A; 25 mm = painted 25×20.
+# (beam stage, σ in mm) reference beams for Block A: 25×25 inj., 10×10 ext., 10×10 inj.
 EMODE_REF_BEAMS = (("injection", 25), ("extraction", 10), ("injection", 10))
-# Block C: cage-voltage scan on a round 10×10 mm injection beam (σ_y reset to 10 mm),
-# so the 25 kV baseline is part of the block rather than taken from Block A.
+# Block C: cage-voltage scan on the round 10×10 mm injection beam (25 kV included).
 EMODE_VOLTAGES_KV = tuple(range(5, 31, 5))
-EMODE_VOLT_SIGMA_XY_UM = "[ 10000, 10000 ]"
 EMODE_VOLT_B_GS = tuple(range(0, 301, 25)) + (1000,)
 EMODE_CHECK_POWERS_KW = (100, 500)
 # Block D: beam-offset check, (dx, dy) in mm; +y is away from the electron detector.
@@ -441,9 +441,16 @@ def n_bunch_at_power(power_kw: float) -> float:
 
 
 def sigma_xy_um(sigma_x_mm: float) -> str:
+    """Elliptical beam (ion-mode legacy scans): σ_y = 0.8 σ_x."""
     sx = sigma_x_mm * 1e3
     sy = sigma_x_mm * ASPECT_YX * 1e3
     return f"[ {sx:.0f}, {sy:.0f} ]"
+
+
+def round_sigma_xy_um(sigma_mm: float) -> str:
+    """Round beam (e-mode replan): σ_y = σ_x."""
+    s = sigma_mm * 1e3
+    return f"[ {s:.0f}, {s:.0f} ]"
 
 
 def write_bscan_configs() -> list[Path]:
@@ -649,7 +656,7 @@ def write_ion_size_scan() -> list[Path]:
 
 
 def emode_slug(beam_key: str, sigma_mm: int, power_kw: int) -> str:
-    return f"{beam_key}_electrons_s{sigma_mm}mm_p{power_kw}kw"
+    return f"{beam_key}_electrons_s{sigma_mm}x{sigma_mm}mm_p{power_kw}kw"
 
 
 def emode_csv_name(
@@ -728,7 +735,7 @@ def _signed(v: int) -> str:
 
 
 def offset_slug(beam: str, dx: int, dy: int, power_kw: int) -> str:
-    return f"{beam}_electrons_s10mm_dx{_signed(dx)}mm_dy{_signed(dy)}mm_p{power_kw}kw"
+    return f"{beam}_electrons_s10x10mm_dx{_signed(dx)}mm_dy{_signed(dy)}mm_p{power_kw}kw"
 
 
 def offset_csv_name(beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on: bool) -> str:
@@ -750,7 +757,7 @@ def write_emode_replan() -> list[Path]:
                 b_tag=b_tag(b_gs),
                 config_dir=EMODE_OUT,
                 csv_dir="output/emode",
-                sigma_xy_um=sigma_xy_um(sigma_mm),
+                sigma_xy_um=round_sigma_xy_um(sigma_mm),
                 n_bunch=n_bunch_at_power(power_kw),
             )
         )
@@ -764,7 +771,7 @@ def write_emode_replan() -> list[Path]:
                 b_tag=b_tag(b_gs),
                 config_dir=EMODE_OUT,
                 csv_dir="output/emode",
-                sigma_xy_um=EMODE_VOLT_SIGMA_XY_UM,
+                sigma_xy_um=round_sigma_xy_um(10),
                 n_bunch=n_bunch_at_power(power_kw),
                 e_y=v_kv * 1e3 / GAP_M,
             )
@@ -779,7 +786,7 @@ def write_emode_replan() -> list[Path]:
                 b_tag=b_tag(b_gs),
                 config_dir=EMODE_OUT,
                 csv_dir="output/emode",
-                sigma_xy_um=sigma_xy_um(10),
+                sigma_xy_um=round_sigma_xy_um(10),
                 n_bunch=n_bunch_at_power(power_kw),
                 offset_mm=(dx, dy),
             )
@@ -787,91 +794,37 @@ def write_emode_replan() -> list[Path]:
     return paths
 
 
-def existing_emode_source(
-    beam: str, sigma_mm: int, power_kw: int, b_gs: int, sc_on: bool
-) -> Path | None:
-    """Locate a CSV from the closed scans that has identical parameters."""
-    tag = "sc_on" if sc_on else "sc_off"
-    if (beam, sigma_mm) == ("injection", 25):
-        family, sig_suffix = "injection_electrons", ""
-    elif (beam, sigma_mm) == ("extraction", 10):
-        family, sig_suffix = "extraction_electrons", ""
-    elif (beam, sigma_mm) == ("injection", 10):
-        family, sig_suffix = "injection_electrons", "_sig10"
-    else:
-        return None
-    if b_gs == 1000 and power_kw == 100:
-        return ROOT / "output" / f"csns_{family}{sig_suffix}_{tag}.csv"
-    if b_gs in B_SCAN5_GS:
-        if power_kw == 100:
-            return ROOT / "output" / "bscan5" / f"csns_{family}{sig_suffix}_b{b_gs}G_{tag}.csv"
-        if sc_on and not sig_suffix:
-            return (
-                ROOT
-                / "output"
-                / "bscan5_power"
-                / f"csns_{family}_p{power_kw}kW_b{b_gs}G_sc_on.csv"
-            )
-    return None
-
-
-def link_existing_emode_outputs(emode_dir: Path | None = None, verbose: bool = True) -> int:
-    """Hard-link already-run e-mode CSVs into output/emode/ (same parameters)."""
-    dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    linked = 0
-    for beam, sigma_mm, power_kw, b_gs, sc_on in emode_points():
-        src = existing_emode_source(beam, sigma_mm, power_kw, b_gs, sc_on)
-        if src is None or not src.is_file():
-            continue
-        dest = dest_dir / emode_csv_name(beam, sigma_mm, power_kw, b_gs, sc_on)
-        if dest.exists() or dest.is_symlink():
-            continue
-        try:
-            dest.hardlink_to(src)
-        except OSError:
-            dest.symlink_to(src.resolve())
-        linked += 1
-        if verbose:
-            print(f"reuse {src.name} -> {dest.name}")
-    return linked
-
-
 def emode_matrix_report(emode_dir: Path | None = None) -> str:
     """Human-readable matrix of the replan with done / to-run counts."""
     dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
-
-    def done(pt: EmodePoint) -> bool:
-        beam, sigma_mm, power_kw, b_gs, sc_on = pt
-        dest = dest_dir / emode_csv_name(beam, sigma_mm, power_kw, b_gs, sc_on)
-        if dest.is_file() and dest.stat().st_size > 0:
-            return True
-        src = existing_emode_source(beam, sigma_mm, power_kw, b_gs, sc_on)
-        return src is not None and src.is_file()
 
     def done_file(name: str) -> bool:
         f = dest_dir / name
         return f.is_file() and f.stat().st_size > 0
 
+    def done(pt: EmodePoint) -> bool:
+        return done_file(emode_csv_name(*pt))
+
     pts = emode_points()
     lines: list[str] = []
+    lines.append("All blocks: ROUND beams, σ_y = σ_x (no reuse of the elliptical 25×20 / 10×8 runs)")
     lines.append(
         f"A/B  B grid: {EMODE_BSCAN_GS[0]}–{EMODE_BSCAN_GS[-1]} G step "
         f"{EMODE_BSCAN_GS[1] - EMODE_BSCAN_GS[0]} G ({len(EMODE_BSCAN_GS)} values); "
         f"size-scan fields: {', '.join(str(b) for b in EMODE_SIZE_B_GS)} G; "
         f"powers: {', '.join(str(p) for p in POWERS_KW)} kW; "
-        f"sizes: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm (σ_y = {ASPECT_YX} σ_x)"
+        f"sizes: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm; ref. beams 25×25 inj., 10×10 ext., 10×10 inj."
     )
     lines.append(
         f"C    cage voltage: {EMODE_VOLTAGES_KV[0]}–{EMODE_VOLTAGES_KV[-1]} kV step "
         f"{EMODE_VOLTAGES_KV[1] - EMODE_VOLTAGES_KV[0]} kV ({len(EMODE_VOLTAGES_KV)} values); "
         f"B: {EMODE_VOLT_B_GS[0]}–{EMODE_VOLT_B_GS[-2]} G step {EMODE_VOLT_B_GS[1]} G + 1000 G; "
-        f"inj. 10×10 mm (σ_y reset to 10 mm); {', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
+        f"inj. 10×10 mm; {', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
     )
     lines.append(
         "D    beam offset (dx, dy) mm: "
         + ", ".join(f"({dx:+d}, {dy:+d})" for dx, dy in EMODE_OFFSETS_MM)
-        + f"; B: {', '.join(str(b) for b in EMODE_OFFSET_B_GS)} G; inj. and ext. 10×8 mm; "
+        + f"; B: {', '.join(str(b) for b in EMODE_OFFSET_B_GS)} G; inj. and ext. 10×10 mm; "
         f"{', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
     )
     lines.append("")
