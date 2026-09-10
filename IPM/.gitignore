@@ -25,6 +25,7 @@ plots/*.png
 !plots/csns_bscan_power_expansion.png
 !plots/csns_ionsize_expansion.png
 !plots/csns_ionsize_sigma.png
+!plots/csns_ionsize_obtained.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml

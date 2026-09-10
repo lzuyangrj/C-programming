@@ -31,6 +31,14 @@ INJ_SIG10_XY = "[ 10000, 8000 ]"
 
 PROTON = "%(proton mass energy equivalent in MeV)"
 H2_REST_ENERGY = f"2 * {PROTON}"
+H2O_REST_ENERGY = f"18 * {PROTON}"
+N2_REST_ENERGY = f"28 * {PROTON}"
+# slug infix used in filenames: {beam}_{slug}_s{N}mm_p{P}kw
+ION_SPECIES = (
+    ("ions", H2_REST_ENERGY, "H₂⁺"),
+    ("h2o_ions", H2O_REST_ENERGY, "H₂O⁺"),
+    ("n2_ions", N2_REST_ENERGY, "N₂⁺"),
+)
 
 # Injection / extraction beam (NIMA Table 1 + IBIC notes). RF: 1.0241 → 2.444 MHz (h = 2).
 BEAMS = {
@@ -578,29 +586,34 @@ def write_emode_power_bscan() -> list[Path]:
 
 
 def write_ion_size_scan() -> list[Path]:
-    """Ion-mode H₂⁺: σ_x = 3–20 mm, injection and extraction, 100–500 kW."""
+    """Ion-mode H₂⁺/H₂O⁺/N₂⁺: σ_x = 3–20 mm, injection and extraction, 100–500 kW."""
     IONSIZE_OUT.mkdir(parents=True, exist_ok=True)
     paths: list[Path] = []
-    for sigma_mm in SIZE_MM:
-        xy = sigma_xy_um(sigma_mm)
-        for beam_key in ("injection", "extraction"):
-            for power_kw in POWERS_KW:
-                pop = n_bunch_at_power(power_kw)
-                sc_flags = (True, False) if power_kw == 100 else (True,)
-                for sc_on in sc_flags:
-                    paths.append(
-                        ion_case(
-                            f"{beam_key}_ions_s{sigma_mm}mm_p{power_kw}kw",
-                            rest_energy=H2_REST_ENERGY,
-                            sc_on=sc_on,
-                            beam_key=beam_key,
-                            b_y=B_Y_DESIGN,
-                            config_dir=IONSIZE_OUT,
-                            csv_dir="output/ionsize",
-                            sigma_xy_um=xy,
-                            n_bunch=pop,
+    for slug, rest, _label in ION_SPECIES:
+        for sigma_mm in SIZE_MM:
+            xy = sigma_xy_um(sigma_mm)
+            for beam_key in ("injection", "extraction"):
+                for power_kw in POWERS_KW:
+                    pop = n_bunch_at_power(power_kw)
+                    # SC-off is mass-independent (no bunch field); only H₂⁺ needs it.
+                    if slug == "ions":
+                        sc_flags = (True, False) if power_kw == 100 else (True,)
+                    else:
+                        sc_flags = (True,)
+                    for sc_on in sc_flags:
+                        paths.append(
+                            ion_case(
+                                f"{beam_key}_{slug}_s{sigma_mm}mm_p{power_kw}kw",
+                                rest_energy=rest,
+                                sc_on=sc_on,
+                                beam_key=beam_key,
+                                b_y=B_Y_DESIGN,
+                                config_dir=IONSIZE_OUT,
+                                csv_dir="output/ionsize",
+                                sigma_xy_um=xy,
+                                n_bunch=pop,
+                            )
                         )
-                    )
     return paths
 
 
