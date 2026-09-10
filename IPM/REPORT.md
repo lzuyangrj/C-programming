@@ -135,24 +135,31 @@ The dashed line on the obtained plot is **obtained = true**. Points above it are
 4. Among residual gases at **injection**, **hydrogen is the worst actor**. At **extraction**, H₂O⁺ and N₂⁺ inflate more than H₂⁺ (longer ToF).
 5. Cage fields are ideal and uniform; MCP mapping is not in these runs.
 
-CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`, `output/csns_bscan_power_summary.csv`, `output/csns_ionsize_summary.csv`, `output/csns_emode_summary.csv`, `output/csns_emode_sig10_summary.csv`. Closed 5 G / ion grids: `./scripts/run_extended_scans.sh`. E-mode replan: `./scripts/run_emode_replan.sh`.
+CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`, `output/csns_bscan_power_summary.csv`, `output/csns_ionsize_summary.csv`. Closed 5 G / ion grids: `./scripts/run_extended_scans.sh`. E-mode replan: `./scripts/run_emode_replan.sh`.
 
 ---
 
-## 8. E-mode parameter-scan replan
+## 8. E-mode parameter-scan replan (0–300 G, step 5 G)
 
-The 0–250 G / 5 G campaign (sections 3 and 5) is the **high-resolution \(B\) reference** and is **closed**. It oversampled \(B\) once painted injection had recovered (~110 G) and never scanned beam size in e-mode. The 10 mm injection family — the most \(B\)-hungry case at 100 kW — was also missing from the 200–500 kW grid.
+The 0–250 G / 5 G campaign (sections 3 and 5) stopped where extraction at 500 kW was still +0.88% and 10 mm injection −0.85%, never ran the 10 mm injection family above 100 kW, and never scanned beam size in e-mode. The replan extends the grid to **300 G**, completes the 10 mm injection × power family, and adds an e-mode size scan. All 0–250 G and 0.1 T results already on disk are reused as-is.
 
-New matrix (Voitkiv H₂, 100000 particles, SC on vs off; off reused across power):
-
-| Scan | \(\sigma_x\) | \(B\) | Power | Stage |
+| Block | Beams | \(\sigma_x\) | \(B\) | Power |
 |---|---|---|---|---|
-| Size × diagnostic \(B\) × \(P\) | 3–20 mm, 1 mm (\(\sigma_y=0.8\sigma_x\)) | 0, 250 G, 0.1 T | 100–500 kW | injection + extraction |
-| 10 mm injection \(B\times P\) fill-in | 10×8 mm | 50, 100, 150, 200 G | 200–500 kW | injection |
+| **A** \(B\)-scan | inj. 80 MeV 25×20; ext. 1.6 GeV 10×8; inj. 80 MeV 10×8 | 25 / 10 / 10 mm | **0–300 G, step 5 G** (61 values) | 100–500 kW |
+| **B** size scan | inj. 80 MeV; ext. 1.6 GeV | **3–20 mm, step 1 mm** (\(\sigma_y=0.8\sigma_x\)) | 0, 100, 200, 300 G, 0.1 T | 100–500 kW |
 
-Diagnostic fields: **0** (largest space-charge kick), **250 G** (previous \(\lesssim 1\%\) edge), **0.1 T** (PAC’09 design). Matching CSVs from the closed scans are reused.
+SC on at every power; SC off once (100 kW) per \((\text{beam},\sigma_x,B)\) since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
 
-Results follow after the new runs (summaries `output/csns_emode_summary.csv`, `output/csns_emode_sig10_summary.csv`; figures 12–14).
+| Block / family | runs | done | to run |
+|---|---:|---:|---:|
+| A B-scan inj. e− σx = 25 mm | 366 | 306 | 60 |
+| A B-scan ext. e− σx = 10 mm | 366 | 306 | 60 |
+| A B-scan inj. e− σx = 10 mm | 366 | 102 | 264 |
+| B size scan inj. e− (new points) | 516 | 2 | 514 |
+| B size scan ext. e− (new points) | 516 | 17 | 499 |
+| **Total** | **2130** | **733** | **1397** |
+
+Results follow after the runs: `output/csns_emode_bscan300_summary.csv`, `output/csns_emode_size_summary.csv`; figures 12–15.
 
 ---
 

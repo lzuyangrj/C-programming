@@ -27,10 +27,13 @@ B_SCAN5_GS = tuple(range(0, 251, 5))  # e-mode fine scan
 POWERS_KW = (100, 200, 300, 400, 500)
 SIZE_MM = tuple(range(3, 21))  # ion-mode and e-mode σ_x scan
 ASPECT_YX = 0.8  # σ_y / σ_x (25:20 painted beam)
-# E-mode replan: diagnostic B values (0 = worst, 250 G ≈ 1% edge, 1000 G = 0.1 T design).
-EMODE_B_GS = (0, 250, 1000)
-# 10 mm injection B×power fill-in (100 kW already has the 5 G fine scan).
-EMODE_SIG10_B_GS = (0, 50, 100, 150, 200, 250, 1000)
+# E-mode replan. Block A: full B grid 0–300 G / 5 G for the three reference
+# beams at every power. Block B: σ_x = 3–20 mm size scan at checkpoint fields
+# taken from the same grid, plus the 0.1 T design field.
+EMODE_BSCAN_GS = tuple(range(0, 301, 5))
+EMODE_SIZE_B_GS = (0, 100, 200, 300, 1000)
+# (beam stage, σ_x in mm) reference beams for Block A; 25 mm = painted 25×20.
+EMODE_REF_BEAMS = (("injection", 25), ("extraction", 10), ("injection", 10))
 # Injection σ_x = 10 mm; σ_y = 8 mm keeps the 25:20 painted-beam aspect ratio.
 INJ_SIG10_XY = "[ 10000, 8000 ]"
 
@@ -626,73 +629,6 @@ def emode_slug(beam_key: str, sigma_mm: int, power_kw: int) -> str:
     return f"{beam_key}_electrons_s{sigma_mm}mm_p{power_kw}kw"
 
 
-def write_emode_replan() -> list[Path]:
-    """E-mode replan: size × diagnostic B × power, plus 10 mm inj. B×P fill-in.
-
-    Closed (do not regenerate here): the 0–250 G / 5 G painted and extraction
-    grids at 100–500 kW. Those remain the high-resolution B reference.
-    """
-    EMODE_OUT.mkdir(parents=True, exist_ok=True)
-    paths: list[Path] = []
-    for sigma_mm in SIZE_MM:
-        xy = sigma_xy_um(sigma_mm)
-        for b_gs in EMODE_B_GS:
-            tag = b_tag(b_gs)
-            b_y = b_gs * GS_TO_T
-            for beam_key in ("injection", "extraction"):
-                for power_kw in POWERS_KW:
-                    pop = n_bunch_at_power(power_kw)
-                    sc_flags = (True, False) if power_kw == 100 else (True,)
-                    for sc_on in sc_flags:
-                        paths.append(
-                            _electron_from_beam(
-                                emode_slug(beam_key, sigma_mm, power_kw),
-                                beam_key,
-                                sc_on=sc_on,
-                                b_y=b_y,
-                                b_tag=tag,
-                                config_dir=EMODE_OUT,
-                                csv_dir="output/emode",
-                                sigma_xy_um=xy,
-                                n_bunch=pop,
-                            )
-                        )
-    extra_b = tuple(b for b in EMODE_SIG10_B_GS if b not in EMODE_B_GS)
-    xy10 = sigma_xy_um(10)
-    for b_gs in extra_b:
-        tag = b_tag(b_gs)
-        b_y = b_gs * GS_TO_T
-        paths.append(
-            _electron_from_beam(
-                emode_slug("injection", 10, 100),
-                "injection",
-                sc_on=False,
-                b_y=b_y,
-                b_tag=tag,
-                config_dir=EMODE_OUT,
-                csv_dir="output/emode",
-                sigma_xy_um=xy10,
-            )
-        )
-        for power_kw in POWERS_KW:
-            if power_kw == 100:
-                continue
-            paths.append(
-                _electron_from_beam(
-                    emode_slug("injection", 10, power_kw),
-                    "injection",
-                    sc_on=True,
-                    b_y=b_y,
-                    b_tag=tag,
-                    config_dir=EMODE_OUT,
-                    csv_dir="output/emode",
-                    sigma_xy_um=xy10,
-                    n_bunch=n_bunch_at_power(power_kw),
-                )
-            )
-    return paths
-
-
 def emode_csv_name(
     beam_key: str, sigma_mm: int, power_kw: int, b_gs: int, sc_on: bool
 ) -> str:
@@ -700,77 +636,93 @@ def emode_csv_name(
     return f"csns_{emode_slug(beam_key, sigma_mm, power_kw)}_{b_tag(b_gs)}_{tag}.csv"
 
 
-def link_existing_emode_outputs(emode_dir: Path | None = None) -> int:
+EmodePoint = tuple[str, int, int, int, bool]  # (beam, σ_x mm, power kW, B G, SC on)
+
+
+def emode_points() -> list[EmodePoint]:
+    """Every (beam, σ_x, P, B, SC) point of the replanned e-mode matrix, deduplicated.
+
+    SC-off trajectories do not depend on bunch population, so SC-off runs exist
+    only at 100 kW and are shared by the other powers.
+    """
+    pts: dict[EmodePoint, None] = {}
+
+    def add(beam: str, sigma_mm: int, b_gs: int) -> None:
+        for power_kw in POWERS_KW:
+            pts[(beam, sigma_mm, power_kw, b_gs, True)] = None
+        pts[(beam, sigma_mm, 100, b_gs, False)] = None
+
+    # Block A: full 0–300 G / 5 G grid for the three reference beams.
+    for beam, sigma_mm in EMODE_REF_BEAMS:
+        for b_gs in EMODE_BSCAN_GS:
+            add(beam, sigma_mm, b_gs)
+    # Block B: σ_x = 3–20 mm at checkpoint fields (and 0.1 T), both stages.
+    for sigma_mm in SIZE_MM:
+        for b_gs in EMODE_SIZE_B_GS:
+            for beam in ("injection", "extraction"):
+                add(beam, sigma_mm, b_gs)
+    return list(pts)
+
+
+def write_emode_replan() -> list[Path]:
+    """Write the replanned e-mode matrix (see `emode_points`)."""
+    EMODE_OUT.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for beam, sigma_mm, power_kw, b_gs, sc_on in emode_points():
+        paths.append(
+            _electron_from_beam(
+                emode_slug(beam, sigma_mm, power_kw),
+                beam,
+                sc_on=sc_on,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=EMODE_OUT,
+                csv_dir="output/emode",
+                sigma_xy_um=sigma_xy_um(sigma_mm),
+                n_bunch=n_bunch_at_power(power_kw),
+            )
+        )
+    return paths
+
+
+def existing_emode_source(
+    beam: str, sigma_mm: int, power_kw: int, b_gs: int, sc_on: bool
+) -> Path | None:
+    """Locate a CSV from the closed scans that has identical parameters."""
+    tag = "sc_on" if sc_on else "sc_off"
+    if (beam, sigma_mm) == ("injection", 25):
+        family, sig_suffix = "injection_electrons", ""
+    elif (beam, sigma_mm) == ("extraction", 10):
+        family, sig_suffix = "extraction_electrons", ""
+    elif (beam, sigma_mm) == ("injection", 10):
+        family, sig_suffix = "injection_electrons", "_sig10"
+    else:
+        return None
+    if b_gs == 1000 and power_kw == 100:
+        return ROOT / "output" / f"csns_{family}{sig_suffix}_{tag}.csv"
+    if b_gs in B_SCAN5_GS:
+        if power_kw == 100:
+            return ROOT / "output" / "bscan5" / f"csns_{family}{sig_suffix}_b{b_gs}G_{tag}.csv"
+        if sc_on and not sig_suffix:
+            return (
+                ROOT
+                / "output"
+                / "bscan5_power"
+                / f"csns_{family}_p{power_kw}kW_b{b_gs}G_sc_on.csv"
+            )
+    return None
+
+
+def link_existing_emode_outputs(emode_dir: Path | None = None, verbose: bool = True) -> int:
     """Hard-link already-run e-mode CSVs into output/emode/ (same parameters)."""
     dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
     dest_dir.mkdir(parents=True, exist_ok=True)
-    pairs: list[tuple[Path, Path]] = []
-
-    def _add(src: Path, beam: str, sigma_mm: int, power_kw: int, b_gs: int, sc_on: bool) -> None:
-        dest = dest_dir / emode_csv_name(beam, sigma_mm, power_kw, b_gs, sc_on)
-        pairs.append((src, dest))
-
-    bscan5 = ROOT / "output" / "bscan5"
-    power_dir = ROOT / "output" / "bscan5_power"
-    design = ROOT / "output"
-    for b_gs in (0, 250):
-        for sc_on in (True, False):
-            tag = "sc_on" if sc_on else "sc_off"
-            _add(
-                bscan5 / f"csns_extraction_electrons_b{b_gs}G_{tag}.csv",
-                "extraction",
-                10,
-                100,
-                b_gs,
-                sc_on,
-            )
-            _add(
-                bscan5 / f"csns_injection_electrons_sig10_b{b_gs}G_{tag}.csv",
-                "injection",
-                10,
-                100,
-                b_gs,
-                sc_on,
-            )
-    for sc_on in (True, False):
-        tag = "sc_on" if sc_on else "sc_off"
-        _add(design / f"csns_extraction_electrons_{tag}.csv", "extraction", 10, 100, 1000, sc_on)
-        _add(
-            design / f"csns_injection_electrons_sig10_{tag}.csv",
-            "injection",
-            10,
-            100,
-            1000,
-            sc_on,
-        )
-    for b_gs in (50, 100, 150, 200):
-        for sc_on in (True, False):
-            tag = "sc_on" if sc_on else "sc_off"
-            _add(
-                bscan5 / f"csns_injection_electrons_sig10_b{b_gs}G_{tag}.csv",
-                "injection",
-                10,
-                100,
-                b_gs,
-                sc_on,
-            )
-    for power_kw in POWERS_KW:
-        if power_kw == 100:
-            continue
-        for b_gs in (0, 250):
-            _add(
-                power_dir / f"csns_extraction_electrons_p{power_kw}kW_b{b_gs}G_sc_on.csv",
-                "extraction",
-                10,
-                power_kw,
-                b_gs,
-                True,
-            )
-
     linked = 0
-    for src, dest in pairs:
-        if not src.is_file():
+    for beam, sigma_mm, power_kw, b_gs, sc_on in emode_points():
+        src = existing_emode_source(beam, sigma_mm, power_kw, b_gs, sc_on)
+        if src is None or not src.is_file():
             continue
+        dest = dest_dir / emode_csv_name(beam, sigma_mm, power_kw, b_gs, sc_on)
         if dest.exists() or dest.is_symlink():
             continue
         try:
@@ -778,8 +730,66 @@ def link_existing_emode_outputs(emode_dir: Path | None = None) -> int:
         except OSError:
             dest.symlink_to(src.resolve())
         linked += 1
-        print(f"reuse {src.name} -> {dest.name}")
+        if verbose:
+            print(f"reuse {src.name} -> {dest.name}")
     return linked
+
+
+def emode_matrix_report(emode_dir: Path | None = None) -> str:
+    """Human-readable matrix of the replan with done / to-run counts."""
+    dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
+
+    def done(pt: EmodePoint) -> bool:
+        beam, sigma_mm, power_kw, b_gs, sc_on = pt
+        dest = dest_dir / emode_csv_name(beam, sigma_mm, power_kw, b_gs, sc_on)
+        if dest.is_file() and dest.stat().st_size > 0:
+            return True
+        src = existing_emode_source(beam, sigma_mm, power_kw, b_gs, sc_on)
+        return src is not None and src.is_file()
+
+    pts = emode_points()
+    lines: list[str] = []
+    lines.append(
+        f"B grid: {EMODE_BSCAN_GS[0]}–{EMODE_BSCAN_GS[-1]} G step "
+        f"{EMODE_BSCAN_GS[1] - EMODE_BSCAN_GS[0]} G ({len(EMODE_BSCAN_GS)} values); "
+        f"size-scan fields: {', '.join(str(b) for b in EMODE_SIZE_B_GS)} G; "
+        f"powers: {', '.join(str(p) for p in POWERS_KW)} kW; "
+        f"sizes: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm (σ_y = {ASPECT_YX} σ_x)"
+    )
+    lines.append("")
+    header = f"{'Block / family':<44}{'runs':>6}{'done':>6}{'to run':>8}"
+    lines.append(header)
+    lines.append("-" * len(header))
+    total = total_done = 0
+
+    def row(label: str, subset: list[EmodePoint]) -> None:
+        nonlocal total, total_done
+        n = len(subset)
+        d = sum(done(p) for p in subset)
+        total += n
+        total_done += d
+        lines.append(f"{label:<44}{n:>6}{d:>6}{n - d:>8}")
+
+    seen: set[EmodePoint] = set()
+    for beam, sigma_mm in EMODE_REF_BEAMS:
+        subset = [
+            p for p in pts if p[0] == beam and p[1] == sigma_mm and p[3] in EMODE_BSCAN_GS
+        ]
+        seen.update(subset)
+        stage = "inj." if beam == "injection" else "ext."
+        row(f"A  B-scan {stage} e− σx={sigma_mm} mm, 100–500 kW", subset)
+    for beam in ("injection", "extraction"):
+        subset = [
+            p
+            for p in pts
+            if p[0] == beam and p[3] in EMODE_SIZE_B_GS and p not in seen
+        ]
+        seen.update(subset)
+        stage = "inj." if beam == "injection" else "ext."
+        row(f"B  size scan {stage} e− 3–20 mm (new points only)", subset)
+    lines.append("-" * len(header))
+    lines.append(f"{'Total':<44}{total:>6}{total_done:>6}{total - total_done:>8}")
+    return "\n".join(lines)
 
 
 def write_sig10_ion_bscan() -> list[Path]:
@@ -821,9 +831,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--emode-replan",
         action="store_true",
-        help="Write the replanned e-mode size×B×power matrix (not the 5 G grid).",
+        help="Write the replanned e-mode matrix (0–300 G / 5 G B-scans + size scan).",
+    )
+    parser.add_argument(
+        "--emode-matrix",
+        action="store_true",
+        help="Print the replanned e-mode matrix with done / to-run counts and exit.",
     )
     args = parser.parse_args(argv)
+    if args.emode_matrix:
+        print(emode_matrix_report())
+        return
     write_design_b_configs()
     write_bscan_configs()
     write_sig10_design_configs()
