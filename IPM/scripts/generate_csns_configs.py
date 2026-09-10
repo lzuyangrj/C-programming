@@ -34,6 +34,14 @@ EMODE_BSCAN_GS = tuple(range(0, 301, 5))
 EMODE_SIZE_B_GS = (0, 100, 200, 300, 1000)
 # (beam stage, σ_x in mm) reference beams for Block A; 25 mm = painted 25×20.
 EMODE_REF_BEAMS = (("injection", 25), ("extraction", 10), ("injection", 10))
+# Block C: cage-voltage scan on the 10 mm injection beam (25 kV baseline is Block A).
+EMODE_VOLTAGES_KV = (15, 20, 30, 35)
+EMODE_VOLT_B_GS = tuple(range(0, 301, 25)) + (1000,)
+EMODE_CHECK_POWERS_KW = (100, 500)
+# Block D: beam-offset check, (dx, dy) in mm; +y is away from the electron detector.
+EMODE_OFFSETS_MM = ((5, 0), (10, 0), (0, 5), (0, -5))
+EMODE_OFFSET_B_GS = (0, 100, 200, 300, 1000)
+EMODE_OFFSET_BEAMS = (("injection", 10), ("extraction", 10))
 # Injection σ_x = 10 mm; σ_y = 8 mm keeps the 25:20 painted-beam aspect ratio.
 INJ_SIG10_XY = "[ 10000, 8000 ]"
 
@@ -83,9 +91,15 @@ def beam_xml(
     e_off: bool,
     b_off: bool,
     train: str,
+    offset_mm: tuple[float, float] | None = None,
 ) -> str:
     off_e = "true" if e_off else "false"
     off_b = "true" if b_off else "false"
+    if offset_mm is not None and any(offset_mm):
+        train += (
+            f"\n                <TransverseOffset unit=\"mm\">"
+            f"[ {offset_mm[0]:g}, {offset_mm[1]:g} ]</TransverseOffset>"
+        )
     return f"""        <Beam>
             <Parameters>
                 <Energy unit="{energy_unit}">{energy}</Energy>
@@ -254,6 +268,8 @@ def electron_case(
     config_dir: Path = OUT,
     csv_dir: str = "output",
     n_bunch: float | None = None,
+    e_y: float = E_Y,
+    offset_mm: tuple[float, float] | None = None,
 ) -> Path:
     stem = _stem(name, sc_on, b_tag)
     csv = f"{csv_dir}/csns_{stem}.csv"
@@ -266,12 +282,13 @@ def electron_case(
         e_off=not sc_on,
         b_off=not sc_on,
         train=single_bunch_train(),
+        offset_mm=offset_mm,
     )
     xml = wrap(
         "    <Beams>\n"
         + beam
         + "\n    </Beams>\n"
-        + device_and_fields(e_y=E_Y, b_y=b_y)
+        + device_and_fields(e_y=e_y, b_y=b_y)
         + "\n"
         + electron_generation()
         + "\n"
@@ -480,6 +497,8 @@ def _electron_from_beam(
     csv_dir: str,
     sigma_xy_um: str | None = None,
     n_bunch: float | None = None,
+    e_y: float = E_Y,
+    offset_mm: tuple[float, float] | None = None,
 ) -> Path:
     spec = BEAMS[beam_key]
     return electron_case(
@@ -497,6 +516,8 @@ def _electron_from_beam(
         config_dir=config_dir,
         csv_dir=csv_dir,
         n_bunch=n_bunch,
+        e_y=e_y,
+        offset_mm=offset_mm,
     )
 
 
@@ -664,8 +685,57 @@ def emode_points() -> list[EmodePoint]:
     return list(pts)
 
 
+VoltPoint = tuple[int, int, int, bool]  # (V kV, power kW, B G, SC on)
+OffsetPoint = tuple[str, int, int, int, int, bool]  # (beam, dx, dy, power kW, B G, SC on)
+
+
+def emode_voltage_points() -> list[VoltPoint]:
+    """Block C: cage voltage × B × {100, 500 kW} on the 10 mm injection beam."""
+    pts: list[VoltPoint] = []
+    for v_kv in EMODE_VOLTAGES_KV:
+        for b_gs in EMODE_VOLT_B_GS:
+            for power_kw in EMODE_CHECK_POWERS_KW:
+                pts.append((v_kv, power_kw, b_gs, True))
+            pts.append((v_kv, 100, b_gs, False))
+    return pts
+
+
+def emode_offset_points() -> list[OffsetPoint]:
+    """Block D: transverse beam offset × B × {100, 500 kW}, 10 mm inj. and ext."""
+    pts: list[OffsetPoint] = []
+    for beam, _sigma in EMODE_OFFSET_BEAMS:
+        for dx, dy in EMODE_OFFSETS_MM:
+            for b_gs in EMODE_OFFSET_B_GS:
+                for power_kw in EMODE_CHECK_POWERS_KW:
+                    pts.append((beam, dx, dy, power_kw, b_gs, True))
+                pts.append((beam, dx, dy, 100, b_gs, False))
+    return pts
+
+
+def volt_slug(v_kv: int, power_kw: int) -> str:
+    return f"injection_electrons_s10mm_v{v_kv}kv_p{power_kw}kw"
+
+
+def volt_csv_name(v_kv: int, power_kw: int, b_gs: int, sc_on: bool) -> str:
+    tag = "sc_on" if sc_on else "sc_off"
+    return f"csns_{volt_slug(v_kv, power_kw)}_{b_tag(b_gs)}_{tag}.csv"
+
+
+def _signed(v: int) -> str:
+    return f"m{-v}" if v < 0 else f"{v}"
+
+
+def offset_slug(beam: str, dx: int, dy: int, power_kw: int) -> str:
+    return f"{beam}_electrons_s10mm_dx{_signed(dx)}mm_dy{_signed(dy)}mm_p{power_kw}kw"
+
+
+def offset_csv_name(beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on: bool) -> str:
+    tag = "sc_on" if sc_on else "sc_off"
+    return f"csns_{offset_slug(beam, dx, dy, power_kw)}_{b_tag(b_gs)}_{tag}.csv"
+
+
 def write_emode_replan() -> list[Path]:
-    """Write the replanned e-mode matrix (see `emode_points`)."""
+    """Write the replanned e-mode matrix (Blocks A–D)."""
     EMODE_OUT.mkdir(parents=True, exist_ok=True)
     paths: list[Path] = []
     for beam, sigma_mm, power_kw, b_gs, sc_on in emode_points():
@@ -680,6 +750,36 @@ def write_emode_replan() -> list[Path]:
                 csv_dir="output/emode",
                 sigma_xy_um=sigma_xy_um(sigma_mm),
                 n_bunch=n_bunch_at_power(power_kw),
+            )
+        )
+    for v_kv, power_kw, b_gs, sc_on in emode_voltage_points():
+        paths.append(
+            _electron_from_beam(
+                volt_slug(v_kv, power_kw),
+                "injection",
+                sc_on=sc_on,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=EMODE_OUT,
+                csv_dir="output/emode",
+                sigma_xy_um=sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                e_y=v_kv * 1e3 / GAP_M,
+            )
+        )
+    for beam, dx, dy, power_kw, b_gs, sc_on in emode_offset_points():
+        paths.append(
+            _electron_from_beam(
+                offset_slug(beam, dx, dy, power_kw),
+                beam,
+                sc_on=sc_on,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=EMODE_OUT,
+                csv_dir="output/emode",
+                sigma_xy_um=sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                offset_mm=(dx, dy),
             )
         )
     return paths
@@ -747,28 +847,44 @@ def emode_matrix_report(emode_dir: Path | None = None) -> str:
         src = existing_emode_source(beam, sigma_mm, power_kw, b_gs, sc_on)
         return src is not None and src.is_file()
 
+    def done_file(name: str) -> bool:
+        f = dest_dir / name
+        return f.is_file() and f.stat().st_size > 0
+
     pts = emode_points()
     lines: list[str] = []
     lines.append(
-        f"B grid: {EMODE_BSCAN_GS[0]}–{EMODE_BSCAN_GS[-1]} G step "
+        f"A/B  B grid: {EMODE_BSCAN_GS[0]}–{EMODE_BSCAN_GS[-1]} G step "
         f"{EMODE_BSCAN_GS[1] - EMODE_BSCAN_GS[0]} G ({len(EMODE_BSCAN_GS)} values); "
         f"size-scan fields: {', '.join(str(b) for b in EMODE_SIZE_B_GS)} G; "
         f"powers: {', '.join(str(p) for p in POWERS_KW)} kW; "
         f"sizes: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm (σ_y = {ASPECT_YX} σ_x)"
     )
+    lines.append(
+        f"C    cage voltage: {', '.join(str(v) for v in EMODE_VOLTAGES_KV)} kV (25 kV = Block A); "
+        f"B: {EMODE_VOLT_B_GS[0]}–{EMODE_VOLT_B_GS[-2]} G step {EMODE_VOLT_B_GS[1]} G + 1000 G; "
+        f"inj. 10×8 mm; {', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
+    )
+    lines.append(
+        "D    beam offset (dx, dy) mm: "
+        + ", ".join(f"({dx:+d}, {dy:+d})" for dx, dy in EMODE_OFFSETS_MM)
+        + f"; B: {', '.join(str(b) for b in EMODE_OFFSET_B_GS)} G; inj. and ext. 10×8 mm; "
+        f"{', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
+    )
     lines.append("")
-    header = f"{'Block / family':<44}{'runs':>6}{'done':>6}{'to run':>8}"
+    header = f"{'Block / family':<48}{'runs':>6}{'done':>6}{'to run':>8}"
     lines.append(header)
     lines.append("-" * len(header))
     total = total_done = 0
 
-    def row(label: str, subset: list[EmodePoint]) -> None:
+    def row_counts(label: str, n: int, d: int) -> None:
         nonlocal total, total_done
-        n = len(subset)
-        d = sum(done(p) for p in subset)
         total += n
         total_done += d
-        lines.append(f"{label:<44}{n:>6}{d:>6}{n - d:>8}")
+        lines.append(f"{label:<48}{n:>6}{d:>6}{n - d:>8}")
+
+    def row(label: str, subset: list[EmodePoint]) -> None:
+        row_counts(label, len(subset), sum(done(p) for p in subset))
 
     seen: set[EmodePoint] = set()
     for beam, sigma_mm in EMODE_REF_BEAMS:
@@ -787,8 +903,22 @@ def emode_matrix_report(emode_dir: Path | None = None) -> str:
         seen.update(subset)
         stage = "inj." if beam == "injection" else "ext."
         row(f"B  size scan {stage} e− 3–20 mm (new points only)", subset)
+    vpts = emode_voltage_points()
+    row_counts(
+        "C  cage voltage 15/20/30/35 kV, inj. e− 10 mm",
+        len(vpts),
+        sum(done_file(volt_csv_name(*p)) for p in vpts),
+    )
+    for beam, _sigma in EMODE_OFFSET_BEAMS:
+        opts = [p for p in emode_offset_points() if p[0] == beam]
+        stage = "inj." if beam == "injection" else "ext."
+        row_counts(
+            f"D  beam offset {stage} e− 10 mm, 4 offsets",
+            len(opts),
+            sum(done_file(offset_csv_name(*p)) for p in opts),
+        )
     lines.append("-" * len(header))
-    lines.append(f"{'Total':<44}{total:>6}{total_done:>6}{total - total_done:>8}")
+    lines.append(f"{'Total':<48}{total:>6}{total_done:>6}{total - total_done:>8}")
     return "\n".join(lines)
 
 

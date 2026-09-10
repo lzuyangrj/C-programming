@@ -147,8 +147,10 @@ The 0–250 G / 5 G campaign (sections 3 and 5) stopped where extraction at 500 
 |---|---|---|---|---|
 | **A** \(B\)-scan | inj. 80 MeV 25×20; ext. 1.6 GeV 10×8; inj. 80 MeV 10×8 | 25 / 10 / 10 mm | **0–300 G, step 5 G** (61 values) | 100–500 kW |
 | **B** size scan | inj. 80 MeV; ext. 1.6 GeV | **3–20 mm, step 1 mm** (\(\sigma_y=0.8\sigma_x\)) | 0, 100, 200, 300 G, 0.1 T | 100–500 kW |
+| **C** cage voltage | inj. 80 MeV 10×8 mm | 10 mm | 0–300 G step 25 G, 0.1 T | 100, 500 kW |
+| **D** beam offset | inj. 80 MeV, ext. 1.6 GeV (10×8 mm) | 10 mm | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW |
 
-SC on at every power; SC off once (100 kW) per \((\text{beam},\sigma_x,B)\) since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
+Block C: 15, 20, 30, 35 kV (\(E_y\) = 65–152 kV/m); 25 kV baseline from Block A. Block D: \((\Delta x,\Delta y)\) = (+5, 0), (+10, 0), (0, +5), (0, −5) mm; \(+y\) is away from the detector. SC on at every power; SC off once (100 kW) per case since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
 
 | Block / family | runs | done | to run |
 |---|---:|---:|---:|
@@ -157,9 +159,12 @@ SC on at every power; SC off once (100 kW) per \((\text{beam},\sigma_x,B)\) sinc
 | A B-scan inj. e− σx = 10 mm | 366 | 102 | 264 |
 | B size scan inj. e− (new points) | 516 | 2 | 514 |
 | B size scan ext. e− (new points) | 516 | 17 | 499 |
-| **Total** | **2130** | **733** | **1397** |
+| C cage voltage, inj. e− 10 mm | 168 | 0 | 168 |
+| D beam offset, inj. e− 10 mm | 60 | 0 | 60 |
+| D beam offset, ext. e− 10 mm | 60 | 0 | 60 |
+| **Total** | **2418** | **733** | **1685** |
 
-Results follow after the runs: `output/csns_emode_bscan300_summary.csv`, `output/csns_emode_size_summary.csv`; figures 12–15.
+Results follow after the runs: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`; figures 12–17.
 
 ---
 
