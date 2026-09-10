@@ -5,6 +5,9 @@
 #   C  cage voltage 5–30 kV on the 10×10 mm injection beam
 #   D  beam-offset check on the 10×10 mm beams
 # Points whose CSV already exists are skipped.
+# Fine C/D (1 kV / 1 mm / 5 G) is a separate planned matrix — print it with
+#   python scripts/generate_csns_configs.py --emode-fine-cd-matrix
+# and do not fold it into this script until execution is requested.
 #
 #   ./scripts/run_emode_replan.sh --matrix   # show the matrix only, run nothing
 #   JOBS=4 ./scripts/run_emode_replan.sh     # run all missing points

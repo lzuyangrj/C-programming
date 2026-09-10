@@ -51,6 +51,30 @@ Run counts (`--matrix`):
 
 **Status: complete** (2502 / 2502). Results: `REPORT.md` §8.
 
+## Fine C/D (planned, not run)
+
+Coarse C/D undersample the region that actually moves: the 10–15 kV sign flip at \(B=0\), the 0–150 G oscillations (25 G is too coarse; Block A used 5 G only at 25 kV), and \(\Delta y\). \(\Delta x\) is translation-invariant for a Gaussian bunch in a uniform cage. Write-up: `REPORT.md` §9.
+
+```bash
+python scripts/generate_csns_configs.py --emode-fine-cd-matrix   # counts only; no XMLs
+```
+
+This is **not** part of `--emode-replan` / `run_emode_replan.sh`. Do not generate configs or launch Virtual-IPM until execution is requested.
+
+Held fixed: 100000 e−, Voitkiv H₂, round 10×10 mm, SC-off at 100 kW shared, \(P=100,500\,\mathrm{kW}\). Reuse coarse C (252), coarse D (120), Block A 25 kV / 5 G, and Block A centred \(\Delta y=0\).
+
+| Slice | Grid | New runs |
+|---|---|---:|
+| **C1** | \(V=5\)–30 kV / **1 kV** (26) × diagnostic \(B\) (0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 1000 G) | 660 |
+| **C2** | \(V=10,12,15,18,20\,\mathrm{kV}\) × \(B=0\)–300 G / **5 G** + 0.1 T. 25 kV / 5 G = Block A | 738 |
+| **C union** | not the full 1 kV × 5 G cartesian (that would be 4584 new) | **1398** |
+| **D1** | \(\Delta y=-10\ldots+10\,\mathrm{mm}\) / **1 mm**, \(\Delta x=0\); same diagnostic \(B\); inj.+ext. \(\Delta y=0\) = Block A | 1260 |
+| **D2** | \(\Delta y=\pm 5\,\mathrm{mm}\) × 5 G \(B\)-scan; inj.+ext. **No \(\Delta x\) scan** | 612 |
+| **D union** | | **1872** |
+| **C+D fine** | | **3270** |
+
+Execution order when requested: C1, C2, D1, D2. SKIP if CSV exists. Evaluator overlays Block A for 25 kV / 5 G and for \(\Delta y=0\).
+
 ## Detailed matrix
 
 Held fixed in every run unless a block scans that axis.

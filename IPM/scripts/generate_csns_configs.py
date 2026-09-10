@@ -44,6 +44,17 @@ EMODE_CHECK_POWERS_KW = (100, 500)
 EMODE_OFFSETS_MM = ((5, 0), (10, 0), (0, 5), (0, -5))
 EMODE_OFFSET_B_GS = (0, 100, 200, 300, 1000)
 EMODE_OFFSET_BEAMS = (("injection", 10), ("extraction", 10))
+# Fine C/D (plan only). Print with --emode-fine-cd-matrix. Do not mix into
+# --emode-replan and do not write XMLs from these grids until execution is
+# requested. 25 kV / 5 G is Block A (same physics as C at design voltage);
+# Δy = 0 is Block A (centred 10×10 mm). Δx is not refined: coarse D showed
+# translation invariance in x for a Gaussian bunch in a uniform cage.
+EMODE_FINE_VOLTAGES_KV = tuple(range(5, 31, 1))
+EMODE_FINE_DIAG_B_GS = (0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 1000)
+EMODE_FINE_VOLT_BFINE_KV = (10, 12, 15, 18, 20)
+EMODE_FINE_B_GS = tuple(range(0, 301, 5)) + (1000,)
+EMODE_FINE_DY_MM = tuple(range(-10, 11, 1))
+EMODE_FINE_OFFSET_BFINE_DY = (-5, 5)
 # Injection σ_x = 10 mm; σ_y = 8 mm keeps the 25:20 painted-beam aspect ratio.
 INJ_SIG10_XY = "[ 10000, 8000 ]"
 
@@ -721,6 +732,71 @@ def emode_offset_points() -> list[OffsetPoint]:
     return pts
 
 
+def _sc_power_pts() -> list[tuple[int, bool]]:
+    """SC on at 100 and 500 kW; SC off once at 100 kW."""
+    return [(p, True) for p in EMODE_CHECK_POWERS_KW] + [(100, False)]
+
+
+def emode_fine_c1_voltage_points() -> list[VoltPoint]:
+    """C1: 1 kV voltage grid at diagnostic B (inj. 10×10 mm)."""
+    pts: list[VoltPoint] = []
+    for v_kv in EMODE_FINE_VOLTAGES_KV:
+        for b_gs in EMODE_FINE_DIAG_B_GS:
+            for power_kw, sc_on in _sc_power_pts():
+                pts.append((v_kv, power_kw, b_gs, sc_on))
+    return pts
+
+
+def emode_fine_c2_voltage_points() -> list[VoltPoint]:
+    """C2: 5 G B-scan at voltages that straddle the B=0 sign-flip / oscillation."""
+    pts: list[VoltPoint] = []
+    for v_kv in EMODE_FINE_VOLT_BFINE_KV:
+        for b_gs in EMODE_FINE_B_GS:
+            for power_kw, sc_on in _sc_power_pts():
+                pts.append((v_kv, power_kw, b_gs, sc_on))
+    return pts
+
+
+def emode_fine_voltage_points() -> list[VoltPoint]:
+    """Union of C1 and C2, first-seen order. 25 kV / 5 G stays Block A."""
+    seen: dict[VoltPoint, None] = {}
+    for pt in emode_fine_c1_voltage_points() + emode_fine_c2_voltage_points():
+        seen.setdefault(pt, None)
+    return list(seen)
+
+
+def emode_fine_d1_offset_points() -> list[OffsetPoint]:
+    """D1: 1 mm Δy scan at diagnostic B. Δy=0 is Block A, not emitted."""
+    pts: list[OffsetPoint] = []
+    for beam, _sigma in EMODE_OFFSET_BEAMS:
+        for dy in EMODE_FINE_DY_MM:
+            if dy == 0:
+                continue
+            for b_gs in EMODE_FINE_DIAG_B_GS:
+                for power_kw, sc_on in _sc_power_pts():
+                    pts.append((beam, 0, dy, power_kw, b_gs, sc_on))
+    return pts
+
+
+def emode_fine_d2_offset_points() -> list[OffsetPoint]:
+    """D2: 5 G B-scan at Δy = ±5 mm (the offsets that already differed)."""
+    pts: list[OffsetPoint] = []
+    for beam, _sigma in EMODE_OFFSET_BEAMS:
+        for dy in EMODE_FINE_OFFSET_BFINE_DY:
+            for b_gs in EMODE_FINE_B_GS:
+                for power_kw, sc_on in _sc_power_pts():
+                    pts.append((beam, 0, dy, power_kw, b_gs, sc_on))
+    return pts
+
+
+def emode_fine_offset_points() -> list[OffsetPoint]:
+    """Union of D1 and D2. No Δx scan."""
+    seen: dict[OffsetPoint, None] = {}
+    for pt in emode_fine_d1_offset_points() + emode_fine_d2_offset_points():
+        seen.setdefault(pt, None)
+    return list(seen)
+
+
 def volt_slug(v_kv: int, power_kw: int) -> str:
     return f"injection_electrons_s10x10mm_v{v_kv}kv_p{power_kw}kw"
 
@@ -878,6 +954,112 @@ def emode_matrix_report(emode_dir: Path | None = None) -> str:
     return "\n".join(lines)
 
 
+def emode_fine_cd_matrix_report(emode_dir: Path | None = None) -> str:
+    """Print the planned fine C/D matrix with reuse / new counts. Does not write XMLs."""
+    dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
+
+    def done_file(name: str) -> bool:
+        f = dest_dir / name
+        return f.is_file() and f.stat().st_size > 0
+
+    def v_done(pt: VoltPoint) -> bool:
+        return done_file(volt_csv_name(*pt))
+
+    def o_done(pt: OffsetPoint) -> bool:
+        return done_file(offset_csv_name(*pt))
+
+    c1 = emode_fine_c1_voltage_points()
+    c2 = emode_fine_c2_voltage_points()
+    c_union = emode_fine_voltage_points()
+    d1 = emode_fine_d1_offset_points()
+    d2 = emode_fine_d2_offset_points()
+    d_union = emode_fine_offset_points()
+    coarse_v = set(emode_voltage_points())
+    coarse_o = set(emode_offset_points())
+    full_c = [
+        (v, p, b, sc)
+        for v in EMODE_FINE_VOLTAGES_KV
+        for b in EMODE_FINE_B_GS
+        for p, sc in _sc_power_pts()
+    ]
+
+    lines: list[str] = []
+    lines.append("Fine C/D — PLAN ONLY (this flag does not write XMLs or run Virtual-IPM)")
+    lines.append(
+        "Held fixed: 100000 e−, Voitkiv H₂, round 10×10 mm, SC-off at 100 kW shared, "
+        f"P = {', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
+    )
+    lines.append(
+        f"C1  V = {EMODE_FINE_VOLTAGES_KV[0]}–{EMODE_FINE_VOLTAGES_KV[-1]} kV step 1 kV "
+        f"({len(EMODE_FINE_VOLTAGES_KV)} values); diagnostic B = "
+        + ", ".join(str(b) for b in EMODE_FINE_DIAG_B_GS)
+        + " G; inj. 10×10 mm"
+    )
+    lines.append(
+        "C2  5 G B-scan at V = "
+        + ", ".join(str(v) for v in EMODE_FINE_VOLT_BFINE_KV)
+        + f" kV; B = {EMODE_FINE_B_GS[0]}–300 G step 5 G + 1000 G "
+        f"({len(EMODE_FINE_B_GS)} values). 25 kV / 5 G is Block A, not repeated."
+    )
+    lines.append(
+        f"D1  Δy = {EMODE_FINE_DY_MM[0]}–{EMODE_FINE_DY_MM[-1]} mm step 1 mm, Δx = 0 "
+        f"({len(EMODE_FINE_DY_MM)} values, Δy=0 omitted → Block A); diagnostic B; "
+        "inj. and ext. 10×10 mm"
+    )
+    lines.append(
+        "D2  5 G B-scan at Δy = "
+        + ", ".join(f"{dy:+d}" for dy in EMODE_FINE_OFFSET_BFINE_DY)
+        + " mm, Δx = 0; inj. and ext. No Δx refinement."
+    )
+    lines.append(
+        f"Rejected full C cartesian: {len(EMODE_FINE_VOLTAGES_KV)} V × "
+        f"{len(EMODE_FINE_B_GS)} B × {len(_sc_power_pts())} SC = {len(full_c)} "
+        f"({len(full_c) - len(coarse_v)} new after coarse C)"
+    )
+    lines.append("")
+    header = f"{'Block / slice':<56}{'runs':>6}{'reuse':>7}{'new':>7}"
+    lines.append(header)
+    lines.append("-" * len(header))
+
+    def row(label: str, pts: list, done_fn, extra_reuse: int = 0) -> None:
+        n = len(pts)
+        reuse = sum(done_fn(p) for p in pts) + extra_reuse
+        lines.append(f"{label:<56}{n:>6}{reuse:>7}{n - reuse:>7}")
+
+    # Δy=0 at diagnostic B is Block A (not in d1 file list).
+    dy0_reuse = (
+        len(EMODE_FINE_DIAG_B_GS) * len(EMODE_OFFSET_BEAMS) * len(_sc_power_pts())
+    )
+    row("C1  1 kV × diagnostic B", c1, v_done)
+    c2_only = [p for p in c2 if p not in set(c1)]
+    row("C2  5 G B-scan (points not in C1)", c2_only, v_done)
+    row("C   union (C1 ∪ C2)", c_union, v_done)
+    row("D1  1 mm Δy × diagnostic B (Δy≠0 files)", d1, o_done)
+    d2_only = [p for p in d2 if p not in set(d1)]
+    row("D2  5 G B-scan at Δy=±5 (points not in D1)", d2_only, o_done)
+    row("D   union (D1 ∪ D2 files)", d_union, o_done)
+    lines.append(
+        f"{'D   Δy=0 diagnostic B (Block A, not generated)':<56}"
+        f"{dy0_reuse:>6}{dy0_reuse:>7}{0:>7}"
+    )
+    lines.append("-" * len(header))
+    c_new = len(c_union) - sum(v_done(p) for p in c_union)
+    d_new = len(d_union) - sum(o_done(p) for p in d_union)
+    lines.append(
+        f"{'Fine C+D new files (after existing CSVs)':<56}"
+        f"{len(c_union) + len(d_union):>6}"
+        f"{len(c_union) + len(d_union) - c_new - d_new:>7}"
+        f"{c_new + d_new:>7}"
+    )
+    lines.append("")
+    lines.append(
+        f"Coarse C already on disk: {sum(v_done(p) for p in emode_voltage_points())}"
+        f" / {len(coarse_v)}. Coarse D: "
+        f"{sum(o_done(p) for p in emode_offset_points())} / {len(coarse_o)}."
+    )
+    return "\n".join(lines)
+
+
 def write_sig10_ion_bscan() -> list[Path]:
     """Repeat the 0/50/100/200 G ion-mode scan at injection σ = 10×8 mm."""
     BSCAN_OUT.mkdir(parents=True, exist_ok=True)
@@ -924,9 +1106,18 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Print the replanned e-mode matrix with done / to-run counts and exit.",
     )
+    parser.add_argument(
+        "--emode-fine-cd-matrix",
+        action="store_true",
+        help="Print the planned fine C/D matrix with reuse / new counts and exit. "
+        "Does not write XMLs.",
+    )
     args = parser.parse_args(argv)
     if args.emode_matrix:
         print(emode_matrix_report())
+        return
+    if args.emode_fine_cd_matrix:
+        print(emode_fine_cd_matrix_report())
         return
     write_design_b_configs()
     write_bscan_configs()

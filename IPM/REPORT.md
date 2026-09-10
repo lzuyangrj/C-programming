@@ -194,6 +194,101 @@ CSV: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`. Re-run: `./
 
 ---
 
+## 9. Fine scan of Blocks C and D (plan only — not run)
+
+Coarse C (5 kV × 25 G) and D (four offsets × 100 G) are complete. This section is the follow-up matrix. **No XMLs were generated and Virtual-IPM was not launched.** Print the counts with:
+
+```bash
+python scripts/generate_csns_configs.py --emode-fine-cd-matrix
+```
+
+### Why the coarse grid is not enough
+
+**C — voltage.** At \(B=0\), 100 kW the expansion **changes sign between 10 kV (+32%) and 15 kV (−15%)**. A 5 kV step misses the zero and the voltages on either side of it. The same block is oscillatory in \(B\): at 10 kV / 100 kW the 25 G grid reads +32% (0 G), **−49% (25 G)**, +31% (50 G). Block A already showed that e-mode recovery needs 5 G; that resolution exists only at the design 25 kV. By 200–300 G every coarse voltage is already \(\lesssim 1\%\) (30 kV / 500 kW is the slowest: +0.6% at 300 G), so a full 1 kV × 5 G cartesian is wasted there.
+
+Expansion vs no-SC [%], injection 10×10 mm, selected \(B\):
+
+| \(V\) [kV] | 100 kW, 0 G | 25 G | 50 G | 100 G | 300 G | 500 kW, 0 G | 50 G | 100 G | 300 G |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 5 | +58 | +30 | −3 | −0.5 | 0.0 | +29 | +13 | +2.9 | 0.0 |
+| 10 | +32 | **−49** | +31 | −1.1 | +0.2 | +56 | +20 | +1.7 | 0.0 |
+| 15 | **−15** | −53 | +9 | −5.4 | +0.5 | +65 | +28 | +0.2 | 0.0 |
+| 20 | −39 | −51 | −9 | +3.8 | −0.6 | +74 | +35 | −1.8 | −0.2 |
+| 25 | −48 | −49 | −18 | +9.0 | +0.6 | +80 | +33 | +1.9 | −0.1 |
+| 30 | −50 | −46 | −21 | +10 | +0.1 | +83 | +21 | +12 | +0.6 |
+
+**D — offset.** \(\Delta x = +5\) and \(+10\,\mathrm{mm}\) give **the same expansion as the centred beam** to numerical noise (Gaussian bunch + uniform cage is translation-invariant in \(x\)). \(\Delta y\) does change it: toward the detector (\(\Delta y<0\)) vs away (\(\Delta y>0\)). At the checkpoints the \(\Delta y\) trend is nearly linear, but the 100 G \(B\) step skips the 0–150 G oscillation that Block C just showed is voltage- and ToF-sensitive. Fine \(\Delta x\) is not worth running; fine \(\Delta y\) and fine \(B\) at \(\Delta y\neq 0\) are.
+
+Expansion vs no-SC [%] at 25 kV, 10×10 mm:
+
+| Offset | Inj. 100 kW, 0 G | 100 G | 300 G | Inj. 500 kW, 0 G | Ext. 100 kW, 0 G | Ext. 500 kW, 0 G |
+|---|---:|---:|---:|---:|---:|---:|
+| \(\Delta y=-5\,\mathrm{mm}\) | −48.4 | +9.5 | +0.6 | +76.9 | +29.0 | +62.7 |
+| centred | −47.9 | +9.0 | +0.6 | +80.4 | +33.4 | +65.6 |
+| \(\Delta y=+5\,\mathrm{mm}\) | −46.9 | +8.3 | +0.5 | +83.8 | +37.6 | +68.3 |
+| \(\Delta x=+5\) or \(+10\,\mathrm{mm}\) | identical to centred | | | | | |
+
+### Held fixed / reuse
+
+Same as coarse C/D: 100000 electrons, Voitkiv DDCS on hydrogen, round 10×10 mm, Boris / 8000 steps, RNG 1234, \(P=100\) and \(500\,\mathrm{kW}\), SC-off once at 100 kW per geometry. Reuse every existing CSV (SKIP-if-exists):
+
+- Coarse C: 6 voltages × 14 \(B\) × 3 SC = **252** (`..._s10x10mm_v{V}kv_...`)
+- Coarse D: 4 offsets × 5 \(B\) × 2 stages × 3 SC = **120** (`..._dx{dx}mm_dy{dy}mm_...`)
+- Block A injection 10×10 mm at 25 kV, 0–300 G / 5 G: the design-voltage \(B\)-scan (evaluator overlays this; do **not** write duplicate `v25kv` 5 G files)
+- Block A centred 10×10 mm, both stages: \(\Delta y=0\)
+
+### Recommended C-fine (not the full 1 kV × 5 G product)
+
+| Slice | Grid | Why |
+|---|---|---|
+| **C1** | \(V=5\ldots 30\,\mathrm{kV}\) step **1 kV** (26); \(B\in\{0,25,50,75,100,125,150,200,250,300,1000\}\,\mathrm{G}\) (11) | Map the 10–15 kV sign flip and \(E_y\) continuously, at the \(B\) values where coarse C actually moves |
+| **C2** | \(V\in\{10,12,15,18,20\}\,\mathrm{kV}\); \(B=0\ldots 300\,\mathrm{G}\) step **5 G** + 0.1 T (62) | 5 G through the 0–150 G oscillation at the voltages that straddle the flip (12 and 18 kV sit in the 5 kV gaps). **20 kV** replaces 25 kV here because 25 kV / 5 G is already Block A |
+
+**Rejected:** \(26\times 62\times 3=4836\) files (4584 new after coarse C). That densifies 200–300 G at every volt, where coarse C is already flat.
+
+Counts (`--emode-fine-cd-matrix`): C1 = 858 (198 already on disk → **660 new**). C2 points not in C1 = 765 (27 already on disk → **738 new**). **C union: 1398 new.**
+
+Optional follow-up, not in this plan: 5 G at 30 kV (~144 extra after C1/coarse) if C1 still looks under-resolved at the high-\(V\) tail.
+
+### Recommended D-fine
+
+| Slice | Grid | Why |
+|---|---|---|
+| **D1** | \(\Delta y=-10\ldots+10\,\mathrm{mm}\) step **1 mm** (21, \(\Delta y=0\) from Block A); \(\Delta x=0\); same 11 diagnostic \(B\); inj. + ext. | Sample the detector-gap direction, including closer to the walls than ±5 mm |
+| **D2** | \(\Delta y=\pm 5\,\mathrm{mm}\) only; \(B=0\ldots 300\,\mathrm{G}\) step **5 G** + 0.1 T; inj. + ext. | The two offsets that already differed, on the same \(B\) grid as Block A, so the cyclotron/ToF oscillation can be compared to the centred beam |
+
+**Do not densify \(\Delta x\).** Coarse \(\Delta x=+5,+10\,\mathrm{mm}\) files stay as the translation-invariance check.
+
+Counts: D1 files (\(\Delta y\neq 0\)) = 1320 (60 already on disk → **1260 new**). D2 points not in D1 = 612 (all new). \(\Delta y=0\) at diagnostic \(B\): 66, all Block A. **D union: 1872 new files.**
+
+Cheaper D1 if 1 mm is too dense: step 2 mm (\(\Delta y=\pm 2,\pm 4,\ldots\pm 10\)) plus the existing \(\pm 5\,\mathrm{mm}\) checkpoints. Coarse \(\Delta y\) is already close to linear at 0/100/200/300 G, so 2 mm would likely suffice for the diagnostic-\(B\) cut; keep 1 mm in the recommended plan because 0–150 G is untested.
+
+### Totals and execution order (when requested)
+
+| | Unique files in plan | Already on disk | **New** |
+|---|---:|---:|---:|
+| C-fine | 1623 | 225 | **1398** |
+| D-fine | 1932 | 60 | **1872** |
+| **C+D fine** | 3555 | 285 | **3270** |
+
+Each run is the same 100000-particle e-mode job as the replan (~1 min). At `JOBS=4`, C-fine is the first slice to launch; D-fine after. Do **not** start this while `run_emode_replan.sh` is running (CSV races). The existing runner is unchanged and does **not** include these points.
+
+When executing later:
+
+1. Add a write path (`--emode-fine-cd`) next to the matrix printer; do not fold fine C/D into `--emode-replan`.
+2. Filenames stay `..._v{V}kv_...` and `..._dx0mm_dy{dy}mm_...` (`dym5`, `dym10` for negative \(\Delta y\)). SKIP if the CSV exists.
+3. Order: **C1, C2, D1, D2**.
+4. Evaluator: iterate the 1 kV list; overlay Block A as 25 kV / 5 G; iterate \(\Delta y=-10\ldots 10\,\mathrm{mm}\) with centred from A; new plots `csns_emode_voltage_fine.png` and `csns_emode_offset_fine.png`.
+
+### Not in this plan
+
+- Ion mode, elliptical beams, extra powers (200/300/400 kW), bunch-length or mid-ramp energy
+- Fine \(\Delta x\), combined \((\Delta x,\Delta y)\) orbits, voltages outside 5–30 kV
+- The rejected full C cartesian
+- Changing particle count, gas species, or cage geometry
+
+---
+
 ## Appendix. All figures
 
 **Fig. 1.** Residual-gas profiles at design \(B_y=0.1\,\mathrm{T}\) (100 kW, painted injection + extraction electrons; H₂⁺, H₂O⁺, N₂⁺).
