@@ -105,19 +105,23 @@ Low \(B\) gets worse with power (injection at 0 G: −19% → −52%). By **250 
 
 ---
 
-## 6. Ion-mode size scan (3–20 mm) vs power
+## 6. Ion-mode size scan (3–20 mm) vs power — H₂⁺, H₂O⁺, N₂⁺
 
-H₂⁺, \(B_y=0.1\,\mathrm{T}\), \(\sigma_x = 3\ldots20\,\mathrm{mm}\) (1 mm), \(\sigma_y=0.8\,\sigma_x\), injection and extraction, 100–500 kW.
+All three ToF species, \(B_y=0.1\,\mathrm{T}\), \(\sigma_x = 3\ldots20\,\mathrm{mm}\) (1 mm), \(\sigma_y=0.8\,\sigma_x\), injection and extraction, 100–500 kW. H₂⁺ space-charge-off profiles are reused (no bunch field ⇒ obtained \(x\) = birth \(x\)).
 
-![Ion-mode expansion vs beam size and power](plots/csns_ionsize_expansion.png)
+![Ion-mode expansion vs beam size](plots/csns_ionsize_expansion.png)
 
-| \(\sigma_x\) | Inj. 100 kW | Inj. 500 kW | Ext. 100 kW | Ext. 500 kW |
-|---:|---:|---:|---:|---:|
-| 3 mm | +790% | +1786% | +60% | +237% |
-| 10 mm | +87% | +428% | +29% | +132% |
-| 20 mm | +24% | +138% | +15% | +70% |
+![True vs obtained beam size](plots/csns_ionsize_obtained.png)
 
-Injection (long 120 ns bunch, non-relativistic) is far worse than extraction at the same \(\sigma_x\). Expansion grows as the beam shrinks and as power rises. Ion mode at a small, high-power injection beam is not a usable profile.
+Obtained \(\sigma_x\) at true \(\sigma_x = 10\,\mathrm{mm}\):
+
+| Species | Inj. 100 kW | Inj. 500 kW | Ext. 100 kW | Ext. 500 kW |
+|---|---:|---:|---:|---:|
+| H₂⁺ | 18.7 mm (+87%) | 52.7 mm (+428%) | 13.0 mm (+29%) | 23.2 mm (+132%) |
+| H₂O⁺ | 16.9 mm (+69%) | 47.9 mm (+380%) | 16.0 mm (+60%) | 41.5 mm (+314%) |
+| N₂⁺ | 16.1 mm (+61%) | 44.0 mm (+341%) | 15.4 mm (+54%) | 39.4 mm (+293%) |
+
+The dashed line on the obtained plot is **obtained = true**. Points above it are space-charge inflated. At injection, H₂⁺ is worst (largest \(\Delta v/m\)). At extraction the short bunch plus 0.1 T keeps H₂⁺ nearer the diagonal; H₂O⁺ and N₂⁺ stay in the cage longer and inflate more. Very small \(\sigma_x\) at high power saturates (cage walls).
 
 ---
 
@@ -125,8 +129,8 @@ Injection (long 120 ns bunch, non-relativistic) is far worse than extraction at 
 
 1. **Electron IPM:** 250 G finishes the recovery that 200 G almost completed (10 mm injection −0.85%). At 100–500 kW, **250 G keeps e-mode within 1%**. 0.1 T remains conservative.
 2. **Ion IPM** is not helped by 0–250 G. Distortion scales up with power and down with \(\sigma_x\).
-3. A **small injection beam at high power** is the worst ion-mode case (hundreds of percent). Extraction is milder but still +70% at 20 mm / 500 kW.
-4. Among residual gases, **hydrogen is the worst actor**.
+3. A **small injection beam at high power** is the worst ion-mode case (obtained \(\sigma\) tens of mm for a 3–10 mm beam). Extraction H₂⁺ is milder; extraction H₂O⁺/N₂⁺ are much worse than H₂⁺ at small \(\sigma_x\).
+4. Among residual gases at **injection**, **hydrogen is the worst actor**. At **extraction**, H₂O⁺ and N₂⁺ inflate more than H₂⁺ (longer ToF).
 5. Cage fields are ideal and uniform; MCP mapping is not in these runs.
 
 CSV: `output/csns_space_charge_summary.csv`, `output/csns_bscan_summary.csv`, `output/csns_bscan5_summary.csv`, `output/csns_space_charge_summary_sig10.csv`, `output/csns_bscan_power_summary.csv`, `output/csns_ionsize_summary.csv`. Re-run: `./scripts/run_extended_scans.sh`.
