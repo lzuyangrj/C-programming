@@ -147,10 +147,10 @@ The 0–250 G / 5 G campaign (sections 3 and 5) stopped where extraction at 500 
 |---|---|---|---|---|
 | **A** \(B\)-scan | inj. 80 MeV 25×20; ext. 1.6 GeV 10×8; inj. 80 MeV 10×8 | 25 / 10 / 10 mm | **0–300 G, step 5 G** (61 values) | 100–500 kW |
 | **B** size scan | inj. 80 MeV; ext. 1.6 GeV | **3–20 mm, step 1 mm** (\(\sigma_y=0.8\sigma_x\)) | 0, 100, 200, 300 G, 0.1 T | 100–500 kW |
-| **C** cage voltage | inj. 80 MeV 10×8 mm | 10 mm | 0–300 G step 25 G, 0.1 T | 100, 500 kW |
+| **C** cage voltage | inj. 80 MeV **10×10 mm** | 10 mm | 0–300 G step 25 G, 0.1 T | 100, 500 kW |
 | **D** beam offset | inj. 80 MeV, ext. 1.6 GeV (10×8 mm) | 10 mm | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW |
 
-Block C: 15, 20, 30, 35 kV (\(E_y\) = 65–152 kV/m); 25 kV baseline from Block A. Block D: \((\Delta x,\Delta y)\) = (+5, 0), (+10, 0), (0, +5), (0, −5) mm; \(+y\) is away from the detector. SC on at every power; SC off once (100 kW) per case since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
+Block C: **5–30 kV, step 5 kV** (\(E_y\) = 22–130 kV/m) on a round 10×10 mm beam (\(\sigma_y\) reset to 10 mm), 25 kV included in the block. Block D: \((\Delta x,\Delta y)\) = (+5, 0), (+10, 0), (0, +5), (0, −5) mm; \(+y\) is away from the detector. SC on at every power; SC off once (100 kW) per case since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
 
 | Block / family | runs | done | to run |
 |---|---:|---:|---:|
@@ -159,12 +159,12 @@ Block C: 15, 20, 30, 35 kV (\(E_y\) = 65–152 kV/m); 25 kV baseline from Block 
 | A B-scan inj. e− σx = 10 mm | 366 | 102 | 264 |
 | B size scan inj. e− (new points) | 516 | 2 | 514 |
 | B size scan ext. e− (new points) | 516 | 17 | 499 |
-| C cage voltage, inj. e− 10 mm | 168 | 27 | 141 |
+| C cage voltage 5–30 kV, inj. e− 10×10 mm | 252 | 0 | 252 |
 | D beam offset, inj. e− 10 mm | 60 | 0 | 60 |
 | D beam offset, ext. e− 10 mm | 60 | 0 | 60 |
-| **Total** | **2418** | **760** | **1658** |
+| **Total** | **2502** | **733** | **1769** |
 
-**Status: planned, not executed.** The 1658 new runs (~1 min each, ~7 h at 4 parallel jobs, ~45 GB of particle CSVs) have not been launched. `./scripts/run_emode_replan.sh --matrix` reprints the table; `./scripts/run_emode_replan.sh` runs the missing points and `python scripts/evaluate_emode.py` produces `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv` and the figures `plots/csns_emode_*.png`.
+**Status: planned, not executed.** The 1769 new runs (~1 min each, ~7.5 h at 4 parallel jobs, ~48 GB of particle CSVs) have not been launched. `./scripts/run_emode_replan.sh --matrix` reprints the table; `./scripts/run_emode_replan.sh` runs the missing points and `python scripts/evaluate_emode.py` produces `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv` and the figures `plots/csns_emode_*.png`.
 
 ---
 

@@ -21,7 +21,7 @@ Instrument numbers that the NIMA article uses are also tabulated in the cited IB
 | Beam power scan | 100–500 kW | \(N_b \propto P\); 100 kW is \(7.8\times10^{12}\)/bunch |
 | Ion-mode \(\sigma_x\) scan | 3–20 mm, step 1 mm | \(\sigma_y=0.8\,\sigma_x\); H₂⁺/H₂O⁺/N₂⁺; inj. and ext. |
 | E-mode \(\sigma_x\) scan | 3–20 mm, step 1 mm | Same aspect; at the size-scan \(B\) values; inj. and ext.; 100–500 kW |
-| E-mode cage-voltage scan | 15, 20, 25, 30, 35 kV | \(E_y=V/231\,\mathrm{mm}\); inj. 10×8 mm; 0–300 G step 25 G + 0.1 T; 100 and 500 kW |
+| E-mode cage-voltage scan | 5–30 kV, step 5 kV | \(E_y=V/231\,\mathrm{mm}\) = 22–130 kV/m; inj. **10×10 mm** (\(\sigma_y\) reset to 10 mm); 0–300 G step 25 G + 0.1 T; 100 and 500 kW |
 | E-mode beam-offset check | (+5, 0), (+10, 0), (0, +5), (0, −5) mm | `TransverseOffset`; inj. and ext. 10×8 mm; 0/100/200/300 G + 0.1 T; 100 and 500 kW |
 | Injection \(\sigma\) (repeat) | 10 mm × 8 mm | Same 5:4 aspect as 25×20; \(\sigma_x=10\,\mathrm{mm}\) |
 | Extraction RF / bunch spacing | 2.444 MHz → 409.2 ns | RCS \(h=2\); used for extraction ion trains |

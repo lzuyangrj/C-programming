@@ -72,17 +72,14 @@ def add_centroids(row: dict, on: Path, off: Path) -> dict:
 
 
 def collect_voltage_rows(emode_dir: Path) -> list[dict]:
-    """Block C plus the 25 kV baseline from Block A (10 mm injection)."""
+    """Block C: cage voltage 5–30 kV on the round 10×10 mm injection beam."""
     rows: list[dict] = []
-    for v_kv in (*EMODE_VOLTAGES_KV, 25):
+    for v_kv in EMODE_VOLTAGES_KV:
         for power_kw in EMODE_CHECK_POWERS_KW:
             for b_gs in EMODE_VOLT_B_GS:
-                if v_kv == 25:
-                    on, off = emode_paths(emode_dir, "injection", 10, power_kw, b_gs)
-                else:
-                    on = emode_dir / volt_csv_name(v_kv, power_kw, b_gs, True)
-                    off = emode_dir / volt_csv_name(v_kv, 100, b_gs, False)
-                row = summarize_pair(on, off, "injection_electrons_sig10", b_gs)
+                on = emode_dir / volt_csv_name(v_kv, power_kw, b_gs, True)
+                off = emode_dir / volt_csv_name(v_kv, 100, b_gs, False)
+                row = summarize_pair(on, off, "injection_electrons_s10x10", b_gs)
                 if row is None:
                     continue
                 row["voltage_kv"] = v_kv
@@ -136,7 +133,7 @@ def plot_voltage(rows: list[dict], plot_dir: Path) -> None:
             )
         ax.axhline(0.0, color="0.5", lw=0.8)
         ax.axhspan(-1.0, 1.0, color="0.85", alpha=0.5, lw=0)
-        ax.set_title(f"Injection 80 MeV, e− (10×8 mm), {power_kw} kW")
+        ax.set_title(f"Injection 80 MeV, e− (10×10 mm), {power_kw} kW")
         ax.set_xlabel("B [G]")
         ax.grid(True, alpha=0.3)
         ax.legend(fontsize=8, title="cage voltage")
@@ -445,7 +442,7 @@ def main() -> None:
                 if bits:
                     print(f"  {BEAM_TITLES[beam]}, {b_label(b_gs)}, {sigma_mm} mm: " + ", ".join(bits))
 
-    print("Cage voltage (inj. 10 mm): Δ at 0 G / 100 G / 200 G / 300 G:")
+    print("Cage voltage (inj. 10×10 mm): Δ at 0 G / 100 G / 200 G / 300 G:")
     for v_kv in sorted({r["voltage_kv"] for r in v_rows}):
         for power_kw in EMODE_CHECK_POWERS_KW:
             pick = {

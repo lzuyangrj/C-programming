@@ -34,8 +34,10 @@ EMODE_BSCAN_GS = tuple(range(0, 301, 5))
 EMODE_SIZE_B_GS = (0, 100, 200, 300, 1000)
 # (beam stage, σ_x in mm) reference beams for Block A; 25 mm = painted 25×20.
 EMODE_REF_BEAMS = (("injection", 25), ("extraction", 10), ("injection", 10))
-# Block C: cage-voltage scan on the 10 mm injection beam (25 kV baseline is Block A).
-EMODE_VOLTAGES_KV = (15, 20, 30, 35)
+# Block C: cage-voltage scan on a round 10×10 mm injection beam (σ_y reset to 10 mm),
+# so the 25 kV baseline is part of the block rather than taken from Block A.
+EMODE_VOLTAGES_KV = tuple(range(5, 31, 5))
+EMODE_VOLT_SIGMA_XY_UM = "[ 10000, 10000 ]"
 EMODE_VOLT_B_GS = tuple(range(0, 301, 25)) + (1000,)
 EMODE_CHECK_POWERS_KW = (100, 500)
 # Block D: beam-offset check, (dx, dy) in mm; +y is away from the electron detector.
@@ -713,7 +715,7 @@ def emode_offset_points() -> list[OffsetPoint]:
 
 
 def volt_slug(v_kv: int, power_kw: int) -> str:
-    return f"injection_electrons_s10mm_v{v_kv}kv_p{power_kw}kw"
+    return f"injection_electrons_s10x10mm_v{v_kv}kv_p{power_kw}kw"
 
 
 def volt_csv_name(v_kv: int, power_kw: int, b_gs: int, sc_on: bool) -> str:
@@ -762,7 +764,7 @@ def write_emode_replan() -> list[Path]:
                 b_tag=b_tag(b_gs),
                 config_dir=EMODE_OUT,
                 csv_dir="output/emode",
-                sigma_xy_um=sigma_xy_um(10),
+                sigma_xy_um=EMODE_VOLT_SIGMA_XY_UM,
                 n_bunch=n_bunch_at_power(power_kw),
                 e_y=v_kv * 1e3 / GAP_M,
             )
@@ -861,9 +863,10 @@ def emode_matrix_report(emode_dir: Path | None = None) -> str:
         f"sizes: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm (σ_y = {ASPECT_YX} σ_x)"
     )
     lines.append(
-        f"C    cage voltage: {', '.join(str(v) for v in EMODE_VOLTAGES_KV)} kV (25 kV = Block A); "
+        f"C    cage voltage: {EMODE_VOLTAGES_KV[0]}–{EMODE_VOLTAGES_KV[-1]} kV step "
+        f"{EMODE_VOLTAGES_KV[1] - EMODE_VOLTAGES_KV[0]} kV ({len(EMODE_VOLTAGES_KV)} values); "
         f"B: {EMODE_VOLT_B_GS[0]}–{EMODE_VOLT_B_GS[-2]} G step {EMODE_VOLT_B_GS[1]} G + 1000 G; "
-        f"inj. 10×8 mm; {', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
+        f"inj. 10×10 mm (σ_y reset to 10 mm); {', '.join(str(p) for p in EMODE_CHECK_POWERS_KW)} kW"
     )
     lines.append(
         "D    beam offset (dx, dy) mm: "
@@ -905,7 +908,7 @@ def emode_matrix_report(emode_dir: Path | None = None) -> str:
         row(f"B  size scan {stage} e− 3–20 mm (new points only)", subset)
     vpts = emode_voltage_points()
     row_counts(
-        "C  cage voltage 15/20/30/35 kV, inj. e− 10 mm",
+        "C  cage voltage 5–30 kV, inj. e− 10×10 mm",
         len(vpts),
         sum(done_file(volt_csv_name(*p)) for p in vpts),
     )

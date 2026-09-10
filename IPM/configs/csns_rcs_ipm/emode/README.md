@@ -24,10 +24,10 @@ Common settings: 100000 secondaries, Voitkiv DDCS on hydrogen, SC on vs off (SC-
 |---|---|---|---|---|---|
 | **A** \(B\)-scan | inj. 80 MeV; ext. 1.6 GeV; inj. 80 MeV | 25 mm (painted); 10 mm; 10 mm | **0–300 G, step 5 G** (61 values) | 100–500 kW | on ×5 powers + off ×1 |
 | **B** size scan | inj. 80 MeV; ext. 1.6 GeV | **3–20 mm, step 1 mm** | 0, 100, 200, 300 G, and 0.1 T (1000 G) | 100–500 kW | on ×5 + off ×1 |
-| **C** cage voltage | inj. 80 MeV 10×8 mm | 10 mm | 0–300 G step 25 G, and 0.1 T | 100, 500 kW | on ×2 + off ×1 |
+| **C** cage voltage | inj. 80 MeV **10×10 mm** (\(\sigma_y\) reset to 10 mm) | 10 mm | 0–300 G step 25 G, and 0.1 T | 100, 500 kW | on ×2 + off ×1 |
 | **D** beam offset | inj. 80 MeV; ext. 1.6 GeV, both 10×8 mm | 10 mm | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW | on ×2 + off ×1 |
 
-Block C voltages: **15, 20, 30, 35 kV** (\(E_y = V/231\,\mathrm{mm}\) = 65, 87, 130, 152 kV/m); the 25 kV baseline is the Block A 10 mm injection family. Block D offsets \((\Delta x, \Delta y)\): **(+5, 0), (+10, 0), (0, +5), (0, −5) mm** via `TransverseOffset` of the bunch train; \(+y\) is away from the electron detector (detector at \(y_\min\)). Centred baseline is Block A. Space-charge-off runs are done at 100 kW only and shared.
+Block C voltages: **5, 10, 15, 20, 25, 30 kV** (step 5 kV; \(E_y = V/231\,\mathrm{mm}\) = 22, 43, 65, 87, 108, 130 kV/m). The beam is a round 10×10 mm injection beam, so the 25 kV point is run inside the block rather than taken from Block A (which is 10×8 mm). Block D offsets \((\Delta x, \Delta y)\): **(+5, 0), (+10, 0), (0, +5), (0, −5) mm** via `TransverseOffset` of the bunch train; \(+y\) is away from the electron detector (detector at \(y_\min\)). Centred baseline is Block A. Space-charge-off runs are done at 100 kW only and shared.
 
 Points shared by A and B (10 mm at 0/100/200/300 G) are counted once. Existing CSVs with identical parameters (the 0–250 G scans, the 0.1 T design runs) are hard-linked into `output/emode/` and skipped.
 
@@ -40,13 +40,13 @@ Run counts at the time of planning (`--matrix`):
 | A B-scan inj. e− σx = 10 mm, 100–500 kW | 366 | 102 | 264 |
 | B size scan inj. e− 3–20 mm (new points) | 516 | 2 | 514 |
 | B size scan ext. e− 3–20 mm (new points) | 516 | 17 | 499 |
-| C cage voltage 15/20/30/35 kV, inj. e− 10 mm | 168 | 27 | 141 |
+| C cage voltage 5–30 kV, inj. e− 10×10 mm | 252 | 0 | 252 |
 | D beam offset inj. e− 10 mm, 4 offsets | 60 | 0 | 60 |
 | D beam offset ext. e− 10 mm, 4 offsets | 60 | 0 | 60 |
-| **Total** | **2418** | **760** | **1658** |
+| **Total** | **2502** | **733** | **1769** |
 
-**Status: planned, not executed.** Estimated cost of the remaining runs: ~1 min each, ~7 h wall time at `JOBS=4`, ~27 MB per CSV (~45 GB).
+**Status: planned, not executed.** Estimated cost of the remaining runs: ~1 min each, ~7.5 h wall time at `JOBS=4`, ~27 MB per CSV (~48 GB).
 
-File naming in `output/emode/`: A/B `csns_{beam}_electrons_s{σx}mm_p{P}kw_b{B}G_sc_{on,off}.csv`; C `..._s10mm_v{V}kv_p{P}kw_...`; D `..._s10mm_dx{dx}mm_dy{dy}mm_p{P}kw_...` (negative offsets written as `m5`).
+File naming in `output/emode/`: A/B `csns_{beam}_electrons_s{σx}mm_p{P}kw_b{B}G_sc_{on,off}.csv`; C `..._s10x10mm_v{V}kv_p{P}kw_...`; D `..._s10mm_dx{dx}mm_dy{dy}mm_p{P}kw_...` (negative offsets written as `m5`).
 
 Outputs: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`; `plots/csns_emode_bscan300.png`, `csns_emode_bscan300_tail.png`, `csns_emode_size_expansion.png`, `csns_emode_size_obtained.png`, `csns_emode_voltage.png`, `csns_emode_offset.png`.
