@@ -154,48 +154,43 @@ The 0–250 G / 5 G campaign (sections 3 and 5) stopped where extraction at 500 
 
 Block C: **5–30 kV, step 5 kV** (\(E_y\) = 22–130 kV/m). Block D: \((\Delta x,\Delta y)\) = (+5, 0), (+10, 0), (0, +5), (0, −5) mm; \(+y\) is away from the detector. Centred / 25 kV baselines come from Block A. SC on at every power; SC off once (100 kW) per case since it does not depend on \(N_b\). 100000 secondaries, Voitkiv H₂.
 
-| Block / family | runs | done | to run |
-|---|---:|---:|---:|
-| A B-scan inj. e− 25×25 mm | 366 | 0 | 366 |
-| A B-scan ext. e− 10×10 mm | 366 | ~160 | ~206 |
-| A B-scan inj. e− 10×10 mm | 366 | 0 | 366 |
-| B size scan inj. e− (new points) | 516 | 0 | 516 |
-| B size scan ext. e− (new points) | 516 | 3 | 513 |
-| C cage voltage 5–30 kV, inj. e− 10×10 mm | 252 | **252** | 0 |
-| D beam offset, inj. e− 10×10 mm | 60 | **60** | 0 |
-| D beam offset, ext. e− 10×10 mm | 60 | **60** | 0 |
-| **Total** | **2502** | **~533** | **~1969** |
+**Status: complete.** 2502 / 2502 runs. Round beams; 100000 secondaries; SC-off shared across power.
 
-**Status: running** (`JOBS=4`). Blocks **C and D are complete**. Block A is on the extraction 10×10 mm \(B\)-scan. Remaining wall time ~6–8 h.
+### Block A — \(B\) scan 0–300 G, step 5 G
 
-### Block C — cage voltage (complete)
+![E-mode B-scan 0–300 G](plots/csns_emode_bscan300.png)
 
-Injection 80 MeV, round 10×10 mm. Expansion \(\sigma_\mathrm{on}/\sigma_\mathrm{off}-1\) at 100 and 500 kW:
+![E-mode B-scan tail 150–300 G](plots/csns_emode_bscan300_tail.png)
+
+Smallest \(B\) after which \(|\Delta|\) stays below 1% for the rest of the grid, and \(\Delta\) at 300 G:
+
+| Family | 100 kW | 200 kW | 300 kW | 400 kW | 500 kW |
+|---|---|---|---|---|---|
+| Inj. 25×25 mm | 105 G (+0.03%) | 115 G (+0.09%) | 155 G (+0.16%) | 155 G (+0.19%) | 155 G (+0.15%) |
+| Ext. 10×10 mm | 240 G (−0.11%) | 190 G (−0.24%) | 185 G (−0.17%) | 195 G (−0.02%) | 205 G (+0.08%) |
+| Inj. 10×10 mm | 210 G (+0.61%) | 290 G (+0.40%) | 235 G (−0.04%) | 190 G (−0.16%) | 190 G (−0.15%) |
+
+Painted injection recovers first. Extraction and small injection still oscillate through ~150–250 G (tail plot). **300 G** puts every power \(\lesssim 1\%\); the 10×10 mm injection 200 kW curve is the last to settle (threshold 290 G).
+
+### Block B — size scan 3–20 mm
+
+![E-mode true vs obtained size](plots/csns_emode_size_obtained.png)
+
+At \(B=0\) obtained \(\sigma\) is not a monotonic function of true \(\sigma\) (focusing vs over-kick). From **200 G** the points lie on the diagonal except the tiniest beams; at **300 G** injection 3 mm is still +1% (100 kW) to +4% (500 kW). **0.1 T** puts 3, 10, and 20 mm on the diagonal at every power.
+
+### Block C — cage voltage 5–30 kV (inj. 10×10 mm)
 
 ![E-mode cage voltage](plots/csns_emode_voltage.png)
 
-| \(V\) | \(B=0\) 100 / 500 kW | 100 G | 200 G | 300 G |
-|---|---|---|---|---|
-| 5 kV | +58% / +29% | −0.5% / +2.9% | ~0% / +0.2% | ~0% |
-| 15 kV | −15% / +65% | −5.4% / +0.2% | ~0% | +0.5% / ~0% |
-| 25 kV | −48% / +80% | +9.0% / +1.9% | +1.3% / ~0% | +0.6% / −0.1% |
-| 30 kV | −50% / +83% | +10% / +12% | +0.7% / +1.5% | +0.1% / +0.6% |
+At \(B=0\), 100 kW goes from expansion (+58% at 5 kV) to compression (−48% at 25 kV). By **300 G** every voltage is \(\lesssim 1\%\) (30 kV / 500 kW: +0.6%).
 
-Lower cage voltage (longer drift) does **not** simply make space charge worse: at \(B=0\) the 100 kW profile goes from expansion (+58% at 5 kV) to compression (−48% at 25 kV). By **300 G** every voltage is \(\lesssim 1\%\) except 30 kV at 500 kW (+0.6%). 0.1 T removes the residual.
-
-### Block D — beam offset (complete)
-
-Round 10×10 mm; offsets (+5, 0), (+10, 0), (0, +5), (0, −5) mm. Expansion and centroid shift vs no SC:
+### Block D — beam offset (10×10 mm)
 
 ![E-mode beam offset](plots/csns_emode_offset.png)
 
-At **300 G** and **0.1 T**, expansion stays \(\lesssim 1\%\) for every offset. Centroid shift vs no-SC is \(\lesssim 0.2\,\mathrm{mm}\) at injection and \(\lesssim 0.6\,\mathrm{mm}\) at extraction (500 kW, 300 G), and \(\lesssim 0.2\,\mathrm{mm}\) at 0.1 T. A few-mm orbit offset does not undo the \(B\) recovery. \(y\)-offsets (toward/away from the detector) change the low-\(B\) expansion more than \(x\)-offsets.
+At **300 G** and **0.1 T**, expansion stays \(\lesssim 1\%\) for every offset. Centroid shift vs no-SC is \(\lesssim 0.2\,\mathrm{mm}\) (injection) and \(\lesssim 0.6\,\mathrm{mm}\) (extraction, 500 kW, 300 G). A few-mm orbit offset does not undo the \(B\) recovery.
 
-### Blocks A–B (in progress)
-
-Partial extraction 10×10 mm: \(|\Delta|<1\%\) thereafter at **240 G** (100 kW) and **190 G** (200 kW); at 300 G already −0.11% / −0.24%. Full curves after the remaining runs.
-
-CSV: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`. Re-run missing points: `./scripts/run_emode_replan.sh`.
+CSV: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`. Re-run: `./scripts/run_emode_replan.sh`.
 
 ---
 
@@ -245,10 +240,22 @@ CSV: `output/csns_emode_{bscan300,size,voltage,offset}_summary.csv`. Re-run miss
 
 ![Fig. 11](plots/csns_ionsize_obtained.png)
 
-**Fig. 12.** Replanned e-mode, Block C: cage voltage 5–30 kV on injection 10×10 mm (100 and 500 kW).
+**Fig. 12.** Replanned e-mode, Block A: expansion vs \(B\) 0–300 G (round beams, 100–500 kW).
 
-![Fig. 12](plots/csns_emode_voltage.png)
+![Fig. 12](plots/csns_emode_bscan300.png)
 
-**Fig. 13.** Replanned e-mode, Block D: beam offset on 10×10 mm injection and extraction.
+**Fig. 13.** Same scan, 150–300 G zoom (\(\pm 3\%\)).
 
-![Fig. 13](plots/csns_emode_offset.png)
+![Fig. 13](plots/csns_emode_bscan300_tail.png)
+
+**Fig. 14.** Replanned e-mode, Block B: true vs obtained \(\sigma\) at 0, 100, 200, 300 G and 0.1 T.
+
+![Fig. 14](plots/csns_emode_size_obtained.png)
+
+**Fig. 15.** Replanned e-mode, Block C: cage voltage 5–30 kV on injection 10×10 mm.
+
+![Fig. 15](plots/csns_emode_voltage.png)
+
+**Fig. 16.** Replanned e-mode, Block D: beam offset on 10×10 mm injection and extraction.
+
+![Fig. 16](plots/csns_emode_offset.png)

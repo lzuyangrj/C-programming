@@ -49,7 +49,7 @@ Run counts (`--matrix`):
 | D beam offset ext. e− 10×10 mm, 4 offsets | 60 | 0 | 60 |
 | **Total** | **2502** | **0** | **2502** |
 
-**Status: planned, not executed.** Estimated cost: ~1 min per run, ~10.5 h wall time at `JOBS=4`, ~27 MB per CSV (~68 GB).
+**Status: complete** (2502 / 2502). Results: `REPORT.md` §8.
 
 ## Detailed matrix
 
@@ -142,7 +142,7 @@ Runs: \(2\times 4\times 5\times 3 = 120\) (60 per stage). \(+y\) is away from th
 | SC off | 183 | 172 | 8 | 84 | 40 | **479** |
 | All | 1098 | 1032 | 48 | 252 | 120 | **2502** |
 
-A SC-on: \(3\times 61\times 5=915\); A SC-off: \(3\times 61=183\). B-new SC-on: \(1032\times 5/6=860\); B-new SC-off: \(1032/6=172\).
+Grand total = A + B-new + C + D = \(1098+1032+252+120=2502\) (A∩B is already inside A).
 
 ### Not in this plan
 
