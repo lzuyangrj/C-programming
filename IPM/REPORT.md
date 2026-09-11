@@ -1,5 +1,7 @@
 # CSNS RCS IPM — Virtual-IPM results (brief)
 
+Combined round-beam write-up with figures: **[CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md)** · PDF: **[CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf)**.
+
 **Code:** Virtual-IPM 2.3.1. **Beam / cage:** NIMA **1092** (2026) 171809, 100 kW CSNS RCS; ideal uniform \(E_y = 25\,\mathrm{kV}/231\,\mathrm{mm} \approx 108\,\mathrm{kV/m}\). **Space charge:** Gaussian bunch \(E\) plus Lorentz-boosted bunch \(B\), compared with those fields off. Guiding \(E\) and \(B\) stay uniform. **Statistics:** 100000 secondaries per run; quoted \(\sigma\) is the RMS of **detected** \(x\).
 
 Injection: 80 MeV, \(\sigma_t=120\,\mathrm{ns}\), \(\sigma_{x,y}=25\times 20\,\mathrm{mm}\), \(7.8\times10^{12}\) p/bunch. Extraction: 1.6 GeV, \(\sigma_t=20\,\mathrm{ns}\), \(\sigma_{x,y}=10\times 8\,\mathrm{mm}\). Residual-gas ions follow the paper ToF peaks (H₂, H₂O, N₂). Electron ionization uses Voitkiv DDCS on **hydrogen** (Virtual-IPM has no N₂/H₂O electron DDCS).
@@ -256,13 +258,13 @@ Diagnostic \(B\): 0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 1000 G. Not run: 
 - Fine \(\Delta x\), combined \((\Delta x,\Delta y)\) orbits, voltages outside 5–30 kV
 - Changing particle count, gas species, or cage geometry
 
-Ion-mode A–D is section 10 / [`IMODE_REPORT.md`](IMODE_REPORT.md).
+Ion-mode A–D is section 10 / [`IMODE_REPORT.md`](IMODE_REPORT.md). Combined e-mode + ion-mode report: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md).
 
 ---
 
 ## 10. Ion-mode parameter-scan matrix (round beams)
 
-Full write-up with all figures: **[IMODE_REPORT.md](IMODE_REPORT.md)** · PDF: **[IMODE_REPORT.pdf](IMODE_REPORT.pdf)**.
+Full write-up with all figures: **[IMODE_REPORT.md](IMODE_REPORT.md)** · PDF: **[IMODE_REPORT.pdf](IMODE_REPORT.pdf)**. Combined e-mode + ion-mode: **[CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md)** · **[CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf)**.
 
 Parallel to the e-mode replan (section 8), but **without an ion \(B\)-scan** — only \(B_y\in\{0,200,1000\}\,\mathrm{G}\). Round beams (\(\sigma_y=\sigma_x\)); H₂⁺ / H₂O⁺ / N₂⁺; 100000 secondaries.
 

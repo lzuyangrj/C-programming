@@ -2,8 +2,9 @@
 
 CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) 2.3.1.
 
-**Results note:** [REPORT.md](REPORT.md) — e-mode and early ion results (appendix).  
-**Ion-mode scan:** [IMODE_REPORT.md](IMODE_REPORT.md) / [IMODE_REPORT.pdf](IMODE_REPORT.pdf) — round-beam A–D matrix (2070 runs, figures).
+**Combined results (e-mode + ion-mode):** [CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md) / [CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf) — round-beam A–D (and fine C/D) with figures.  
+**Lab notebook:** [REPORT.md](REPORT.md) — chronological e-mode and early ion results.  
+**Ion-mode only:** [IMODE_REPORT.md](IMODE_REPORT.md) / [IMODE_REPORT.pdf](IMODE_REPORT.pdf).
 
 Docs: [Introduction](https://ipmsim.gitlab.io/Virtual-IPM/introduction.html) · [Install](https://ipmsim.gitlab.io/Virtual-IPM/installation.html) · [Usage](https://ipmsim.gitlab.io/Virtual-IPM/usage.html) · [Examples](https://ipmsim.gitlab.io/Virtual-IPM/examples.html)
 
@@ -158,7 +159,9 @@ Useful CLI flags:
 
 | Path | Purpose |
 |------|---------|
-| `REPORT.md` | Brief results note |
+| `CSNS_IPM_REPORT.md` / `.pdf` | Combined e-mode + ion-mode results |
+| `IMODE_REPORT.md` / `.pdf` | Ion-mode A–D write-up |
+| `REPORT.md` | Lab notebook (chronological) |
 | `configs/` | XML simulation configurations |
 | `scripts/run_sim.sh` | Wrapper around `virtual-ipm` |
 | `scripts/analyze_output.py` | Plot initial vs final x profiles |

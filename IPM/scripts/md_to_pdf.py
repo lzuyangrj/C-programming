@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render IMODE_REPORT.md to a PDF with figures (fpdf2)."""
+"""Render a CSNS IPM markdown report to PDF with figures (fpdf2)."""
 
 from __future__ import annotations
 
@@ -17,14 +17,26 @@ MATH = [
     (r"\^{12}", "¹²"),
     (r"\^\{12\}", "¹²"),
     (r"\^12", "¹²"),
+    (r"\^\{-\}", "⁻"),
+    (r"\^\{+\}", "⁺"),
+    (r"\^\+", "⁺"),
     (r"_\{x,y\}", "ₓ,ᵧ"),
     (r"_\{x\}", "ₓ"),
     (r"_x", "ₓ"),
     (r"_y", "ᵧ"),
     (r"_\{y\}", "ᵧ"),
+    (r"_\{2\}", "₂"),
+    (r"_2(?=\^)", "₂"),
+    (r"_t", "ₜ"),
+    (r"_\{b\}", "b"),
     (r"_\{min\}", "ₘᵢₙ"),
     (r"_min", "ₘᵢₙ"),
     (r"\\lesssim", "≲"),
+    (r"\\gtrsim", "≳"),
+    (r"\\pm", "±"),
+    (r"\\propto", "∝"),
+    (r"\\ldots", "…"),
+    (r"\\dots", "…"),
     (r"\\sim", "∼"),
     (r"\\approx", "≈"),
     (r"\\times", "×"),
@@ -38,6 +50,7 @@ MATH = [
     (r"\\mathrm\{T\}", "T"),
     (r"\\mathrm\{MeV\}", "MeV"),
     (r"\\mathrm\{GeV\}", "GeV"),
+    (r"\\mathrm\{sc\}", "sc"),
     (r"\\min", "min"),
     (r"\\%", "%"),
     (r"\\,", " "),
@@ -46,6 +59,7 @@ MATH = [
     (r"\\!", ""),
     (r"\\left", ""),
     (r"\\right", ""),
+    (r"\\int", "∫"),
     (r"\\text\{([^}]*)\}", r"\1"),
     (r"\\mathrm\{([^}]*)\}", r"\1"),
 ]
@@ -136,6 +150,17 @@ def parse_blocks(md: str) -> list[tuple[str, object]]:
                     i += 1
             blocks.append(("ol", items))
             continue
+        elif re.match(r"[-*] ", line.strip()):
+            flush()
+            items = []
+            while i < len(lines) and re.match(r"[-*] ", lines[i].strip()):
+                items.append(re.sub(r"^[-*]\s+", "", lines[i].strip()))
+                i += 1
+                while i < len(lines) and lines[i].startswith("   "):
+                    items[-1] += " " + lines[i].strip()
+                    i += 1
+            blocks.append(("ul", items))
+            continue
         else:
             para.append(line.strip())
         i += 1
@@ -144,11 +169,13 @@ def parse_blocks(md: str) -> list[tuple[str, object]]:
 
 
 class ReportPDF(FPDF):
+    footer_label = "CSNS RCS IPM"
+
     def footer(self) -> None:
         self.set_y(-12)
         self.set_font("DejaVu", "", 8)
         self.set_text_color(90, 90, 90)
-        self.cell(0, 8, f"CSNS RCS IPM — ion-mode scan  ·  {self.page_no()}", align="C")
+        self.cell(0, 8, f"{self.footer_label}  ·  {self.page_no()}", align="C")
         self.set_text_color(0, 0, 0)
 
 
@@ -198,13 +225,21 @@ def render(pdf: ReportPDF, blocks: list[tuple[str, object]], root: Path) -> None
                 pdf.cell(8, 5.2, f"{n}.")
                 pdf.set_xy(x + 8, y)
                 write_rich(pdf, item)
+        elif kind == "ul":
+            for item in payload:
+                pdf.set_font("DejaVu", "B", 10.5)
+                x, y = pdf.get_x(), pdf.get_y()
+                pdf.cell(8, 5.2, "•")
+                pdf.set_xy(x + 8, y)
+                write_rich(pdf, item)
         elif kind == "img":
             _alt, rel = payload
             path = root / rel
             if not path.is_file():
                 continue
-            if pdf.get_y() > 190:
+            if pdf.get_y() > 175:
                 pdf.add_page()
+            # Keep a caption-sized figure on one page; very tall panels get a new page.
             pdf.image(str(path), w=usable)
             pdf.ln(2)
         elif kind == "table":
@@ -247,14 +282,20 @@ def render(pdf: ReportPDF, blocks: list[tuple[str, object]], root: Path) -> None
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--md", type=Path, default=ROOT / "IMODE_REPORT.md")
-    parser.add_argument("--pdf", type=Path, default=ROOT / "IMODE_REPORT.pdf")
+    parser.add_argument("--md", type=Path, default=ROOT / "CSNS_IPM_REPORT.md")
+    parser.add_argument("--pdf", type=Path, default=ROOT / "CSNS_IPM_REPORT.pdf")
+    parser.add_argument(
+        "--footer",
+        default="CSNS RCS IPM — e-mode and ion-mode",
+        help="Footer label printed with the page number.",
+    )
     args = parser.parse_args()
 
     md = subst_math(drop_appendix(args.md.read_text()))
     blocks = parse_blocks(md)
 
     pdf = ReportPDF(format="A4", unit="mm")
+    pdf.footer_label = args.footer
     pdf.set_auto_page_break(auto=True, margin=16)
     pdf.set_margins(14, 14, 14)
     pdf.add_font("DejaVu", "", FONT)
