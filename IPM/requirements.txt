@@ -2,3 +2,4 @@ Virtual-IPM==2.3.1
 matplotlib>=3.8
 pandas>=2.0
 numpy>=1.26
+fpdf2>=2.8
