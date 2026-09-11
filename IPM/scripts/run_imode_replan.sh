@@ -30,6 +30,9 @@ if [[ ${#CASES[@]} -eq 0 ]]; then
 fi
 
 mkdir -p output output/imode plots
+LOG="output/imode/run.log"
+echo "=== ion-mode replan start $(date -u +'%Y-%m-%dT%H:%M:%SZ') ===" | tee -a "$LOG"
+echo "Configs: ${#CASES[@]}  JOBS=${JOBS}" | tee -a "$LOG"
 
 echo "Running ${#CASES[@]} ion-mode replan configs with ${JOBS} parallel jobs"
 printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
@@ -42,4 +45,6 @@ printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
   ./scripts/run_sim.sh "$cfg" --console-log-level=warning
 ' _ {}
 
+echo "=== ion-mode replan finished $(date -u +'%Y-%m-%dT%H:%M:%SZ') ===" | tee -a "$LOG"
+./scripts/imode_status.sh | tee -a "$LOG"
 echo "Ion-mode replan runs finished. Evaluate when an evaluate_imode.py is added."
