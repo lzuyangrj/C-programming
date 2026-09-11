@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from plot_conf import load_summary, plot_conf
+
 B_SCAN_GS = (0, 50, 100, 200, 250)
 FAMILIES = [
     ("injection_electrons", "Injection 80 MeV, e−"),
@@ -208,23 +210,33 @@ def main() -> None:
     parser.add_argument("--output-dir", default="output/bscan", type=Path)
     parser.add_argument("--plot-dir", default="plots", type=Path)
     parser.add_argument("--summary", default="output/csns_bscan_summary.csv")
+    parser.add_argument(
+        "--from-summary",
+        action="store_true",
+        help="Replot sigma/expansion from the summary CSV; still draw profiles if CSVs exist.",
+    )
     args = parser.parse_args()
+    plot_conf()
 
-    rows: list[dict] = []
-    missing = 0
-    for key, _title in FAMILIES:
-        for b_gs in B_SCAN_GS:
-            stem = f"csns_{key}_b{b_gs}G"
-            row = summarize_pair(
-                args.output_dir / f"{stem}_sc_on.csv",
-                args.output_dir / f"{stem}_sc_off.csv",
-                key,
-                b_gs,
-            )
-            if row is None:
-                missing += 1
-                continue
-            rows.append(row)
+    if args.from_summary:
+        rows = load_summary(args.summary)
+        missing = 0
+    else:
+        rows = []
+        missing = 0
+        for key, _title in FAMILIES:
+            for b_gs in B_SCAN_GS:
+                stem = f"csns_{key}_b{b_gs}G"
+                row = summarize_pair(
+                    args.output_dir / f"{stem}_sc_on.csv",
+                    args.output_dir / f"{stem}_sc_off.csv",
+                    key,
+                    b_gs,
+                )
+                if row is None:
+                    missing += 1
+                    continue
+                rows.append(row)
 
     if not rows:
         raise SystemExit(f"No completed B-scan pairs in {args.output_dir}")
@@ -233,13 +245,14 @@ def main() -> None:
     plot_profiles(args.output_dir, args.plot_dir, "electron")
     plot_profiles(args.output_dir, args.plot_dir, "ion")
 
-    summary_path = Path(args.summary)
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    with summary_path.open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Wrote {summary_path}")
+    if not args.from_summary:
+        summary_path = Path(args.summary)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        with summary_path.open("w", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(rows)
+        print(f"Wrote {summary_path}")
     print()
     print(
         f"{'family':<22} {'B[G]':>6} {'σ_off':>8} {'σ_on':>8} "

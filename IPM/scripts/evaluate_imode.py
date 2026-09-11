@@ -13,6 +13,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evaluate_bscan import load_xy, stats, summarize_pair  # noqa: E402
+from plot_conf import load_summary, plot_conf  # noqa: E402
 from generate_csns_configs import (  # noqa: E402
     IMODE_B_GS,
     IMODE_CHECK_POWERS_KW,
@@ -357,35 +358,47 @@ def main() -> None:
     parser.add_argument("--summary-size", default="output/csns_imode_size_summary.csv")
     parser.add_argument("--summary-voltage", default="output/csns_imode_voltage_summary.csv")
     parser.add_argument("--summary-offset", default="output/csns_imode_offset_summary.csv")
+    parser.add_argument(
+        "--from-summary",
+        action="store_true",
+        help="Replot from existing summary CSVs; do not read particle CSVs.",
+    )
     args = parser.parse_args()
+    plot_conf()
     args.plot_dir.mkdir(parents=True, exist_ok=True)
 
-    ref_rows: list[dict] = []
-    size_rows: list[dict] = []
-    for species in SPECIES_SLUGS:
-        for beam, sigma_mm in IMODE_REF_BEAMS:
-            for power_kw in POWERS_KW:
-                for b_gs in IMODE_B_GS:
-                    row = collect_ref(args.imode_dir, species, beam, sigma_mm, power_kw, b_gs)
-                    if row is not None:
-                        ref_rows.append(row)
-        for beam in ("injection", "extraction"):
-            for power_kw in POWERS_KW:
-                for b_gs in IMODE_B_GS:
-                    for sigma_mm in SIZE_MM:
-                        row = collect_ref(
-                            args.imode_dir, species, beam, sigma_mm, power_kw, b_gs
-                        )
+    if args.from_summary:
+        ref_rows = load_summary(args.summary_b)
+        size_rows = load_summary(args.summary_size)
+        v_rows = load_summary(args.summary_voltage)
+        o_rows = load_summary(args.summary_offset)
+    else:
+        ref_rows = []
+        size_rows = []
+        for species in SPECIES_SLUGS:
+            for beam, sigma_mm in IMODE_REF_BEAMS:
+                for power_kw in POWERS_KW:
+                    for b_gs in IMODE_B_GS:
+                        row = collect_ref(args.imode_dir, species, beam, sigma_mm, power_kw, b_gs)
                         if row is not None:
-                            size_rows.append(row)
+                            ref_rows.append(row)
+            for beam in ("injection", "extraction"):
+                for power_kw in POWERS_KW:
+                    for b_gs in IMODE_B_GS:
+                        for sigma_mm in SIZE_MM:
+                            row = collect_ref(
+                                args.imode_dir, species, beam, sigma_mm, power_kw, b_gs
+                            )
+                            if row is not None:
+                                size_rows.append(row)
 
-    v_rows = collect_voltage_rows(args.imode_dir)
-    o_rows = collect_offset_rows(args.imode_dir)
+        v_rows = collect_voltage_rows(args.imode_dir)
+        o_rows = collect_offset_rows(args.imode_dir)
 
-    write_csv(Path(args.summary_b), ref_rows)
-    write_csv(Path(args.summary_size), size_rows)
-    write_csv(Path(args.summary_voltage), v_rows)
-    write_csv(Path(args.summary_offset), o_rows)
+        write_csv(Path(args.summary_b), ref_rows)
+        write_csv(Path(args.summary_size), size_rows)
+        write_csv(Path(args.summary_voltage), v_rows)
+        write_csv(Path(args.summary_offset), o_rows)
 
     if ref_rows:
         plot_ref_b(ref_rows, args.plot_dir)

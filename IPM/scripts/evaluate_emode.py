@@ -13,6 +13,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evaluate_bscan import load_xy, stats, summarize_pair  # noqa: E402
+from plot_conf import load_summary, plot_conf  # noqa: E402
 from generate_csns_configs import (  # noqa: E402
     EMODE_BSCAN_GS,
     EMODE_CHECK_POWERS_KW,
@@ -592,27 +593,46 @@ def main() -> None:
         action="store_true",
         help="Also evaluate the fine C/D grids and write *_fine plots/summaries.",
     )
+    parser.add_argument(
+        "--from-summary",
+        action="store_true",
+        help="Replot from existing summary CSVs; do not read particle CSVs.",
+    )
     args = parser.parse_args()
+    plot_conf()
     args.plot_dir.mkdir(parents=True, exist_ok=True)
 
-    b_rows = collect_bscan_rows(args.emode_dir)
-    size_rows = collect_size_rows(args.emode_dir)
-    v_rows = collect_voltage_rows(args.emode_dir)
-    o_rows = collect_offset_rows(args.emode_dir)
-    vf_rows = collect_voltage_fine_rows(args.emode_dir) if args.fine_cd else []
-    of_rows = collect_offset_fine_rows(args.emode_dir) if args.fine_cd else []
+    if args.from_summary:
+        b_rows = load_summary(args.summary_b)
+        size_rows = load_summary(args.summary_size)
+        v_rows = load_summary(args.summary_voltage)
+        o_rows = load_summary(args.summary_offset)
+        vf_rows = load_summary(args.summary_voltage_fine)
+        of_rows = load_summary(args.summary_offset_fine)
+        if not args.fine_cd:
+            args.fine_cd = bool(vf_rows or of_rows)
+    else:
+        b_rows = collect_bscan_rows(args.emode_dir)
+        size_rows = collect_size_rows(args.emode_dir)
+        v_rows = collect_voltage_rows(args.emode_dir)
+        o_rows = collect_offset_rows(args.emode_dir)
+        vf_rows = collect_voltage_fine_rows(args.emode_dir) if args.fine_cd else []
+        of_rows = collect_offset_fine_rows(args.emode_dir) if args.fine_cd else []
     if v_rows:
         plot_voltage(v_rows, args.plot_dir)
     if o_rows:
         plot_offset(o_rows, args.plot_dir)
     if vf_rows:
         plot_voltage_fine(vf_rows, args.plot_dir)
-        write_csv(Path(args.summary_voltage_fine), vf_rows)
+        if not args.from_summary:
+            write_csv(Path(args.summary_voltage_fine), vf_rows)
     if of_rows:
         plot_offset_fine(of_rows, args.plot_dir)
-        write_csv(Path(args.summary_offset_fine), of_rows)
-    write_csv(Path(args.summary_voltage), v_rows)
-    write_csv(Path(args.summary_offset), o_rows)
+        if not args.from_summary:
+            write_csv(Path(args.summary_offset_fine), of_rows)
+    if not args.from_summary:
+        write_csv(Path(args.summary_voltage), v_rows)
+        write_csv(Path(args.summary_offset), o_rows)
 
     if b_rows:
         plot_bscan(b_rows, args.plot_dir)
@@ -632,8 +652,9 @@ def main() -> None:
             "csns_emode_size_obtained.png",
             diagonal=True,
         )
-    write_csv(Path(args.summary_b), b_rows)
-    write_csv(Path(args.summary_size), size_rows)
+    if not args.from_summary:
+        write_csv(Path(args.summary_b), b_rows)
+        write_csv(Path(args.summary_size), size_rows)
 
     print()
     print("B-scan: |Δ| < 1% thereafter (G), and Δ at 300 G:")

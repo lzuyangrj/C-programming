@@ -13,6 +13,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evaluate_bscan import summarize_pair  # noqa: E402
+from plot_conf import load_summary, plot_conf  # noqa: E402
 from generate_csns_configs import B_SCAN5_GS, ION_SPECIES, POWERS_KW, SIZE_MM  # noqa: E402
 
 E_FAMILIES = (
@@ -48,19 +49,29 @@ def main() -> None:
     parser.add_argument("--plot-dir", default="plots", type=Path)
     parser.add_argument("--summary-b", default="output/csns_bscan_power_summary.csv")
     parser.add_argument("--summary-size", default="output/csns_ionsize_summary.csv")
+    parser.add_argument(
+        "--from-summary",
+        action="store_true",
+        help="Replot from existing summary CSVs; do not read particle CSVs.",
+    )
     args = parser.parse_args()
+    plot_conf()
     args.plot_dir.mkdir(parents=True, exist_ok=True)
 
-    brow: list[dict] = []
-    for family, _title in E_FAMILIES:
-        for power_kw in POWERS_KW:
-            for b_gs in B_SCAN5_GS:
-                on, off = emode_paths(args.bscan_dir, args.power_dir, family, b_gs, power_kw)
-                row = summarize_pair(on, off, family, b_gs)
-                if row is None:
-                    continue
-                row["power_kw"] = power_kw
-                brow.append(row)
+    if args.from_summary:
+        brow = load_summary(args.summary_b)
+        srow = load_summary(args.summary_size)
+    else:
+        brow = []
+        for family, _title in E_FAMILIES:
+            for power_kw in POWERS_KW:
+                for b_gs in B_SCAN5_GS:
+                    on, off = emode_paths(args.bscan_dir, args.power_dir, family, b_gs, power_kw)
+                    row = summarize_pair(on, off, family, b_gs)
+                    if row is None:
+                        continue
+                    row["power_kw"] = power_kw
+                    brow.append(row)
 
     fig, axes = plt.subplots(1, 2, figsize=(11.4, 4.6), sharey=True)
     for ax, (family, title) in zip(axes, E_FAMILIES):
@@ -88,20 +99,21 @@ def main() -> None:
     fig.savefig(args.plot_dir / "csns_bscan_power_expansion.png", dpi=150)
     print(f"Wrote {args.plot_dir / 'csns_bscan_power_expansion.png'}")
 
-    srow: list[dict] = []
-    for beam, _title in ION_BEAMS:
-        for slug, _rest, label in ION_SPECIES:
-            for power_kw in POWERS_KW:
-                for sigma_mm in SIZE_MM:
-                    on, off = ion_paths(args.size_dir, beam, slug, sigma_mm, power_kw)
-                    row = summarize_pair(on, off, f"{beam}_{slug}", 1000)
-                    if row is None:
-                        continue
-                    row["power_kw"] = power_kw
-                    row["sigma_x_mm"] = sigma_mm
-                    row["species"] = label
-                    row["slug"] = slug
-                    srow.append(row)
+    if not args.from_summary:
+        srow = []
+        for beam, _title in ION_BEAMS:
+            for slug, _rest, label in ION_SPECIES:
+                for power_kw in POWERS_KW:
+                    for sigma_mm in SIZE_MM:
+                        on, off = ion_paths(args.size_dir, beam, slug, sigma_mm, power_kw)
+                        row = summarize_pair(on, off, f"{beam}_{slug}", 1000)
+                        if row is None:
+                            continue
+                        row["power_kw"] = power_kw
+                        row["sigma_x_mm"] = sigma_mm
+                        row["species"] = label
+                        row["slug"] = slug
+                        srow.append(row)
 
     fig, axes = plt.subplots(2, 3, figsize=(13.6, 8.0), sharex=True, sharey=True)
     for row_i, (beam, beam_title) in enumerate(ION_BEAMS):
@@ -181,21 +193,22 @@ def main() -> None:
     print(f"Wrote {args.plot_dir / 'csns_ionsize_obtained.png'}")
     print(f"Wrote {args.plot_dir / 'csns_ionsize_sigma.png'}")
 
-    if brow:
-        path = Path(args.summary_b)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("w", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=list(brow[0].keys()))
-            writer.writeheader()
-            writer.writerows(brow)
-        print(f"Wrote {path}")
-    if srow:
-        path = Path(args.summary_size)
-        with path.open("w", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=list(srow[0].keys()))
-            writer.writeheader()
-            writer.writerows(srow)
-        print(f"Wrote {path}")
+    if not args.from_summary:
+        if brow:
+            path = Path(args.summary_b)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("w", newline="") as fh:
+                writer = csv.DictWriter(fh, fieldnames=list(brow[0].keys()))
+                writer.writeheader()
+                writer.writerows(brow)
+            print(f"Wrote {path}")
+        if srow:
+            path = Path(args.summary_size)
+            with path.open("w", newline="") as fh:
+                writer = csv.DictWriter(fh, fieldnames=list(srow[0].keys()))
+                writer.writeheader()
+                writer.writerows(srow)
+            print(f"Wrote {path}")
 
     print()
     print("E-mode |Δ| at B=250 G:")

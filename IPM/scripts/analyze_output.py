@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from plot_conf import plot_conf
+
 
 def _pick_column(df: pd.DataFrame, candidates: list[str]) -> str:
     for name in candidates:
@@ -38,6 +40,7 @@ def main() -> None:
     )
     parser.add_argument("--bins", type=int, default=40, help="Histogram bins")
     args = parser.parse_args()
+    plot_conf()
 
     csv_path = Path(args.csv)
     if not csv_path.is_file():
