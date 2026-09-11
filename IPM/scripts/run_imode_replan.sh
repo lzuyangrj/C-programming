@@ -47,4 +47,4 @@ printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
 
 echo "=== ion-mode replan finished $(date -u +'%Y-%m-%dT%H:%M:%SZ') ===" | tee -a "$LOG"
 ./scripts/imode_status.sh | tee -a "$LOG"
-echo "Ion-mode replan runs finished. Evaluate when an evaluate_imode.py is added."
+python3 scripts/evaluate_imode.py

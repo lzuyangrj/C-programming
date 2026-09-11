@@ -72,8 +72,9 @@ C/D (3 spp × 2 powers SC-on + 1 H₂⁺ SC-off).
 | D beam offset | \(2\times 4\times 3\times 7\) | 168 |
 | **Grand (A + B-new + C + D)** | | **2070** |
 
-Print live done/to-run counts with `--imode-matrix`. **Status: planned, not
-executed.**
+Print live done/to-run counts with `--imode-matrix`. **Status: complete**
+(2070 / 2070). Results: `REPORT.md` §10; evaluate with
+`python3 scripts/evaluate_imode.py`.
 
 ### vs e-mode
 
