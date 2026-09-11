@@ -78,10 +78,10 @@ Replanned e-mode scans, all with **round beams** (\(\sigma_y=\sigma_x\)) — \(B
 python scripts/evaluate_emode.py
 ```
 
-Ion-mode matrix parallel to that replan (round beams; H₂⁺ / H₂O⁺ / N₂⁺; **sparse** \(B\) in Block A — ion expansion is flat vs \(B\); same size / voltage / offset axes). **Plan only** until executed:
+Ion-mode matrix parallel to that replan (round beams; H₂⁺ / H₂O⁺ / N₂⁺; \(B\) only at **0 / 200 / 1000 G** — no ion B-scan; size / voltage / offset axes). **Plan only** until executed:
 
 ```bash
-./scripts/run_imode_replan.sh --matrix   # show run counts only (3876)
+./scripts/run_imode_replan.sh --matrix   # show run counts only (2070)
 # JOBS=4 ./scripts/run_imode_replan.sh
 ```
 

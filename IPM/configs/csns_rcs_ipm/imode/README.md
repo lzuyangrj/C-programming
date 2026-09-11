@@ -4,8 +4,8 @@ Parallel to the e-mode replan (`../emode/README.md`). XML files here are
 generated (not stored in git):
 
 ```bash
-python scripts/generate_csns_configs.py --imode-matrix   # counts only
-python scripts/generate_csns_configs.py --imode-replan   # write XMLs
+python3 scripts/generate_csns_configs.py --imode-matrix   # counts only
+python3 scripts/generate_csns_configs.py --imode-replan   # write XMLs
 ./scripts/run_imode_replan.sh --matrix
 JOBS=4 ./scripts/run_imode_replan.sh
 ```
@@ -15,15 +15,15 @@ JOBS=4 ./scripts/run_imode_replan.sh
 The closed ion campaigns (elliptical beams) covered:
 
 - design \(B_y=0.1\,\mathrm{T}\) residual-gas profiles (H₂⁺, H₂O⁺, N₂⁺);
-- coarse B 0/50/100/200/250 G for H₂⁺ (expansion flat in B);
+- coarse B 0/50/100/200/250 G for H₂⁺ (expansion **flat** in B);
 - size × power at **0.1 T only** (elliptical \(\sigma_y=0.8\sigma_x\)).
 
 They never scanned **cage voltage** or **beam offset** in ion mode, never used
-**round beams** to match the e-mode replan, and never combined size with a
-B-checkpoint grid. The e-mode A–D axes (B, size, V, offset) are the right
-map; ion physics changes the **B densification**.
+**round beams** to match the e-mode replan, and never combined size with more
+than the design field. The useful e-mode axes for ions are **size, voltage
+(ToF), and offset** — not a B-scan.
 
-## Beam shape and species
+## Beam shape, species, and \(B\)
 
 **Round beams, \(\sigma_y=\sigma_x\)** (25×25 mm painted injection, 10×10 mm
 extraction and small injection, \(\sigma\times\sigma\) in the size scan). The
@@ -32,6 +32,10 @@ elliptical ionsize / bscan CSVs are **not** reused.
 Species = the three ToF peaks: **H₂⁺**, **H₂O⁺**, **N₂⁺**. SC-off trajectories
 have no bunch field, so obtained \(x\) = birth \(x\) independent of mass: only
 **H₂⁺ SC-off at 100 kW** is written and shared across species and powers.
+
+**\(B_y\in\{0,200,1000\}\,\mathrm{G}\)** in every block (no guide / mid
+checkpoint / design 0.1 T). No ion B-scan grid — closed H₂⁺ scans are flat
+vs \(B\) at ≤250 G (cyclotron radii are metres).
 
 ## Matrix (Blocks A–D)
 
@@ -42,24 +46,15 @@ e-mode). Design \(V=25\,\mathrm{kV}\) unless Block C scans it.
 
 | Block | Beams | \(\sigma_x=\sigma_y\) | \(B\) | Power | Species |
 |---|---|---|---|---|---|
-| **A** \(B\)-scan | inj.; ext.; inj. | 25 / 10 / 10 mm | **0, 50, 100, 200, 300, 1000 G** (sparse) | 100–500 kW | 3 |
-| **B** size scan | inj.; ext. | **3–20 mm, step 1 mm** | 0, 100, 200, 300 G, 0.1 T | 100–500 kW | 3 |
-| **C** cage voltage | inj. | 10 mm | 0–300 G step 25 G, and 0.1 T | 100, 500 kW | 3 |
-| **D** beam offset | inj.; ext. | 10 mm | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW | 3 |
+| **A** ref. beams | inj.; ext.; inj. | 25 / 10 / 10 mm | **0, 200, 1000 G** | 100–500 kW | 3 |
+| **B** size scan | inj.; ext. | **3–20 mm, step 1 mm** | 0, 200, 1000 G | 100–500 kW | 3 |
+| **C** cage voltage | inj. | 10 mm | 0, 200, 1000 G | 100, 500 kW | 3 |
+| **D** beam offset | inj.; ext. | 10 mm | 0, 200, 1000 G | 100, 500 kW | 3 |
 
 Block C voltages: **5, 10, 15, 20, 25, 30 kV**. Block D offsets
 \((\Delta x,\Delta y)\): **(+5, 0), (+10, 0), (0, +5), (0, −5) mm**; \(+y\) is
 away from the detector at \(y_\min\). Centred / 25 kV baselines come from
 Block A.
-
-### Why B is sparse in A (unlike e-mode)
-
-E-mode needed 0–300 G / 5 G because electron recovery **oscillates** with \(B\).
-Ion-mode expansion at ≤250 G is **flat** (cyclotron radii are metres); the
-closed H₂⁺ B-scan and the 10 mm injection repeat both show that. Block A only
-needs enough checkpoints to confirm flatness through 300 G and the 0.1 T
-design field. Size, voltage (ToF / dwell time), and offset carry more
-information for ions.
 
 ### Run counts (`--imode-matrix`)
 
@@ -69,13 +64,13 @@ C/D (3 spp × 2 powers SC-on + 1 H₂⁺ SC-off).
 
 | Block / family | formula | runs |
 |---|---|---:|
-| A B-scan (3 ref. beams × 6 B × 16) | \(3\times 6\times 16\) | 288 |
-| B size scan full product | \(2\times 18\times 5\times 16\) | 2880 |
-| A∩B (10×10 mm at size-scan B, in A) | \(2\times 5\times 16\) | 160 |
-| B new | 2880 − 160 | 2720 |
-| C cage voltage | \(6\times 14\times 7\) | 588 |
-| D beam offset | \(2\times 4\times 5\times 7\) | 280 |
-| **Grand (A + B-new + C + D)** | | **3876** |
+| A ref. beams (3 × 3 B × 16) | \(3\times 3\times 16\) | 144 |
+| B size scan full product | \(2\times 18\times 3\times 16\) | 1728 |
+| A∩B (10×10 mm at all three B, in A) | \(2\times 3\times 16\) | 96 |
+| B new | 1728 − 96 | 1632 |
+| C cage voltage | \(6\times 3\times 7\) | 126 |
+| D beam offset | \(2\times 4\times 3\times 7\) | 168 |
+| **Grand (A + B-new + C + D)** | | **2070** |
 
 Print live done/to-run counts with `--imode-matrix`. **Status: planned, not
 executed.**
@@ -85,16 +80,16 @@ executed.**
 | | E-mode replan | Ion-mode matrix |
 |---|---|---|
 | Beams | round \(\sigma_y=\sigma_x\) | same |
-| Block A \(B\) | 0–300 G / **5 G** (61) | **0/50/100/200/300/1000 G** (6) |
-| Block B size | 3–20 mm at 5 checkpoint \(B\) | same grid × **3 species** |
-| Block C \(V\) | 5–30 kV / 5 kV, 14 \(B\) | same × 3 species |
-| Block D offset | 4 offsets, 5 \(B\) | same × 3 species |
+| \(B\) | dense grids (5 G / 25 G / checkpoints) | **0, 200, 1000 G only** |
+| Block B size | 3–20 mm | same × **3 species** |
+| Block C \(V\) | 5–30 kV / 5 kV | same × 3 species |
+| Block D offset | 4 offsets | same × 3 species |
 | Secondaries | electrons (Voitkiv H₂) | H₂⁺ / H₂O⁺ / N₂⁺ |
-| Total runs | 2502 | **3876** |
+| Total runs | 2502 | **2070** |
 
 ### Not in this plan
 
-- Dense 5 G ion B-scan (rejected: flat)
+- Any ion B-scan denser than {0, 200, 1000} G
 - Elliptical beams (closed in REPORT §§1–6)
 - Fine C/D densification (wait for coarse ion C/D)
 - Bunch-length / mid-ramp energy / MCP / non-uniform cage

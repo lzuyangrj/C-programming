@@ -56,18 +56,22 @@ EMODE_FINE_B_GS = tuple(range(0, 301, 5)) + (1000,)
 EMODE_FINE_DY_MM = tuple(range(-10, 11, 1))
 EMODE_FINE_OFFSET_BFINE_DY = (-5, 5)
 # Ion-mode parameter-scan matrix (parallel to e-mode A–D). Round beams;
-# elliptical ionsize / bscan runs are not reused. B is sparse: existing ion
-# scans are flat vs B at ≤250 G (cyclotron radii are metres), so a 5 G grid
-# is wasted. Species = H₂⁺, H₂O⁺, N₂⁺. SC-off is mass-independent without
-# bunch fields → only H₂⁺ SC-off at 100 kW is written and shared.
+# elliptical ionsize / bscan runs are not reused. No B-scan grid: only
+# B ∈ {0, 200, 1000} G (no guide / mid checkpoint / design 0.1 T) in every
+# block — closed ion scans are flat vs B. Species = H₂⁺, H₂O⁺, N₂⁺. SC-off
+# is mass-independent without bunch fields → only H₂⁺ SC-off at 100 kW is
+# written and shared.
 IMODE_OUT = OUT / "imode"
-IMODE_BSCAN_GS = (0, 50, 100, 200, 300, 1000)  # Block A
-IMODE_SIZE_B_GS = EMODE_SIZE_B_GS  # Block B: 0, 100, 200, 300, 1000 G
+# Single B set for every ion-mode block: no guide, mid checkpoint, design field.
+# A dense / sparse B-scan is not useful — closed ion scans are flat vs B.
+IMODE_B_GS = (0, 200, 1000)
+IMODE_BSCAN_GS = IMODE_B_GS  # Block A
+IMODE_SIZE_B_GS = IMODE_B_GS  # Block B
 IMODE_REF_BEAMS = EMODE_REF_BEAMS  # 25×25 inj., 10×10 ext., 10×10 inj.
 IMODE_VOLTAGES_KV = EMODE_VOLTAGES_KV  # Block C: 5–30 kV / 5 kV
-IMODE_VOLT_B_GS = EMODE_VOLT_B_GS  # same diagnostic B as e-mode C
+IMODE_VOLT_B_GS = IMODE_B_GS
 IMODE_OFFSETS_MM = EMODE_OFFSETS_MM
-IMODE_OFFSET_B_GS = EMODE_OFFSET_B_GS
+IMODE_OFFSET_B_GS = IMODE_B_GS
 IMODE_OFFSET_BEAMS = EMODE_OFFSET_BEAMS
 IMODE_CHECK_POWERS_KW = EMODE_CHECK_POWERS_KW
 # Injection σ_x = 10 mm; σ_y = 8 mm keeps the 25:20 painted-beam aspect ratio.
@@ -1402,32 +1406,28 @@ def imode_matrix_report(imode_dir: Path | None = None) -> str:
         "shared across species and powers."
     )
     lines.append(
-        f"A    sparse B: {', '.join(str(b) for b in IMODE_BSCAN_GS)} G "
-        f"({len(IMODE_BSCAN_GS)} values; not a 5 G grid — ion expansion is flat "
-        f"vs B at ≤250 G); ref. beams 25×25 inj., 10×10 ext., 10×10 inj.; "
+        f"All blocks share B = {', '.join(str(b) for b in IMODE_B_GS)} G "
+        f"(no guide / mid checkpoint / design 0.1 T). No ion B-scan grid — "
+        f"expansion is flat vs B. Ref. beams 25×25 inj., 10×10 ext., 10×10 inj.; "
         f"powers {', '.join(str(p) for p in POWERS_KW)} kW"
     )
     lines.append(
-        f"B    size scan: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm; B = "
-        f"{', '.join(str(b) for b in IMODE_SIZE_B_GS)} G; inj. + ext."
+        f"B    size scan: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm; same B; inj. + ext."
     )
     lines.append(
         f"C    cage voltage: {IMODE_VOLTAGES_KV[0]}–{IMODE_VOLTAGES_KV[-1]} kV step "
-        f"{IMODE_VOLTAGES_KV[1] - IMODE_VOLTAGES_KV[0]} kV; B: "
-        f"{IMODE_VOLT_B_GS[0]}–{IMODE_VOLT_B_GS[-2]} G step {IMODE_VOLT_B_GS[1]} G "
-        f"+ 1000 G; inj. 10×10 mm; "
+        f"{IMODE_VOLTAGES_KV[1] - IMODE_VOLTAGES_KV[0]} kV; same B; inj. 10×10 mm; "
         f"{', '.join(str(p) for p in IMODE_CHECK_POWERS_KW)} kW"
     )
     lines.append(
         "D    beam offset (dx, dy) mm: "
         + ", ".join(f"({dx:+d}, {dy:+d})" for dx, dy in IMODE_OFFSETS_MM)
-        + f"; B: {', '.join(str(b) for b in IMODE_OFFSET_B_GS)} G; "
-        f"inj. and ext. 10×10 mm; "
+        + f"; same B; inj. and ext. 10×10 mm; "
         f"{', '.join(str(p) for p in IMODE_CHECK_POWERS_KW)} kW"
     )
     lines.append(
-        "vs e-mode: same round beams / V / offset axes; B sparse in A (e-mode "
-        "used 0–300 G / 5 G); ×3 species. Plan only until --imode-replan is run."
+        "vs e-mode: same round beams / V / offset axes; B only at 0/200/1000 G "
+        "(e-mode used dense B grids); ×3 species. Plan only until --imode-replan is run."
     )
     lines.append("")
     header = f"{'Block / family':<56}{'runs':>6}{'done':>6}{'to run':>8}"
@@ -1454,7 +1454,7 @@ def imode_matrix_report(imode_dir: Path | None = None) -> str:
         seen.update(subset)
         stage = "inj." if beam == "injection" else "ext."
         row(
-            f"A  B-scan {stage} σ={sigma_mm} mm × 3 spp, 100–500 kW",
+            f"A  ref. beams {stage} σ={sigma_mm} mm × 3 spp, 100–500 kW",
             subset,
         )
     for beam in ("injection", "extraction"):

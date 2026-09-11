@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Ion-mode parameter-scan matrix, parallel to the e-mode replan:
-#   A  sparse B-scan (0/50/100/200/300/1000 G) × 3 ToF species
-#      (25×25 inj., 10×10 ext., 10×10 inj. × 100–500 kW)
-#   B  σ = 3–20 mm size scans at 0/100/200/300 G and 0.1 T × 3 species
+#   B fields are only 0, 200, and 1000 G (no B-scan grid).
+#   A  three ref. beams (25×25 inj., 10×10 ext., 10×10 inj.) × 100–500 kW × 3 spp
+#   B  σ = 3–20 mm size scans × 3 species
 #   C  cage voltage 5–30 kV on the 10×10 mm injection beam × 3 species
 #   D  beam-offset check on the 10×10 mm beams × 3 species
 # All beams are ROUND (σ_y = σ_x). Points whose CSV already exists are skipped.
