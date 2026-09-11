@@ -24,8 +24,8 @@ Instrument numbers that the NIMA article uses are also tabulated in the cited IB
 | E-mode \(\sigma\) scan | 3–20 mm, step 1 mm | Round; at the size-scan \(B\) values; inj. and ext.; 100–500 kW |
 | E-mode cage-voltage scan | 5–30 kV, step 5 kV | \(E_y=V/231\,\mathrm{mm}\) = 22–130 kV/m; inj. 10×10 mm; 0–300 G step 25 G + 0.1 T; 100 and 500 kW |
 | E-mode beam-offset check | (+5, 0), (+10, 0), (0, +5), (0, −5) mm | `TransverseOffset`; inj. and ext. 10×10 mm; 0/100/200/300 G + 0.1 T; 100 and 500 kW |
-| Fine C (running) | 5–30 kV / 1 kV at 11 diagnostic \(B\); 5 G \(B\)-scan at 10/12/15/18/20 kV | See `REPORT.md` §9; `run_emode_fine_cd.sh`; 1398 new after reuse |
-| Fine D (running) | \(\Delta y=-10\ldots+10\,\mathrm{mm}\) / 1 mm at diagnostic \(B\); 5 G at \(\Delta y=\pm 5\,\mathrm{mm}\) | No \(\Delta x\) refinement; 1872 new after reuse |
+| Fine C (complete) | 5–30 kV / 1 kV at 11 diagnostic \(B\); 5 G \(B\)-scan at 10/12/15/18/20 kV | Zero at 13 kV (100 kW, \(B=0\)); 300 G recovers all \(V\); `REPORT.md` §9 |
+| Fine D (complete) | \(\Delta y=-10\ldots+10\,\mathrm{mm}\) / 1 mm at diagnostic \(B\); 5 G at \(\Delta y=\pm 5\,\mathrm{mm}\) | Nearly linear in \(\Delta y\); 1% \(B\)-threshold within ~10 G of centred |
 | Injection \(\sigma\) (repeat) | 10 mm × 8 mm | Same 5:4 aspect as 25×20; \(\sigma_x=10\,\mathrm{mm}\) |
 | Extraction RF / bunch spacing | 2.444 MHz → 409.2 ns | RCS \(h=2\); used for extraction ion trains |
 | Transverse \(\sigma\) (inj.) | 25 mm × 20 mm | Painted beam; PAC’09 quotes \(E_{x,\mathrm{sc}}\approx20\,\mathrm{kV/m}\) at the IPM |

@@ -51,9 +51,9 @@ Run counts (`--matrix`):
 
 **Status: complete** (2502 / 2502). Results: `REPORT.md` §8.
 
-## Fine C/D (running)
+## Fine C/D (complete)
 
-Coarse C/D undersample the region that actually moves: the 10–15 kV sign flip at \(B=0\), the 0–150 G oscillations (25 G is too coarse; Block A used 5 G only at 25 kV), and \(\Delta y\). \(\Delta x\) is translation-invariant for a Gaussian bunch in a uniform cage. Write-up: `REPORT.md` §9.
+**3270 / 3270 new runs.** Results: `REPORT.md` §9. At \(B=0\), 100 kW the expansion crosses zero at **13 kV**. 500 kW never flips. \(\Delta y\) is nearly linear; 5 G scans at \(\pm 5\,\mathrm{mm}\) overlay the centred beam. **300 G** still recovers every scanned voltage and offset.
 
 ```bash
 python scripts/generate_csns_configs.py --emode-fine-cd-matrix

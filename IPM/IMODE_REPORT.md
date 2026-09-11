@@ -6,7 +6,7 @@
 **Statistics:** 100000 secondaries per run; quoted \(\sigma\) is the RMS of **detected** \(x\).
 
 This report summarises the ion-mode parameter scan parallel to the e-mode replan
-([`REPORT.md`](REPORT.md) §8). Unlike e-mode, **no dense \(B\)-scan** was run: every
+([`REPORT.md`](REPORT.md) §8) and the fine C/D e-mode scan (§9). Unlike e-mode, **no dense \(B\)-scan** was run: every
 block uses only \(B_y \in \{0, 200, 1000\}\,\mathrm{G}\) (no guide / mid checkpoint /
 design 0.1 T), because closed ion scans already showed expansion **flat** vs \(B\).
 
