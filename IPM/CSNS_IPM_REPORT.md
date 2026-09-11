@@ -163,6 +163,8 @@ Expansion at 100 kW [%]:
 
 Painted injection matches the elliptical-beam design-field numbers (~+16% H₂⁺). The 10 mm injection family is the most distorted at every \(B\).
 
+Extraction H₂⁺ (+33.5 % at 0 G) is a **lower bound**. Ions are generated 125 ns before the first field-carrying bunch, so H₂⁺ has already drifted ≈ 40 mm when the kick arrives. A line-charge model with aligned generation gives ≈ +100 % (0 G, 100 kW). H₂O⁺ / N₂⁺ barely move in 125 ns and are close to the whole-bunch limit. Injection is correctly aligned (both centres at 480 ns). Details and the correction recipe: [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) §§3.5–3.6.
+
 ### 4.2 Block B — size 3–20 mm
 
 ![Ion-mode true vs obtained size](plots/csns_imode_size_obtained.png)
@@ -249,6 +251,7 @@ Toward the detector (\(\Delta y<0\)): slightly less expansion. Centroid shift vs
 | `output/csns_imode_size_summary.csv` | Ion-mode Block B (1620 rows) |
 | `output/csns_imode_voltage_summary.csv` | Ion-mode Block C (108 rows) |
 | `output/csns_imode_offset_summary.csv` | Ion-mode Block D (180 rows) |
+| `output/csns_imode_kick_model.csv` | Reduced line-charge model vs Virtual-IPM (0 G); aligned extraction column |
 | `plots/csns_emode_*.png` | Figures 1–8 |
 | `plots/csns_imode_*.png` | Figures 9–13 |
 

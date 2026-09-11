@@ -98,7 +98,7 @@ def plot_emode(thresholds: dict) -> Path:
     ax.set_xlabel("Beam power [kW]")
     ax.set_ylabel("1% guiding-field threshold [G]")
     ax.set_xlim(50, 550)
-    ax.set_ylim(0, 430)
+    ax.set_ylim(0, 340)
     ax.legend(fontsize=10, loc="upper left", ncol=1)
     path = PLOTS / "csns_review_emode_bmin.png"
     fig.savefig(path, dpi=200)
@@ -116,6 +116,7 @@ def kick_model(
     rng: np.random.Generator,
     dt: float = 1e-9,
     t_max: float = 3e-6,
+    gen_center: float | None = None,
 ) -> float:
     """Return sigma_detected / sigma - 1 for the reduced line-charge model."""
     beta = BETA[beam]
@@ -126,7 +127,7 @@ def kick_model(
     y_det = -GAP_M / 2
     x = rng.normal(0, sigma, n)
     y = rng.normal(0, sigma, n)
-    t_gen = rng.normal(TRAIN[beam]["gen_center"], sig_t, n)
+    t_gen = rng.normal(TRAIN[beam]["gen_center"] if gen_center is None else gen_center, sig_t, n)
     vx = np.zeros(n)
     vy = np.zeros(n)
     acc = e * e_y / mass
@@ -220,6 +221,76 @@ def plot_imode(n_particles: int) -> Path:
     return path
 
 
+def write_model_table(n_particles: int) -> Path:
+    """Write as-run vs aligned-generation expansions for the 0 G / 100 kW cases."""
+    rng = np.random.default_rng(1)
+    bscan = load_summary(OUT / "csns_imode_bscan_summary.csv")
+    volt = load_summary(OUT / "csns_imode_voltage_summary.csv")
+    rows: list[dict] = []
+    families = [("injection", 25), ("injection", 10), ("extraction", 10)]
+    for slug, lab, mass_u in SPECIES:
+        for beam, sig in families:
+            sim = next(
+                (
+                    r["expansion_vs_no_sc_pct"]
+                    for r in bscan
+                    if r["species"] == slug
+                    and r["beam"] == beam
+                    and r["sigma_x_mm"] == sig
+                    and r["power_kw"] == 100
+                    and r["b_gs"] == 0
+                ),
+                None,
+            )
+            as_run = kick_model(N_100KW, beam, sig * 1e-3, mass_u, 25e3, n_particles, rng) * 100
+            aligned = None
+            if beam == "extraction":
+                aligned = kick_model(
+                    N_100KW, beam, sig * 1e-3, mass_u, 25e3, n_particles, rng, gen_center=204.6e-9
+                ) * 100
+            rows.append(
+                {
+                    "species": lab,
+                    "beam": beam,
+                    "sigma_mm": sig,
+                    "voltage_kv": 25,
+                    "timing": "as-run",
+                    "model_pct": round(as_run, 2),
+                    "virtual_ipm_pct": None if sim is None else round(sim, 2),
+                    "aligned_model_pct": None if aligned is None else round(aligned, 2),
+                }
+            )
+        for v in (5, 10, 15, 20, 25, 30):
+            sim = next(
+                (
+                    r["expansion_vs_no_sc_pct"]
+                    for r in volt
+                    if r["species"] == slug and r["voltage_kv"] == v and r["power_kw"] == 100 and r["b_gs"] == 0
+                ),
+                None,
+            )
+            model = kick_model(N_100KW, "injection", 10e-3, mass_u, v * 1e3, n_particles, rng) * 100
+            rows.append(
+                {
+                    "species": lab,
+                    "beam": "injection",
+                    "sigma_mm": 10,
+                    "voltage_kv": v,
+                    "timing": "as-run",
+                    "model_pct": round(model, 2),
+                    "virtual_ipm_pct": None if sim is None else round(sim, 2),
+                    "aligned_model_pct": "",
+                }
+            )
+    path = OUT / "csns_imode_kick_model.csv"
+    keys = ["species", "beam", "sigma_mm", "voltage_kv", "timing", "model_pct", "virtual_ipm_pct", "aligned_model_pct"]
+    with path.open("w") as fh:
+        fh.write(",".join(keys) + "\n")
+        for r in rows:
+            fh.write(",".join("" if r[k] is None else str(r[k]) for k in keys) + "\n")
+    return path
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--particles", type=int, default=30000, help="ions per reduced-model case")
@@ -237,6 +308,7 @@ def main() -> None:
             print(f"  {beam:10s} {sig:2d} mm {power:3d} kW: sim {b:5.0f} G   fit {fit:4.0f} G   fit(N/β) {fit_b:4.0f} G")
     print("wrote", plot_emode(thr))
     print("wrote", plot_imode(args.particles))
+    print("wrote", write_model_table(args.particles))
 
 
 if __name__ == "__main__":

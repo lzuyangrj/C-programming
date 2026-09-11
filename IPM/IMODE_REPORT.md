@@ -8,6 +8,7 @@
 This report summarises the ion-mode parameter scan parallel to the e-mode replan
 (`REPORT.md` §8) and the fine C/D e-mode scan (§9). Combined e-mode + ion-mode
 write-up: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) / [`CSNS_IPM_REPORT.pdf`](CSNS_IPM_REPORT.pdf).
+Literature comparison (2006–2026): [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) / [`LITERATURE_REVIEW.pdf`](LITERATURE_REVIEW.pdf).
 Unlike e-mode, **no dense \(B\)-scan** was run: every
 block uses only \(B_y \in \{0, 200, 1000\}\,\mathrm{G}\) (no guide / mid checkpoint /
 design 0.1 T), because closed ion scans already showed expansion **flat** vs \(B\).
@@ -49,6 +50,11 @@ Re-run: `./scripts/run_imode_replan.sh` · Evaluate: `python3 scripts/evaluate_i
    **reduces** the kick (H₂⁺ inj. 10 mm @ 1000 G: +198% at 5 kV → +70% at 30 kV).
 5. **Beam offset:** \(\Delta x\) is translation-invariant; \(\Delta y\) (toward/away
    from the detector) changes expansion by a few percent.
+6. **Extraction H₂⁺ numbers are a lower bound.** Ions are generated 125 ns before
+   the first field-carrying bunch (generation window centred at 80 ns, tracking
+   train at 204.6 ns). A line-charge model aligned to the bunch gives ≈ +100 %
+   for H₂⁺ at extraction (0 G, 100 kW) instead of the +33 % obtained. Injection
+   is correctly aligned. See [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) §3.5.
 
 ---
 
@@ -76,6 +82,12 @@ the profile.
 
 Painted injection (25 mm) matches the elliptical-beam §1 numbers (+16% H₂⁺). The
 10 mm injection family is the most distorted at every \(B\).
+
+Extraction H₂⁺ (+33 % at 0 G) is **under-estimated**: the generation bunch leads
+the tracking train by 125 ns, so H₂⁺ has already drifted ≈ 40 mm when the kick
+arrives. H₂O⁺ / N₂⁺ barely move in that interval. A future extraction run should
+set the tracking `LongitudinalOffset` to −80 ns. Do not re-run the existing 100k
+CSVs.
 
 ---
 
