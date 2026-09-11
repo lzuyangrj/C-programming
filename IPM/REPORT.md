@@ -289,6 +289,50 @@ When executing later:
 
 ---
 
+## 10. Ion-mode parameter-scan matrix (planned)
+
+Parallel to the e-mode replan (section 8). **Status: planned — matrix only; not executed.** Print counts:
+
+```bash
+python scripts/generate_csns_configs.py --imode-matrix
+./scripts/run_imode_replan.sh --matrix
+```
+
+### Why
+
+Closed ion work (sections 1–6) used **elliptical** beams and fixed \(B_y=0.1\,\mathrm{T}\) for the size×power×species scan. Coarse ion \(B\) scans already showed expansion **flat** vs \(B\) at ≤250 G. Missing, for round beams matched to section 8:
+
+- sparse \(B\) × power × species on the three reference beams (incl. 300 G and 0.1 T);
+- size × checkpoint-\(B\) (not only design field);
+- **cage voltage** (ToF / dwell time — the ion-mode lever e-mode Block C already showed matters);
+- **beam offset**.
+
+### Matrix (round beams, three ToF species)
+
+| Block | Beams | \(\sigma_x=\sigma_y\) | \(B\) | Power |
+|---|---|---|---|---|
+| **A** \(B\)-scan | inj. 80 MeV; ext. 1.6 GeV; inj. 80 MeV | 25 / 10 / 10 mm | **0, 50, 100, 200, 300, 1000 G** | 100–500 kW |
+| **B** size scan | inj.; ext. | **3–20 mm, step 1 mm** | 0, 100, 200, 300 G, 0.1 T | 100–500 kW |
+| **C** cage voltage | inj. | 10 mm | 0–300 G step 25 G, 0.1 T | 100, 500 kW |
+| **D** beam offset | inj.; ext. | 10 mm | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW |
+
+Species: H₂⁺, H₂O⁺, N₂⁺. SC-off: H₂⁺ at 100 kW only (shared). Cage \(E_y=-V/231\,\mathrm{mm}\). Block C voltages 5–30 kV / 5 kV; Block D offsets \((\Delta x,\Delta y)=(+5,0), (+10,0), (0,+5), (0,-5)\,\mathrm{mm}\).
+
+**B is sparse in A** on purpose: e-mode needed 5 G because recovery oscillates; ions do not. A 5 G ion grid is rejected.
+
+| | A | B new | C | D | **Total** |
+|---|---:|---:|---:|---:|---:|
+| Runs | 288 | 2720 | 588 | 280 | **3876** |
+
+Details and naming: `configs/csns_rcs_ipm/imode/README.md`. Write / run later: `--imode-replan`, `./scripts/run_imode_replan.sh`.
+
+### Not in this plan
+
+- Dense 5 G ion \(B\)-scan; elliptical beams; fine C/D until coarse ion C/D exist
+- Bunch-length / mid-ramp / MCP / non-uniform cage
+
+---
+
 ## Appendix. All figures
 
 **Fig. 1.** Residual-gas profiles at design \(B_y=0.1\,\mathrm{T}\) (100 kW, painted injection + extraction electrons; H₂⁺, H₂O⁺, N₂⁺).

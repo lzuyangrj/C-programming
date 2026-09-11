@@ -8,6 +8,7 @@ output/bscan5/*.csv
 output/bscan5_power/*.csv
 output/ionsize/*.csv
 output/emode/*.csv
+output/imode/*.csv
 !output/csns_space_charge_summary.csv
 !output/csns_space_charge_summary_sig10.csv
 !output/csns_bscan_summary.csv
@@ -20,6 +21,10 @@ output/emode/*.csv
 !output/csns_emode_offset_summary.csv
 !output/csns_emode_voltage_fine_summary.csv
 !output/csns_emode_offset_fine_summary.csv
+!output/csns_imode_bscan_summary.csv
+!output/csns_imode_size_summary.csv
+!output/csns_imode_voltage_summary.csv
+!output/csns_imode_offset_summary.csv
 plots/*.png
 !plots/csns_space_charge_impact.png
 !plots/csns_space_charge_impact_sig10.png
@@ -41,8 +46,14 @@ plots/*.png
 !plots/csns_emode_offset.png
 !plots/csns_emode_voltage_fine.png
 !plots/csns_emode_offset_fine.png
+!plots/csns_imode_bscan.png
+!plots/csns_imode_size_obtained.png
+!plots/csns_imode_voltage.png
+!plots/csns_imode_offset.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml
 configs/csns_rcs_ipm/emode/*.xml
+configs/csns_rcs_ipm/imode/*.xml
+!configs/csns_rcs_ipm/imode/README.md
 *.log

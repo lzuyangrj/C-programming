@@ -70,13 +70,22 @@ Ion-mode beam-size scan (\(\sigma_x=3\)–\(20\,\mathrm{mm}\), 1 mm step) at inj
 python scripts/evaluate_extended.py
 ```
 
-Replanned e-mode scans, all with **round beams** (\(\sigma_y=\sigma_x\)) — \(B\) 0–300 G / 5 G for 25×25 mm injection, 10×10 mm extraction, and 10×10 mm injection at 100–500 kW; \(\sigma=3\)–20 mm size scans at 0/100/200/300 G and 0.1 T; a cage-voltage scan (5–30 kV) and a beam-offset check on the 10×10 mm beams (plan only, see `configs/csns_rcs_ipm/emode/README.md`):
+Replanned e-mode scans, all with **round beams** (\(\sigma_y=\sigma_x\)) — \(B\) 0–300 G / 5 G for 25×25 mm injection, 10×10 mm extraction, and 10×10 mm injection at 100–500 kW; \(\sigma=3\)–20 mm size scans at 0/100/200/300 G and 0.1 T; a cage-voltage scan (5–30 kV) and a beam-offset check on the 10×10 mm beams (see `configs/csns_rcs_ipm/emode/README.md`):
 
 ```bash
 ./scripts/run_emode_replan.sh --matrix   # show run counts only
 ./scripts/run_emode_replan.sh
 python scripts/evaluate_emode.py
 ```
+
+Ion-mode matrix parallel to that replan (round beams; H₂⁺ / H₂O⁺ / N₂⁺; **sparse** \(B\) in Block A — ion expansion is flat vs \(B\); same size / voltage / offset axes). **Plan only** until executed:
+
+```bash
+./scripts/run_imode_replan.sh --matrix   # show run counts only (3876)
+# JOBS=4 ./scripts/run_imode_replan.sh
+```
+
+Write-up: `REPORT.md` §10; details: `configs/csns_rcs_ipm/imode/README.md`.
 
 ```bash
 ./scripts/run_fine_bscan_study.sh
