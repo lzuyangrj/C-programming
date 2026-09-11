@@ -6,7 +6,7 @@
 **Statistics:** 100000 secondaries per run; quoted \(\sigma\) is the RMS of **detected** \(x\).
 
 This report summarises the ion-mode parameter scan parallel to the e-mode replan
-([`REPORT.md`](REPORT.md) §8) and the fine C/D e-mode scan (§9). Unlike e-mode, **no dense \(B\)-scan** was run: every
+(`REPORT.md` §8) and the fine C/D e-mode scan (§9). Unlike e-mode, **no dense \(B\)-scan** was run: every
 block uses only \(B_y \in \{0, 200, 1000\}\,\mathrm{G}\) (no guide / mid checkpoint /
 design 0.1 T), because closed ion scans already showed expansion **flat** vs \(B\).
 
@@ -66,9 +66,8 @@ the profile.
 
 ### Table 1 — expansion at 100 kW [%]
 
-| Species | Inj. 25 mm | | | Inj. 10 mm | | | Ext. 10 mm | | |
+| Species | Inj. 25 mm 0 G | 200 G | 1000 G | Inj. 10 mm 0 G | 200 G | 1000 G | Ext. 10 mm 0 G | 200 G | 1000 G |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| | 0 G | 200 G | 1000 G | 0 G | 200 G | 1000 G | 0 G | 200 G | 1000 G |
 | H₂⁺ | +16.7 | +16.7 | +15.0 | +92.0 | +91.6 | +82.1 | +33.5 | +33.4 | +31.6 |
 | H₂O⁺ | +10.4 | +10.4 | +10.2 | +64.7 | +64.7 | +63.8 | +55.6 | +55.6 | +54.9 |
 | N₂⁺ | +8.9 | +8.9 | +8.9 | +56.3 | +56.2 | +55.7 | +49.9 | +49.9 | +49.5 |

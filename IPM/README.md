@@ -3,7 +3,7 @@
 CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) 2.3.1.
 
 **Results note:** [REPORT.md](REPORT.md) — e-mode and early ion results (appendix).  
-**Ion-mode scan:** [IMODE_REPORT.md](IMODE_REPORT.md) — round-beam A–D matrix (2070 runs, figures).
+**Ion-mode scan:** [IMODE_REPORT.md](IMODE_REPORT.md) / [IMODE_REPORT.pdf](IMODE_REPORT.pdf) — round-beam A–D matrix (2070 runs, figures).
 
 Docs: [Introduction](https://ipmsim.gitlab.io/Virtual-IPM/introduction.html) · [Install](https://ipmsim.gitlab.io/Virtual-IPM/installation.html) · [Usage](https://ipmsim.gitlab.io/Virtual-IPM/usage.html) · [Examples](https://ipmsim.gitlab.io/Virtual-IPM/examples.html)
 

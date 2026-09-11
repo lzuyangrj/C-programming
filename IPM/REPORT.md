@@ -262,7 +262,7 @@ Ion-mode A–D is section 10 / [`IMODE_REPORT.md`](IMODE_REPORT.md).
 
 ## 10. Ion-mode parameter-scan matrix (round beams)
 
-Full write-up with all figures: **[IMODE_REPORT.md](IMODE_REPORT.md)**.
+Full write-up with all figures: **[IMODE_REPORT.md](IMODE_REPORT.md)** · PDF: **[IMODE_REPORT.pdf](IMODE_REPORT.pdf)**.
 
 Parallel to the e-mode replan (section 8), but **without an ion \(B\)-scan** — only \(B_y\in\{0,200,1000\}\,\mathrm{G}\). Round beams (\(\sigma_y=\sigma_x\)); H₂⁺ / H₂O⁺ / N₂⁺; 100000 secondaries.
 
