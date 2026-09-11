@@ -220,6 +220,49 @@ def plot_size_obtained(rows: list[dict], plot_dir: Path) -> None:
     print(f"Wrote {plot_dir / 'csns_imode_size_obtained.png'}")
 
 
+def plot_size_expansion(rows: list[dict], plot_dir: Path) -> None:
+    """Expansion vs true σ at 0.1 T for all powers (injection + extraction)."""
+    fig, axes = plt.subplots(2, 3, figsize=(14.0, 8.0), sharex=True, sharey="row")
+    for col_i, species in enumerate(SPECIES_SLUGS):
+        for row_i, beam in enumerate(("injection", "extraction")):
+            ax = axes[row_i, col_i]
+            for power_kw in POWERS_KW:
+                series = sorted(
+                    (
+                        r
+                        for r in rows
+                        if r["species"] == species
+                        and r["beam"] == beam
+                        and r["b_gs"] == 1000
+                        and r["power_kw"] == power_kw
+                    ),
+                    key=lambda r: r["sigma_x_mm"],
+                )
+                if not series:
+                    continue
+                ax.plot(
+                    [r["sigma_x_mm"] for r in series],
+                    [r["expansion_vs_no_sc_pct"] for r in series],
+                    "o-",
+                    ms=3,
+                    lw=1.1,
+                    label=f"{power_kw} kW",
+                )
+            ax.axhline(0.0, color="0.5", lw=0.8)
+            ax.set_title(f"{SPECIES_LABELS[species]}, {BEAM_TITLES[beam]}", fontsize=9)
+            ax.grid(True, alpha=0.3)
+            if row_i == 1:
+                ax.set_xlabel("True σ [mm]")
+            if col_i == 0:
+                ax.set_ylabel("Expansion vs no SC [%]")
+            if row_i == 0 and col_i == 0:
+                ax.legend(fontsize=7)
+    fig.suptitle("Block B — size scan at B = 0.1 T", y=1.01, fontsize=11)
+    fig.tight_layout()
+    fig.savefig(plot_dir / "csns_imode_size_expansion.png", dpi=150)
+    print(f"Wrote {plot_dir / 'csns_imode_size_expansion.png'}")
+
+
 def plot_voltage(rows: list[dict], plot_dir: Path) -> None:
     fig, axes = plt.subplots(3, 2, figsize=(11.0, 10.0), sharey=True)
     for row_i, species in enumerate(SPECIES_SLUGS):
@@ -348,6 +391,7 @@ def main() -> None:
         plot_ref_b(ref_rows, args.plot_dir)
     if size_rows:
         plot_size_obtained(size_rows, args.plot_dir)
+        plot_size_expansion(size_rows, args.plot_dir)
     if v_rows:
         plot_voltage(v_rows, args.plot_dir)
     if o_rows:

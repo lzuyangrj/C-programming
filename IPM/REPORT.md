@@ -291,9 +291,11 @@ When executing later:
 
 ## 10. Ion-mode parameter-scan matrix (round beams)
 
+Full write-up with all figures: **[IMODE_REPORT.md](IMODE_REPORT.md)**.
+
 Parallel to the e-mode replan (section 8), but **without an ion \(B\)-scan** — only \(B_y\in\{0,200,1000\}\,\mathrm{G}\). Round beams (\(\sigma_y=\sigma_x\)); H₂⁺ / H₂O⁺ / N₂⁺; 100000 secondaries.
 
-**Status: complete.** 2070 / 2070 runs. Figures: `plots/csns_imode_{bscan,size_obtained,voltage,offset}.png`.
+**Status: complete.** 2070 / 2070 runs.
 
 ### Block A — reference beams at 0 / 200 / 1000 G
 
@@ -396,3 +398,23 @@ CSV: `output/csns_imode_{bscan,size,voltage,offset}_summary.csv`. Re-run: `./scr
 **Fig. 16.** Replanned e-mode, Block D: beam offset on 10×10 mm injection and extraction.
 
 ![Fig. 16](plots/csns_emode_offset.png)
+
+**Fig. 17.** Ion-mode Block A: reference beams vs \(B\) (0, 200, 1000 G).
+
+![Fig. 17](plots/csns_imode_bscan.png)
+
+**Fig. 18.** Ion-mode Block B: true vs obtained \(\sigma\) (100 kW).
+
+![Fig. 18](plots/csns_imode_size_obtained.png)
+
+**Fig. 19.** Ion-mode Block B: expansion vs \(\sigma\) at 0.1 T and 100–500 kW.
+
+![Fig. 19](plots/csns_imode_size_expansion.png)
+
+**Fig. 20.** Ion-mode Block C: cage voltage 5–30 kV.
+
+![Fig. 20](plots/csns_imode_voltage.png)
+
+**Fig. 21.** Ion-mode Block D: beam offset.
+
+![Fig. 21](plots/csns_imode_offset.png)
