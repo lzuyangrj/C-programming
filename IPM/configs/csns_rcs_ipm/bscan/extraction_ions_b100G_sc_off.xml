@@ -1,0 +1,107 @@
+<?xml version="1.0" ?>
+<Virtual-IPM>
+    <Beams>
+        <Beam>
+            <Parameters>
+                <Energy unit="GeV">1.6</Energy>
+                <BunchPopulation>7.800e+12</BunchPopulation>
+                <ParticleType>
+                    <ChargeNumber>1</ChargeNumber>
+                    <RestEnergy unit="MeV">%(proton mass energy equivalent in MeV)</RestEnergy>
+                </ParticleType>
+                <ElectricFieldOFF>true</ElectricFieldOFF>
+                <MagneticFieldOFF>true</MagneticFieldOFF>
+            </Parameters>
+            <BunchShape>
+                <Parameters>
+                    <LongitudinalSigmaLabFrame unit="ns">20.0</LongitudinalSigmaLabFrame>
+                    <TransverseSigma unit="um">[ 10000, 8000 ]</TransverseSigma>
+                </Parameters>
+                <Model>Gaussian</Model>
+            </BunchShape>
+            <BunchElectricField>
+                <Model>Gaussian</Model>
+            </BunchElectricField>
+            <BunchTrain>
+                <Type>SingleBunch</Type>
+            </BunchTrain>
+        </Beam>
+        <Beam>
+            <Parameters>
+                <Energy unit="GeV">1.6</Energy>
+                <BunchPopulation>7.800e+12</BunchPopulation>
+                <ParticleType>
+                    <ChargeNumber>1</ChargeNumber>
+                    <RestEnergy unit="MeV">%(proton mass energy equivalent in MeV)</RestEnergy>
+                </ParticleType>
+                <ElectricFieldOFF>true</ElectricFieldOFF>
+                <MagneticFieldOFF>true</MagneticFieldOFF>
+            </Parameters>
+            <BunchShape>
+                <Parameters>
+                    <LongitudinalSigmaLabFrame unit="ns">20.0</LongitudinalSigmaLabFrame>
+                    <TransverseSigma unit="um">[ 10000, 8000 ]</TransverseSigma>
+                </Parameters>
+                <Model>Gaussian</Model>
+            </BunchShape>
+            <BunchElectricField>
+                <Model>Gaussian</Model>
+            </BunchElectricField>
+            <BunchTrain>
+                <NumberOfBunches>3</NumberOfBunches>
+                <BunchSpacing unit="ns">409.2</BunchSpacing>
+                <LongitudinalOffset unit="ns">-204.6</LongitudinalOffset>
+                <Type>CircularBunchTrain</Type>
+            </BunchTrain>
+        </Beam>
+    </Beams>
+    <Device>
+        <Parameters>
+            <XBoundaries unit="mm">[ -110, 110 ]</XBoundaries>
+            <YBoundaries unit="mm">[ -115.5, 115.5 ]</YBoundaries>
+        </Parameters>
+        <Model>InterpolatingIPM</Model>
+    </Device>
+    <GuidingFields>
+        <Electric>
+            <Parameters>
+                <ElectricField unit="V/m">[ 0, -1.082251e+05, 0 ]</ElectricField>
+            </Parameters>
+            <Model>UniformElectricField</Model>
+        </Electric>
+        <Magnetic>
+            <Parameters>
+                <MagneticField unit="T">[ 0, 0.01, 0 ]</MagneticField>
+            </Parameters>
+            <Model>UniformMagneticField</Model>
+        </Magnetic>
+    </GuidingFields>
+    <ParticleGeneration>
+        <Parameters>
+            <BeamId>0</BeamId>
+            <ZPosition unit="m">0</ZPosition>
+        </Parameters>
+        <Model>ZeroMomentum</Model>
+    </ParticleGeneration>
+    <ParticleTracking>
+        <Model>Boris</Model>
+    </ParticleTracking>
+    <Simulation>
+        <RNGSeed>1234</RNGSeed>
+        <NumberOfParticles>100000</NumberOfParticles>
+        <TimeRange>
+            <SimulationTime unit="us">12</SimulationTime>
+            <NumberOfTimeSteps>8000</NumberOfTimeSteps>
+        </TimeRange>
+        <ParticleType>
+            <ChargeNumber>1</ChargeNumber>
+            <RestEnergy unit="MeV">2 * %(proton mass energy equivalent in MeV)</RestEnergy>
+        </ParticleType>
+        <Output>
+            <Parameters>
+                <Filename>output/bscan/csns_extraction_ions_b100G_sc_off.csv</Filename>
+            </Parameters>
+            <Recorder>BasicRecorder</Recorder>
+        </Output>
+    </Simulation>
+</Virtual-IPM>
