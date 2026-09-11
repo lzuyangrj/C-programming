@@ -252,6 +252,6 @@ Toward the detector (\(\Delta y<0\)): slightly less expansion. Centroid shift vs
 | `plots/csns_emode_*.png` | Figures 1–8 |
 | `plots/csns_imode_*.png` | Figures 9–13 |
 
-Particle CSVs under `output/emode/` and `output/imode/` are gitignored. Lab notebook with the closed elliptical campaigns: [`REPORT.md`](REPORT.md). Ion-only write-up: [`IMODE_REPORT.md`](IMODE_REPORT.md).
+Particle CSVs under `output/emode/` and `output/imode/` are gitignored. Lab notebook with the closed elliptical campaigns: [`REPORT.md`](REPORT.md). Ion-only write-up: [`IMODE_REPORT.md`](IMODE_REPORT.md). Comparison with IPM papers 2006–2026: [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) / [`LITERATURE_REVIEW.pdf`](LITERATURE_REVIEW.pdf).
 
 Rebuild this PDF: `python3 scripts/md_to_pdf.py --md CSNS_IPM_REPORT.md --pdf CSNS_IPM_REPORT.pdf --footer "CSNS RCS IPM — e-mode and ion-mode"`.

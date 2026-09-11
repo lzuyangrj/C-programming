@@ -3,6 +3,7 @@
 CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) 2.3.1.
 
 **Combined results (e-mode + ion-mode):** [CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md) / [CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf) — round-beam A–D (and fine C/D) with figures.  
+**Literature review (2006–2026):** [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) / [LITERATURE_REVIEW.pdf](LITERATURE_REVIEW.pdf) — comparison of the simulated expansions with published IPM scaling, machines and correction methods.  
 **Lab notebook:** [REPORT.md](REPORT.md) — chronological e-mode and early ion results.  
 **Ion-mode only:** [IMODE_REPORT.md](IMODE_REPORT.md) / [IMODE_REPORT.pdf](IMODE_REPORT.pdf).
 
@@ -160,6 +161,7 @@ Useful CLI flags:
 | Path | Purpose |
 |------|---------|
 | `CSNS_IPM_REPORT.md` / `.pdf` | Combined e-mode + ion-mode results |
+| `LITERATURE_REVIEW.md` / `.pdf` | Review of the results against IPM papers 2006–2026 |
 | `IMODE_REPORT.md` / `.pdf` | Ion-mode A–D write-up |
 | `REPORT.md` | Lab notebook (chronological) |
 | `configs/` | XML simulation configurations |

@@ -17,6 +17,12 @@ MATH = [
     (r"\^{12}", "¹²"),
     (r"\^\{12\}", "¹²"),
     (r"\^12", "¹²"),
+    (r"\^\{0\.61\}", "⁰·⁶¹"),
+    (r"\^\{0\.92\}", "⁰·⁹²"),
+    (r"\^\{0\.9\}", "⁰·⁹"),
+    (r"\^\{1\.12\}", "¹·¹²"),
+    (r"\^\{-0\.9\}", "⁻⁰·⁹"),
+    (r"\^\{-1\}", "⁻¹"),
     (r"\^\{-\}", "⁻"),
     (r"\^\{+\}", "⁺"),
     (r"\^\+", "⁺"),
@@ -25,14 +31,23 @@ MATH = [
     (r"_x", "ₓ"),
     (r"_y", "ᵧ"),
     (r"_\{y\}", "ᵧ"),
+    (r"_\{0\}", "₀"),
+    (r"_0", "₀"),
     (r"_\{2\}", "₂"),
     (r"_2(?=\^)", "₂"),
     (r"_t", "ₜ"),
     (r"_\{b\}", "b"),
+    (r"_\{m\}", "ₘ"),
+    (r"_\{c\}", "c"),
+    (r"_\{sc\}", "sc"),
     (r"_\{min\}", "ₘᵢₙ"),
     (r"_min", "ₘᵢₙ"),
     (r"\\lesssim", "≲"),
     (r"\\gtrsim", "≳"),
+    (r"\\leq", "≤"),
+    (r"\\geq", "≥"),
+    (r"\\le(?![a-zA-Z])", "≤"),
+    (r"\\ge(?![a-zA-Z])", "≥"),
     (r"\\pm", "±"),
     (r"\\propto", "∝"),
     (r"\\ldots", "…"),
@@ -40,9 +55,19 @@ MATH = [
     (r"\\sim", "∼"),
     (r"\\approx", "≈"),
     (r"\\times", "×"),
+    (r"\\cdot", "·"),
     (r"\\in", "∈"),
     (r"\\Delta", "Δ"),
     (r"\\sigma", "σ"),
+    (r"\\beta", "β"),
+    (r"\\epsilon", "ε"),
+    (r"\\varepsilon", "ε"),
+    (r"\\omega", "ω"),
+    (r"\\tau", "τ"),
+    (r"\\kappa", "κ"),
+    (r"\\pi", "π"),
+    (r"\\Gamma", "Γ"),
+    (r"\\sqrt", "√"),
     (r"\\mathrm\{mm\}", "mm"),
     (r"\\mathrm\{kW\}", "kW"),
     (r"\\mathrm\{kV\}", "kV"),
@@ -220,6 +245,8 @@ def render(pdf: ReportPDF, blocks: list[tuple[str, object]], root: Path) -> None
             write_rich(pdf, str(payload))
         elif kind == "ol":
             for n, item in enumerate(payload, 1):
+                if pdf.get_y() > pdf.h - 28:
+                    pdf.add_page()
                 pdf.set_font("DejaVu", "B", 10.5)
                 x, y = pdf.get_x(), pdf.get_y()
                 pdf.cell(8, 5.2, f"{n}.")
@@ -227,6 +254,8 @@ def render(pdf: ReportPDF, blocks: list[tuple[str, object]], root: Path) -> None
                 write_rich(pdf, item)
         elif kind == "ul":
             for item in payload:
+                if pdf.get_y() > pdf.h - 28:
+                    pdf.add_page()
                 pdf.set_font("DejaVu", "B", 10.5)
                 x, y = pdf.get_x(), pdf.get_y()
                 pdf.cell(8, 5.2, "•")

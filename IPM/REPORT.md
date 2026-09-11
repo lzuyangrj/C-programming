@@ -1,6 +1,6 @@
 # CSNS RCS IPM — Virtual-IPM results (brief)
 
-Combined round-beam write-up with figures: **[CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md)** · PDF: **[CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf)**.
+Combined round-beam write-up with figures: **[CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md)** · PDF: **[CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf)**. Literature comparison (2006–2026): **[LITERATURE_REVIEW.md](LITERATURE_REVIEW.md)** · **[LITERATURE_REVIEW.pdf](LITERATURE_REVIEW.pdf)**.
 
 **Code:** Virtual-IPM 2.3.1. **Beam / cage:** NIMA **1092** (2026) 171809, 100 kW CSNS RCS; ideal uniform \(E_y = 25\,\mathrm{kV}/231\,\mathrm{mm} \approx 108\,\mathrm{kV/m}\). **Space charge:** Gaussian bunch \(E\) plus Lorentz-boosted bunch \(B\), compared with those fields off. Guiding \(E\) and \(B\) stay uniform. **Statistics:** 100000 secondaries per run; quoted \(\sigma\) is the RMS of **detected** \(x\).
 
