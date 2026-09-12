@@ -57,6 +57,9 @@ I1_VOLTAGES_KV = (5, 10, 15, 20, 25, 30)
 # I2 correction look-up table (review §3.7 recipe): h(σ₀, N, species) at 0 G, 25 kV.
 I2_SIZES_MM = (5, 10, 15, 20, 25)
 I2_POWERS_KW = (20, 50, 80, 100, 150, 200, 250, 300, 400, 500)
+# 1 mm identified-species invert at aligned extraction (not in the coarse I1/I2 grids).
+I2_DENSE_SIZES_MM = tuple(range(3, 21))
+I2_DENSE_POWERS_KW = (100,)
 # I3 single-bunch vs 3-bunch train (review §3.1 mixed regime, Shiltsev 1 + 0.8 t_b/τ₀).
 I3_POWER_KW = 100
 
@@ -163,6 +166,44 @@ def imode_points() -> list[dict]:
             pts.append(point(mode="i", block="I3", beam=beam, sigma_mm=s, power_kw=I3_POWER_KW, species=sp,
                              train=train))
         pts.append(point(mode="i", block="I3", beam=beam, sigma_mm=s, species="ions", train=train, sc_on=False))
+    return pts
+
+
+def i2_dense_extraction_points() -> list[dict]:
+    """Aligned extraction I2 fill-in: 1 mm in σ₀ at B = 0, 25 kV.
+
+    H₂O⁺ / N₂⁺ SC-on; H₂⁺ SC-off is shared. Existing I1/I2 sizes are omitted
+    so completed 100 k v2 CSVs are not rewritten.
+    """
+    have = set(I1_SIZES_MM) | set(I2_SIZES_MM)
+    pts: list[dict] = []
+    for s in I2_DENSE_SIZES_MM:
+        if s in have:
+            continue
+        for sp in ("h2o_ions", "n2_ions"):
+            for p in I2_DENSE_POWERS_KW:
+                pts.append(
+                    point(
+                        mode="i",
+                        block="I2",
+                        beam="extraction",
+                        sigma_mm=s,
+                        power_kw=p,
+                        species=sp,
+                        train="3-bunch aligned",
+                    )
+                )
+        pts.append(
+            point(
+                mode="i",
+                block="I2",
+                beam="extraction",
+                sigma_mm=s,
+                species="ions",
+                train="3-bunch aligned",
+                sc_on=False,
+            )
+        )
     return pts
 
 

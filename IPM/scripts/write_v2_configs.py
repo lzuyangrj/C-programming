@@ -41,7 +41,7 @@ from generate_csns_configs import (  # noqa: E402
     write,
 )
 from scan_matrix_v2 import existing_keys, imode_points, is_reuse, key_of  # noqa: E402
-from scan_matrix_v2 import dedupe, emode_points  # noqa: E402
+from scan_matrix_v2 import dedupe, emode_points, i2_dense_extraction_points  # noqa: E402
 
 V2_CFG = ROOT / "configs" / "csns_rcs_ipm" / "v2"
 V2_CSV = "output/v2"
@@ -249,7 +249,42 @@ def main() -> None:
     ap.add_argument("--write", action="store_true", help="write XMLs for new (non-reuse) points")
     ap.add_argument("--list", action="store_true", help="print XML paths in run order")
     ap.add_argument("--matrix", action="store_true", help="print block counts")
+    ap.add_argument(
+        "--dense-ext",
+        action="store_true",
+        help="I2 1 mm aligned-extraction fill-in (H2O+/N2+ SC-on, H2+ SC-off)",
+    )
     args = ap.parse_args()
+    if args.dense_ext:
+        rows = i2_dense_extraction_points()
+        if args.matrix or not (args.write or args.list):
+            ons = [r for r in rows if r["sc_on"]]
+            offs = [r for r in rows if not r["sc_on"]]
+            print(
+                f"I2 dense extraction: {len(rows)} points "
+                f"({len(ons)} SC-on, {len(offs)} H2+ SC-off); "
+                f"sizes {[int(r['sigma_mm']) for r in offs]}"
+            )
+            for r in rows[:1]:
+                g, f = timing_ok(r["beam"], r["sigma_t_ns"], r["train"])
+                print(f"  timing sample {r['beam']} {r['train']}: gen {g:.1f} ns, first {f:.1f} ns")
+            bad = 0
+            for r in rows:
+                try:
+                    timing_ok(r["beam"], r["sigma_t_ns"], r["train"])
+                except RuntimeError as exc:
+                    print("FAIL", exc)
+                    bad += 1
+            if bad:
+                raise SystemExit(f"{bad} timing failures")
+            print("  timing contract: all dense extraction ion points pass (|Δ| ≤ 1 ns)")
+        if args.write:
+            paths = write_all(rows)
+            print(f"wrote {len(paths)} XMLs under {V2_CFG}")
+        if args.list:
+            for r in rows:
+                print(xml_path(r))
+        return
     rows = load_points()
     new = order_rows(new_points(rows))
     if args.matrix or not (args.write or args.list):

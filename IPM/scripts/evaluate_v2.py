@@ -61,7 +61,75 @@ def v1_off_path(on: dict) -> Path | None:
     return None
 
 
+def _v2_key(r: dict) -> tuple:
+    return (
+        r.get("block"),
+        r.get("beam"),
+        r.get("species"),
+        int(float(r.get("sigma_mm") or 0)),
+        int(float(r.get("voltage_kv") or 0)),
+        int(float(r.get("power_kw") or 0)),
+        int(float(r.get("b_gs") or 0)),
+        int(float(r.get("dx_mm") or 0)),
+        int(float(r.get("dy_mm") or 0)),
+        r.get("train"),
+    )
+
+
+def merge_dense_extraction() -> int:
+    """Append completed I2 1 mm aligned-extraction rows; do not rewrite v1/v2."""
+    from scan_matrix_v2 import i2_dense_extraction_points  # noqa: PLC0415
+
+    existing: list[dict] = []
+    if OUT.is_file():
+        with OUT.open() as fh:
+            existing = list(csv.DictReader(fh))
+    idx = {_v2_key(r): i for i, r in enumerate(existing)}
+    added = 0
+    for r in i2_dense_extraction_points():
+        if not r["sc_on"]:
+            continue
+        on_p = ROOT / csv_rel(r)
+        off_p = ROOT / csv_rel(dict(r, species="ions", sc_on=False))
+        if not on_p.is_file() or not off_p.is_file():
+            continue
+        row = summarize_pair(on_p, off_p, f"{r['block']}_{v_family(r)}", r["b_gs"])
+        if row is None:
+            continue
+        row.update(
+            block=r["block"],
+            beam=r["beam"],
+            species=r["species"],
+            train=r["train"],
+            energy_mev=r["energy_mev"],
+            sigma_t_ns=r["sigma_t_ns"],
+            sigma_mm=r["sigma_mm"],
+            voltage_kv=r["voltage_kv"],
+            power_kw=r["power_kw"],
+            dx_mm=r["dx_mm"],
+            dy_mm=r["dy_mm"],
+        )
+        k = _v2_key(row)
+        if k in idx:
+            existing[idx[k]] = row
+        else:
+            idx[k] = len(existing)
+            existing.append(row)
+            added += 1
+    if existing:
+        keys = list(existing[0].keys())
+        with OUT.open("w", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=keys, extrasaction="ignore")
+            w.writeheader()
+            w.writerows(existing)
+    print(f"I2 dense extraction: merged {added} new rows → {len(existing)} in {OUT}")
+    return added
+
+
 def main() -> None:
+    if "--dense-ext" in sys.argv:
+        merge_dense_extraction()
+        return
     all_rows = load_points()
     new = new_points(all_rows)
     done = miss = 0

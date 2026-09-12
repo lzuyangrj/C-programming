@@ -194,6 +194,113 @@ def plot_curves(inj: dict) -> Path:
     return path
 
 
+def plot_extraction(ext: dict) -> Path:
+    """Two-panel aligned-extraction invert: σ_m(σ₀) and leave-one-out recover."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
+    tab100 = {slug: ext[(slug, 100)] for slug, _ in SPECIES if (slug, 100) in ext}
+    if "h2o_ions" not in tab100 or "n2_ions" not in tab100:
+        path = PLOTS / "csns_imode_inversion_extraction.png"
+        fig.savefig(path, dpi=200)
+        plt.close(fig)
+        return path
+    for slug, lab in SPECIES:
+        if slug not in tab100:
+            continue
+        ax1.plot(
+            tab100[slug]["sigma0"],
+            tab100[slug]["sigmam"],
+            "o-",
+            color=COLORS[slug],
+            lw=1.5,
+            ms=5,
+            label=lab,
+        )
+    s0 = tab100["n2_ions"]["sigma0"]
+    i10 = int(np.argmin(np.abs(s0 - 10)))
+    ax1.axhline(tab100["h2o_ions"]["sigmam"][int(np.argmin(np.abs(tab100["h2o_ions"]["sigma0"] - 10)))],
+                color="r", ls=":", lw=0.9)
+    ax1.axhline(tab100["n2_ions"]["sigmam"][i10], color="g", ls=":", lw=0.9)
+    ax1.set_xlabel(r"true $\sigma_0$ [mm]")
+    ax1.set_ylabel(r"collected $\sigma_m$ [mm]")
+    ax1.set_xlim(2.5, 20.5)
+    ax1.set_ylim(10, 30)
+    ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
+    ax1.legend(fontsize=11, loc="upper right")
+
+    ax2.plot([2, 21], [2, 21], "k--", lw=0.8)
+    n2 = tab100["n2_ions"]
+    h2o = tab100["h2o_ions"]
+    rec_n2 = leave_one_out_identified(n2["sigma0"], n2["sigmam"])
+    rec_h2o = leave_one_out_identified(h2o["sigma0"], h2o["sigmam"])
+    ax2.plot(n2["sigma0"], n2["sigmam"], "s", color="0.55", ms=6, label=r"uncorrected $\mathrm{N}_2^+$")
+    ax2.plot(h2o["sigma0"], rec_h2o, "o", color="r", ms=6, label=r"identified $\mathrm{H}_2\mathrm{O}^+$")
+    ax2.plot(n2["sigma0"], rec_n2, "^", color="g", ms=7, label=r"identified $\mathrm{N}_2^+$")
+    ax2.set_xlabel(r"true $\sigma_0$ [mm]")
+    ax2.set_ylabel(r"recovered $\sigma_0$ [mm]")
+    ax2.set_xlim(2.5, 20.5)
+    ax2.set_ylim(2.5, 30)
+    ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
+    ax2.legend(fontsize=10, loc="upper left")
+    fig.tight_layout()
+    path = PLOTS / "csns_imode_inversion_extraction.png"
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+    return path
+
+
+def plot_extraction_power(ext: dict) -> Path | None:
+    """Identified-species residual versus σ₀ at extraction powers that have a table."""
+    powers = sorted({p for (slug, p) in ext if slug in ("h2o_ions", "n2_ions")})
+    usable = [
+        p
+        for p in powers
+        if ("h2o_ions", p) in ext
+        and ("n2_ions", p) in ext
+        and len(ext[("n2_ions", p)]["sigma0"]) >= 4
+    ]
+    if not usable:
+        return None
+    fig, ax = plt.subplots(figsize=(6.4, 4.8))
+    for slug, color in (("h2o_ions", "r"), ("n2_ions", "g")):
+        for power, mk in zip(usable, ("o", "s", "^", "D", "v", "P", "X")):
+            a = ext[(slug, power)]
+            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
+            wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
+            good = ~np.isnan(rec)
+            lab = rf"{power}\,kW" if slug == "n2_ions" else None
+            ax.plot(
+                a["sigma0"][good & ~wall],
+                100 * (rec[good & ~wall] / a["sigma0"][good & ~wall] - 1),
+                mk,
+                color=color,
+                ms=6,
+                label=lab,
+            )
+            if (good & wall).any():
+                ax.plot(
+                    a["sigma0"][good & wall],
+                    100 * (rec[good & wall] / a["sigma0"][good & wall] - 1),
+                    mk,
+                    color="0.6",
+                    ms=6,
+                    fillstyle="none",
+                )
+    ax.plot([], [], "o", color="r", ms=6, label=r"$\mathrm{H}_2\mathrm{O}^+$")
+    ax.plot([], [], "o", color="g", ms=6, label=r"$\mathrm{N}_2^+$")
+    ax.axhline(0, color="k", lw=0.6)
+    ax.axhspan(-2, 2, color="0.90", zorder=0)
+    ax.set_xlabel(r"true $\sigma_0$ [mm]")
+    ax.set_ylabel(r"identified-species residual [\%]")
+    ax.set_xlim(2.5, 20.5)
+    ax.set_ylim(-15, 15)
+    ax.legend(fontsize=8, loc="upper right", ncol=2)
+    fig.tight_layout()
+    path = PLOTS / "csns_imode_inversion_extraction_power.png"
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+    return path
+
+
 def plot_recover(inj: dict, ext: dict) -> Path:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
     n2 = inj[("n2_ions", 100)]
@@ -341,16 +448,42 @@ def report_stats(inj: dict, ext: dict) -> None:
             else:
                 print(f"  {power} kW {lab}: no inside-cage recovery (wall)")
     if ("h2o_ions", 100) in ext and ("n2_ions", 100) in ext:
-        print("Aligned extraction 100 kW:")
-        for slug, lab in (("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
-            a = ext[(slug, 100)]
-            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
-            e = 100 * (rec / a["sigma0"] - 1)
+        print("Aligned extraction 100 kW, 25 kV, B = 0, identified-species invert:")
+        for slug, lab in (("ions", "H2+"), ("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
+            if (slug, 100) not in ext:
+                continue
+            t = ext[(slug, 100)]
+            s0, sm = t["sigma0"], t["sigmam"]
+            rec = leave_one_out_identified(s0, sm)
+            e = 100 * (rec / s0 - 1)
+            i10 = int(np.argmin(np.abs(s0 - 10)))
+            imin = int(np.argmin(sm))
+            m = (s0 >= float(s0[imin])) & np.isfinite(e) & (s0 >= 8) & (s0 <= 20)
             print(
-                f"  {lab} |res| median {np.nanmedian(np.abs(e)):.2f}%  "
-                f"max {np.nanmax(np.abs(e)):.2f}%  "
-                + ", ".join(f"{s:.0f}→{m:.1f}" for s, m in zip(a["sigma0"], a["sigmam"]))
+                f"  {lab}: min σm={sm[imin]:.2f} mm at σ0={s0[imin]:.0f} mm; "
+                f"σ0=10 σm={sm[i10]:.2f} rec={rec[i10]:.2f} mm ({e[i10]:+.2f}%); "
+                f"σ0=8–20 on branch med|e|="
+                f"{np.median(np.abs(e[m])) if m.any() else float('nan'):.2f}% "
+                f"max={np.max(np.abs(e[m])) if m.any() else float('nan'):.2f}% "
+                f"n={int(m.sum())}  grid={','.join(f'{s:.0f}' for s in s0)}"
             )
+        for power in sorted({p for (s, p) in ext if s == "n2_ions" and p != 100}):
+            for slug, lab in (("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
+                if (slug, power) not in ext:
+                    continue
+                a = ext[(slug, power)]
+                rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
+                wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
+                good = ~np.isnan(rec) & ~wall
+                if good.any():
+                    e = 100 * (rec[good] / a["sigma0"][good] - 1)
+                    print(
+                        f"  {power} kW {lab} inside-cage |res| median {np.median(np.abs(e)):.2f}%  "
+                        f"n={int(good.sum())}  wall={int(wall.sum())}  "
+                        f"min@{a['sigma0'][a['sigmam'].argmin()]:.0f} mm"
+                    )
+                else:
+                    print(f"  {power} kW {lab}: no inside-cage recovery (wall)")
 
 
 def main() -> None:
@@ -362,6 +495,10 @@ def main() -> None:
     print("wrote", write_table(inj, ext))
     print("wrote", plot_curves(inj))
     print("wrote", plot_recover(inj, ext))
+    print("wrote", plot_extraction(ext))
+    pwr = plot_extraction_power(ext)
+    if pwr is not None:
+        print("wrote", pwr)
 
 
 if __name__ == "__main__":
