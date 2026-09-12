@@ -68,3 +68,8 @@ configs/csns_rcs_ipm/v2/*.xml
 output/v2/*.csv
 !output/csns_v2_summary.csv
 *.log
+*.aux
+*.out
+*.brf
+*.toc
+*.synctex.gz
