@@ -154,12 +154,15 @@ def imode_points() -> list[dict]:
                 for p in I2_POWERS_KW:
                     pts.append(point(mode="i", block="I2", beam=beam, sigma_mm=s, power_kw=p, species=sp, train=train))
             pts.append(point(mode="i", block="I2", beam=beam, sigma_mm=s, species="ions", train=train, sc_on=False))
-    # I3 single bunch vs train
+    # I3 single bunch vs train. Extraction must use the same −4σ_t default as
+    # the generation bunch (train="single aligned"); a SingleBunch that inherits
+    # BEAMS["extraction"]["offset_ns"] = −204.6 ns would recreate the 125 ns lag.
     for beam, s in REF_BEAMS:
+        train = "single aligned" if beam == "extraction" else "single"
         for sp in SPECIES:
             pts.append(point(mode="i", block="I3", beam=beam, sigma_mm=s, power_kw=I3_POWER_KW, species=sp,
-                             train="single"))
-        pts.append(point(mode="i", block="I3", beam=beam, sigma_mm=s, species="ions", train="single", sc_on=False))
+                             train=train))
+        pts.append(point(mode="i", block="I3", beam=beam, sigma_mm=s, species="ions", train=train, sc_on=False))
     return pts
 
 
@@ -225,7 +228,7 @@ def report(pts: list[dict], have: set[tuple]) -> str:
         "E4": "low power 20/50/80 kW, 3 ref. beams, 5 B",
         "I1": "aligned extraction: sizes × 5 P × 2 B, V scan, 3 offsets",
         "I2": "look-up h(σ₀, N, species): 5 σ × 10 P, inj. + aligned ext.",
-        "I3": "single bunch vs 3-bunch train, 3 ref. beams, 100 kW",
+        "I3": "single bunch vs 3-bunch; extraction is single aligned",
     }
     tot = [0, 0, 0]
     for blk in ("E1", "E3", "E4", "I1", "I2", "I3"):

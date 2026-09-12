@@ -1115,10 +1115,10 @@ i,I3,injection,80.0,120.0,25,0,0,25,100,0,ions,single,True,False
 i,I3,injection,80.0,120.0,25,0,0,25,100,0,h2o_ions,single,True,False
 i,I3,injection,80.0,120.0,25,0,0,25,100,0,n2_ions,single,True,False
 i,I3,injection,80.0,120.0,25,0,0,25,100,0,ions,single,False,False
-i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,ions,single,True,False
-i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,h2o_ions,single,True,False
-i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,n2_ions,single,True,False
-i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,ions,single,False,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,ions,single aligned,True,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,h2o_ions,single aligned,True,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,n2_ions,single aligned,True,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,ions,single aligned,False,False
 i,I3,injection,80.0,120.0,10,0,0,25,100,0,ions,single,True,False
 i,I3,injection,80.0,120.0,10,0,0,25,100,0,h2o_ions,single,True,False
 i,I3,injection,80.0,120.0,10,0,0,25,100,0,n2_ions,single,True,False

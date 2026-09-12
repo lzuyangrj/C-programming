@@ -75,9 +75,24 @@ All ion blocks: three species (H₂⁺, H₂O⁺, N₂⁺), 25 kV unless scanned
 | | ext. | 10 mm | 0 | V = 5, 10, 15, 20, 30 kV | 100, 500 | 30 / 5 |
 | | ext. | 10 mm | 0, 1000 | (Δx, Δy) = (10, 0), (0, +5), (0, −5) mm | 100, 500 | 36 / 6 |
 | **I2** correction look-up | inj. 80 MeV; ext. aligned | 5, 10, 15, 20, 25 mm | 0 | power | 20, 50, 80, 100, 150, 200, 250, 300, 400, 500 | 240 / 6 |
-| **I3** single bunch | inj. 25; ext. 10; inj. 10 mm | ref. | 0 | `SingleBunch` tracking beam instead of the 3-bunch train | 100 | 9 / 3 |
+| **I3** single bunch | inj. 25; ext. 10; inj. 10 mm | ref. | 0 | `SingleBunch` tracking beam (`single aligned` at extraction — same −4σₜ as generation, not −204.6 ns) | 100 | 9 / 3 |
 
-I1 and I2 overlap at extraction (sizes 5–20 mm, 100–500 kW, 0 G); overlapping points are counted once, in I1.
+I1 and I2 overlap at extraction (sizes 5–20 mm, 100–500 kW, 0 G); overlapping points are counted once, in I1. I3 extraction (10 mm, 100 kW, 0 G) is compared to the I1 aligned 3-bunch point, never to the v1 as-run extraction CSV.
+
+### Timing contract (extraction ions)
+
+The v1 artefact is a mismatch of two Virtual-IPM offsets, not a physics effect. Every v2 extraction ion XML must satisfy **generation-window centre = first tracking-bunch centre**. With σₜ = 20 ns that common centre is 80 ns (= 4σₜ).
+
+| Beam | Generation (fields off) | Tracking train | First-bunch centre | Status |
+|---|---|---|---|---|
+| Injection, v1 and v2 | `SingleBunch`, default −4σₜ → 480 ns | `CircularBunchTrain`, `LongitudinalOffset` = −spacing/2 = −480 ns | 480 ns | already aligned; reuse |
+| Extraction, v1 as-run | `SingleBunch`, default −4σₜ → 80 ns | `CircularBunchTrain`, `LongitudinalOffset` = −204.6 ns | 204.6 ns | **125 ns lag; do not reuse** |
+| Extraction, I1 / I2 | same 80 ns | `CircularBunchTrain`, `LongitudinalOffset` = **−80 ns** (= −4σₜ), slug `aligned` | 80 ns | the fix |
+| Extraction, I3 | same 80 ns | `SingleBunch` with **no** `LongitudinalOffset` (default −4σₜ). Must not copy `BEAMS["extraction"]["offset_ns"]` = −204.6 | 80 ns | `train = single aligned` |
+
+Acceptance check before any XML is written (generator hook 2): print both centres; abort if they differ by more than 1 ns. The two equivalent fixes of review §3.5 (move the train, or move the generation bunch) are not mixed: v2 always keeps generation at the default −4σₜ and moves the tracking train.
+
+v1 as-run extraction CSVs stay on disk as the mis-timed reference. They are never the baseline for I1–I3, never a reuse hit, and never the look-up column of the §3.7 correction recipe.
 
 ## 4. Run counts (`python3 scripts/scan_matrix_v2.py`)
 
@@ -88,7 +103,7 @@ I1 and I2 overlap at extraction (sizes 5–20 mm, 100–500 kW, 0 G); overlappin
 | E4 | low power 20/50/80 kW, 3 reference beams, 5 B | 45 | 0 | 45 |
 | I1 | aligned extraction: sizes × 5 P × 2 B, V scan, 3 offsets | 269 | 0 | 269 |
 | I2 | look-up h(σ₀, N, species): 5 σ × 10 P, inj. + aligned ext. | 246 | 80 | 166 |
-| I3 | single bunch vs 3-bunch train, 3 reference beams, 100 kW | 12 | 0 | 12 |
+| I3 | single bunch vs 3-bunch; extraction is `single aligned` | 12 | 0 | 12 |
 | **Total** | | **1124** | **110** | **1014** |
 
 Reused points are v1 runs that coincide exactly (E1: 80 MeV/120 ns and 1.6 GeV/20 ns at Block A fields; I2: injection sizes 5–25 mm at 100–500 kW). For comparison, v1 executed 8127 runs; v2 adds 12 % of that while closing every "partial" and "open" row of the review matrix that simulation can close.
@@ -100,8 +115,8 @@ Reused points are v1 runs that coincide exactly (E1: 80 MeV/120 ns and 1.6 GeV/2
 The v1 generator `scripts/generate_csns_configs.py` needs five additions before v2 can be written; none of them changes an existing v1 config:
 
 1. **Beam energy and bunch length as parameters** (E1): `beam_xml()` takes `energy`, `sigma_t_ns`, `spacing_ns`, `offset_ns` from the `BEAMS` dict; E1 needs them computed from β (T_rev = 227.92 m / βc) for the six energies and two σₜ values. Suggested family slug `ramp_e{energy_mev}mev_st{sigma_t_ns}ns_s10x10mm`.
-2. **Aligned extraction ion timing** (I1, I2): `ion_case()` builds the tracking train with `circular_train(3, spacing, offset=-spacing/2)`; the aligned variant uses `offset = -4·σₜ` (−80 ns at extraction) so the first bunch centre coincides with the centre of the generation window. New slug infix `aligned` so as-run and aligned CSVs never collide (`csns_extraction_{species}_aligned_s10mm_p100kw_b0G_sc_on.csv`).
-3. **Single-bunch ion train** (I3): reuse `single_bunch_train()` (already used for generation) for the tracking beam; slug infix `single`.
+2. **Aligned extraction ion timing** (I1, I2, I3): `ion_case()` today builds the tracking train with `circular_train(3, spacing, offset=-spacing/2)` (−204.6 ns at extraction). The aligned variant must pass `offset = -4·σₜ` (−80 ns) so the first bunch centre equals the generation-window centre (80 ns). Abort XML write if the two centres differ by more than 1 ns. New slug infix `aligned` so as-run and aligned CSVs never collide (`csns_extraction_{species}_aligned_s10mm_p100kw_b0G_sc_on.csv`). Do not implement the alternative of moving the generation bunch — one convention only.
+3. **Single-bunch ion train** (I3): reuse `single_bunch_train()` (already used for generation, default −4σₜ) for the tracking beam. Do **not** attach `BEAMS["extraction"]["offset_ns"]` to a `SingleBunch` — that would recreate the 125 ns lag. Slug infix `single` (injection) / `single_aligned` (extraction). Compare I3 extraction to the I1 aligned 3-bunch point, not to the v1 as-run CSV.
 4. **New power and field values**: `POWERS_KW` gains 20, 50, 80 (E4, I2) and 150, 250 (I2); `b_tag()` already handles arbitrary gauss values, so the phase grids (E3) need only `phase_grid_gs(V)` from `scan_matrix_v2.py`.
 5. **Evaluators**: `evaluate_emode.py` / `evaluate_imode.py` group by family slug; the three new slugs (ramp, aligned, single) need family patterns and a `--from-summary` replot path like the existing ones. The threshold routine should add the lobe-envelope metric next to the strict "last excursion" threshold.
 
