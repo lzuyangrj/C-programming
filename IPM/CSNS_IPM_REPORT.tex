@@ -346,22 +346,86 @@ inside $\pm 1\%$.}
 \label{fig:eBtail}
 \end{figure}
 
-The zeros of $\Delta(B)$ follow Eq.~(\ref{eq:dB}) to $\le 5\%$ at every
-cage voltage from $10$ to $30\,\mathrm{kV}$, with no free parameter
-(Fig.~\ref{fig:cyc}). At $25\,\mathrm{kV}$ the lobe amplitudes are
-$13$, $4$, $1.4$, $0.9$ and $0.6\%$; $300\,\mathrm{G}$ is the first
-field at which the envelope itself is $\le 1\%$ for all powers, and is
-therefore the operating point rather than any particular zero.
+\clearpage
+Figures~\ref{fig:eB} and~\ref{fig:eBtail} do not fall monotonically:
+$\Delta(B)$ oscillates through focusing ($\Delta<0$) and over-kick
+($\Delta>0$). Figure~\ref{fig:cyc} identifies that oscillation as the
+cyclotron phase of a nearly impulsive space-charge kick.
 
-\begin{figure}[ht]
+\begin{figure}[!t]
 \centering
 \includegraphics[width=0.98\textwidth]{csns_review_emode_cyclotron.png}
-\caption{Left: $\Delta(B)$ at $10$ and $25\,\mathrm{kV}$
-($100\,\mathrm{kW}$, $10\,\mathrm{mm}$ injection) with the predicted
-zeros $n\pi m_e/(e\tau)$. Right: spacing between zero crossings versus
-cage voltage, compared with $\pi m_e/(e\tau)\propto\sqrt{V}$.}
+\caption{(a)~Relative expansion $\Delta$ versus guiding field at two
+cage voltages ($100\,\mathrm{kW}$, $10\,\mathrm{mm}$ injection).
+Dotted vertical lines (colour-matched to the curves) are the predicted
+zeros $B_n=n\pi m_e/(e\tau)$; circles are the simulated crossings. The
+grey band is $\pm 1\%$. The $25\,\mathrm{kV}$ point at $B=0$
+($\Delta=-48\%$) is off-scale. (b)~Mean spacing of those zeros versus
+cage voltage, compared with $\pi m_e/(e\tau)\propto\sqrt{V}$ (no free
+parameter).}
 \label{fig:cyc}
 \end{figure}
+
+An electron born on a $10\,\mathrm{mm}$ beam leaves the bunch in
+$\lesssim 1\,\mathrm{ns}$ and then drifts the remaining
+$\tau\simeq 3.5\,\mathrm{ns}$ ($25\,\mathrm{kV}$) in the uniform cage
+field. The transverse impulse $\Delta v$ acquired inside the bunch is
+converted into cyclotron motion at $\omega_c=eB/m_e$. The displacement
+at the collector is $(\Delta v/\omega_c)\sin(\omega_c\tau)$ and
+therefore vanishes whenever the electron completes an integer number of
+half-turns, $\omega_c\tau=n\pi$ ($n=1,2,\ldots$). Those fields are
+exactly the equally spaced zeros $B_n=n\,\pi m_e/(e\tau)$ of
+Eq.~(\ref{eq:dB}). Because $\tau\propto V^{-1/2}$ in a uniform field,
+the spacing itself scales as $\sqrt{V}$. The amplitude of each
+successive lobe falls as $1/B$ (the $1/\omega_c$ prefactor). Magnetic
+mitigation is the decay of that envelope, not the choice of a particular
+zero: a zero can be moved by a few kilovolts or a change of orbit,
+whereas the envelope is a property of $B$.
+
+Panel~(a) is a $5\,\mathrm{G}$-step scan at $100\,\mathrm{kW}$ and
+$10\,\mathrm{mm}$ injection, drawn at $10$ and $25\,\mathrm{kV}$.
+Vertical dotted lines are the predicted zeros
+$B_n=n\pi m_e/(e\tau)$ for each voltage; filled circles mark the
+Virtual-IPM crossings. The $10\,\mathrm{kV}$ curve oscillates faster
+because the flight is longer ($\tau=5.51\,\mathrm{ns}$ versus
+$3.48\,\mathrm{ns}$), so a given phase $n\pi$ is reached at a weaker
+$B$. The first $25\,\mathrm{kV}$ point, $\Delta=-48\%$ at $B=0$, lies
+below the frame. At $25\,\mathrm{kV}$ the remaining lobes sit near
+$85$, $140$, $195$, $240$ and $295\,\mathrm{G}$ with amplitudes $13$,
+$4$, $1.4$, $0.9$ and $0.6\%$.
+
+Panel~(b) extracts the mean spacing between successive zeros at five
+cage voltages and compares it with $\pi m_e/(e\tau)$
+(Table~\ref{tab:cyc}). The points follow the $\sqrt{V}$ curve to
+$\le 5\%$ from $10$ to $30\,\mathrm{kV}$ with no free parameter. That
+is the evidence that the oscillation in Figs.~\ref{fig:eB}
+and~\ref{fig:eBtail} is the cyclotron phase, and it is why
+$300\,\mathrm{G}$---the first field at which the envelope itself lies
+inside $\pm 1\%$ at every power---is the operating point rather than
+any particular zero.
+
+\begin{table}[!ht]
+\centering
+\caption{Electron time of flight from the cage mid-plane and the
+spacing of $\Delta(B)$ zeros ($5\,\mathrm{G}$ voltage scan, injection
+$10\,\mathrm{mm}$, $100\,\mathrm{kW}$). The prediction is
+Eq.~(\ref{eq:dB}) with $\tau=\sqrt{2 d m_e/(eE)}$ and
+$d=115.5\,\mathrm{mm}$.}
+\label{tab:cyc}
+{\small
+\begin{tabular}{cccc}
+\hline\hline
+Cage voltage & ToF $\tau$ & $\Delta B$ predicted & $\Delta B$ simulated \\
+\hline
+$10\,\mathrm{kV}$ & $5.51\,\mathrm{ns}$ & $32.4\,\mathrm{G}$ & $30.9\,\mathrm{G}$ \\
+$15\,\mathrm{kV}$ & $4.50\,\mathrm{ns}$ & $39.7\,\mathrm{G}$ & $39.1\,\mathrm{G}$ \\
+$20\,\mathrm{kV}$ & $3.89\,\mathrm{ns}$ & $45.9\,\mathrm{G}$ & $45.7\,\mathrm{G}$ \\
+$25\,\mathrm{kV}$ & $3.48\,\mathrm{ns}$ & $51.3\,\mathrm{G}$ & $51.7\,\mathrm{G}$ \\
+$30\,\mathrm{kV}$ & $3.18\,\mathrm{ns}$ & $56.2\,\mathrm{G}$ & $55.1\,\mathrm{G}$ \\
+\hline\hline
+\end{tabular}
+}
+\end{table}
 
 Table~\ref{tab:Bth} lists the smallest field after which
 $\lvert\Delta\rvert$ remains below $1\%$, together with the residual at

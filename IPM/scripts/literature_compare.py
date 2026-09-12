@@ -385,35 +385,69 @@ def scaling_checks() -> list[dict]:
     return rows
 
 
+def _zero_crossings(b: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Linear interpolation of B where Δ changes sign."""
+    zeros = [
+        b[i] - y[i] * (b[i + 1] - b[i]) / (y[i + 1] - y[i])
+        for i in range(len(b) - 1)
+        if y[i] * y[i + 1] < 0
+    ]
+    return np.asarray(zeros, float)
+
+
 def plot_cyclotron(rows: list[dict]) -> Path:
+    """Two-panel cyclotron-phase check: Δ(B) zeros and their √V spacing."""
     fine = load_summary(OUT / "csns_emode_voltage_fine_summary.csv")
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.5))
-    for volt, color in ((10, "C0"), (25, "C3")):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
+    ax1.axhspan(-1.0, 1.0, color="0.90", zorder=0)
+    ax1.axhline(0, color="k", lw=0.6)
+    for volt, color in ((10, "b"), (25, "r")):
         pts = sorted(
             (r["b_gs"], r["expansion_vs_no_sc_pct"])
             for r in fine
             if r["power_kw"] == 100 and r["voltage_kv"] == volt and r["b_gs"] <= 300
         )
-        ax1.plot([p[0] for p in pts], [p[1] for p in pts], "-", color=color, lw=1.2, label=f"{volt} kV")
-        d_b = np.pi * m_e / (e * _electron_tof(volt)) * 1e4
+        b = np.array([p[0] for p in pts], float)
+        y = np.array([p[1] for p in pts], float)
+        tof = _electron_tof(volt)
+        d_b = np.pi * m_e / (e * tof) * 1e4
         for n in range(1, int(300 / d_b) + 1):
-            ax1.axvline(n * d_b, color=color, lw=0.6, ls=":", alpha=0.8)
-    ax1.axhline(0, color="k", lw=0.5)
-    ax1.set_xlabel("B [G]")
-    ax1.set_ylabel(r"expansion vs no-SC [\%]")
+            ax1.axvline(n * d_b, color=color, lw=0.9, ls=":", alpha=0.7)
+        ax1.plot(
+            b,
+            y,
+            "-",
+            color=color,
+            lw=1.6,
+            label=rf"{volt:d}\,kV ($\tau={tof*1e9:.1f}$\,ns)",
+        )
+        zeros = _zero_crossings(b[b >= 5], y[b >= 5])
+        ax1.plot(zeros, np.zeros_like(zeros), "o", color=color, ms=5, zorder=5)
+    ax1.plot([], [], "k:", lw=0.9, label=r"predicted zeros $n\pi m_e/(e\tau)$")
+    ax1.set_xlabel(r"$B$ [G]")
+    ax1.set_ylabel(r"$\Delta$ [\%]")
     ax1.set_ylim(-15, 35)
     ax1.set_xlim(0, 300)
-    ax1.legend(title=r"inj. 10 mm, 100 kW; dotted: $n\pi m_e/(e\,\mathrm{ToF})$", fontsize=9, title_fontsize=9)
+    ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top", ha="left")
+    ax1.legend(fontsize=11, loc="upper right")
+
     sel = [r for r in rows if r["check"] == "fineC_zero_spacing"]
     v = np.array([r["voltage_kv"] for r in sel], float)
-    ax2.plot(v, [r["sim"] for r in sel], "o", color="C3", label="Virtual-IPM zero-crossing spacing")
+    ax2.plot(v, [r["sim"] for r in sel], "o", color="r", ms=7, label="Virtual-IPM spacing")
     vv = np.linspace(5, 32, 100)
-    ax2.plot(vv, [np.pi * m_e / (e * _electron_tof(x)) * 1e4 for x in vv], "k--", lw=1, label=r"$\pi m_e/(e\,\mathrm{ToF}) \propto \sqrt{V}$")
+    ax2.plot(
+        vv,
+        [np.pi * m_e / (e * _electron_tof(x)) * 1e4 for x in vv],
+        "k--",
+        lw=1.2,
+        label=r"$\pi m_e/(e\tau)\propto\sqrt{V}$",
+    )
     ax2.set_xlabel("cage voltage [kV]")
-    ax2.set_ylabel(r"$\Delta B$ between zero crossings [G]")
+    ax2.set_ylabel(r"spacing of $\Delta(B)$ zeros [G]")
     ax2.set_xlim(5, 32)
     ax2.set_ylim(20, 65)
-    ax2.legend(fontsize=9, loc="lower right")
+    ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top", ha="left")
+    ax2.legend(fontsize=11, loc="lower right")
     fig.tight_layout()
     path = PLOTS / "csns_review_emode_cyclotron.png"
     fig.savefig(path, dpi=200)

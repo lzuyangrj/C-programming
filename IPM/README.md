@@ -161,7 +161,7 @@ Useful CLI flags:
 
 | Path | Purpose |
 |------|---------|
-| `CSNS_IPM_REPORT.md` / `.pdf` | Physics note: space-charge distortion, size growth, mitigation efficiency |
+| `CSNS_IPM_REPORT.tex` / `.pdf` | CERN Yellow Report class; PRAB/NIMA-style physics note |
 | `LITERATURE_REVIEW.md` / `.pdf` | Review of the results against IPM papers 2006–2026 |
 | `SCAN_MATRIX_V2.md` / `.pdf` | Revised scan matrix v2 (executed; `scripts/run_v2.sh`, `output/csns_v2_summary.csv`) |
 | `IMODE_REPORT.md` / `.pdf` | Ion-mode A–D write-up |
