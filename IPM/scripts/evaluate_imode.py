@@ -228,44 +228,118 @@ def plot_size_obtained(rows: list[dict], plot_dir: Path) -> None:
     print(f"Wrote {plot_dir / 'csns_imode_size_obtained.png'}")
 
 
+def aligned_extraction_size_rows(
+    v2_path: Path | str = "output/csns_v2_summary.csv",
+    b_gs: int = 1000,
+) -> list[dict]:
+    """Aligned I1/I2 extraction sizes (ion born with the bunch), not v1 as-run."""
+    picked: dict[tuple, dict] = {}
+    for r in load_summary(v2_path):
+        if r.get("block") not in ("I1", "I2"):
+            continue
+        if r.get("beam") != "extraction":
+            continue
+        if "aligned" not in str(r.get("train", "")).lower():
+            continue
+        if int(r.get("voltage_kv") or 0) != 25:
+            continue
+        if int(r.get("dx_mm") or 0) != 0 or int(r.get("dy_mm") or 0) != 0:
+            continue
+        if int(r.get("b_gs") or -1) != b_gs:
+            continue
+        species = r.get("species")
+        if species not in SPECIES_LABELS:
+            continue
+        sigma_mm = int(float(r.get("sigma_mm") or r.get("sigma_x_mm") or 0))
+        power_kw = int(r["power_kw"])
+        key = (species, power_kw, sigma_mm)
+        if key in picked and picked[key].get("block") == "I1" and r.get("block") != "I1":
+            continue
+        picked[key] = {
+            "species": species,
+            "species_label": SPECIES_LABELS[species],
+            "beam": "extraction",
+            "b_gs": b_gs,
+            "power_kw": power_kw,
+            "sigma_x_mm": sigma_mm,
+            "sigma_sc_on_mm": r["sigma_sc_on_mm"],
+            "expansion_vs_no_sc_pct": r["expansion_vs_no_sc_pct"],
+            "block": r.get("block"),
+        }
+    return list(picked.values())
+
+
+def _size_series(
+    rows: list[dict], species: str, beam: str, power_kw: int, b_gs: int = 1000
+) -> list[dict]:
+    return sorted(
+        (
+            r
+            for r in rows
+            if r["species"] == species
+            and r["beam"] == beam
+            and int(r["b_gs"]) == b_gs
+            and int(r["power_kw"]) == power_kw
+        ),
+        key=lambda r: r["sigma_x_mm"],
+    )
+
+
 def plot_size_expansion(rows: list[dict], plot_dir: Path) -> None:
-    """Expansion vs true σ at 0.1 T for all powers (injection + extraction)."""
-    fig, axes = plt.subplots(2, 3, figsize=(14.0, 8.0), sharex=True, sharey="row")
+    """Fig. 3: (a) expansion vs true σ; (b) observed vs true σ, at 0.1 T.
+
+    Injection uses the Block B size summary. Extraction uses aligned I1/I2
+    (v1 as-run H₂⁺ extraction is not plotted).
+    """
+    aligned = aligned_extraction_size_rows()
+    fig, axes = plt.subplots(4, 3, figsize=(14.0, 13.2), sharex=True)
+    for ax in axes[1]:
+        ax.sharey(axes[0, 0])
+    for ax in (*axes[2], *axes[3]):
+        ax.sharey(axes[2, 0])
+    lims = np.array([0.0, 22.0])
     for col_i, species in enumerate(SPECIES_SLUGS):
         for row_i, beam in enumerate(("injection", "extraction")):
-            ax = axes[row_i, col_i]
+            src = aligned if beam == "extraction" and aligned else rows
+            ax_exp = axes[row_i, col_i]
+            ax_obs = axes[row_i + 2, col_i]
             for power_kw in POWERS_KW:
-                series = sorted(
-                    (
-                        r
-                        for r in rows
-                        if r["species"] == species
-                        and r["beam"] == beam
-                        and r["b_gs"] == 1000
-                        and r["power_kw"] == power_kw
-                    ),
-                    key=lambda r: r["sigma_x_mm"],
-                )
+                series = _size_series(src, species, beam, power_kw)
                 if not series:
                     continue
-                ax.plot(
-                    [r["sigma_x_mm"] for r in series],
+                xs = [r["sigma_x_mm"] for r in series]
+                ax_exp.plot(
+                    xs,
                     [r["expansion_vs_no_sc_pct"] for r in series],
                     "o-",
                     ms=3,
                     lw=1.1,
                     label=f"{power_kw} kW",
                 )
-            ax.axhline(0.0, color="0.5", lw=0.8)
-            ax.set_title(f"{SPECIES_LABELS[species]}, {BEAM_TITLES[beam]}", fontsize=9)
-            ax.grid(True, alpha=0.3)
-            if row_i == 1:
-                ax.set_xlabel("True σ [mm]")
+                ax_obs.plot(
+                    xs,
+                    [r["sigma_sc_on_mm"] for r in series],
+                    "o-",
+                    ms=3,
+                    lw=1.1,
+                    label=f"{power_kw} kW",
+                )
+            ax_exp.axhline(0.0, color="0.5", lw=0.8)
+            ax_obs.plot(lims, lims, "k--", lw=0.9, label="obtained = true")
+            title = f"{SPECIES_LABELS[species]}, {BEAM_TITLES[beam]}"
+            ax_exp.set_title(title, fontsize=9)
+            ax_obs.set_title(title, fontsize=9)
+            ax_exp.grid(True, alpha=0.3)
+            ax_obs.grid(True, alpha=0.3)
             if col_i == 0:
-                ax.set_ylabel("Expansion vs no SC [%]")
+                ax_exp.set_ylabel(r"$\Delta$ [\%]")
+                ax_obs.set_ylabel("Observed beam size [mm]")
+            if row_i == 1:
+                ax_obs.set_xlabel("True beam size [mm]")
             if row_i == 0 and col_i == 0:
-                ax.legend(fontsize=7)
-    fig.suptitle("Block B — size scan at B = 0.1 T", y=1.01, fontsize=11)
+                ax_exp.legend(fontsize=7, loc="upper right")
+    axes[0, 0].text(0.03, 0.96, r"(a)", transform=axes[0, 0].transAxes, va="top")
+    axes[2, 0].text(0.03, 0.08, r"(b)", transform=axes[2, 0].transAxes, va="bottom")
     fig.tight_layout()
     fig.savefig(plot_dir / "csns_imode_size_expansion.png", dpi=150)
     print(f"Wrote {plot_dir / 'csns_imode_size_expansion.png'}")
