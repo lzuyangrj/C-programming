@@ -36,10 +36,6 @@ E1_ENERGIES_MEV = (80, 200, 400, 800, 1200, 1600)
 E1_SIGMA_T_NS = (120.0, 20.0)  # fixed bunch lengths isolate β; ramp table later
 E1_B_GS = (0, 100, 200, 300, 500, 1000)
 E1_POWERS_KW = (100, 500)
-# E2 small-beam field fill-in (review §2.4: 3 mm ext. is +1.5 % at 300 G, nothing between 300 and 1000 G).
-E2_SIGMAS_MM = (3, 4, 5, 6)
-E2_B_GS = (400, 500, 600, 800)
-E2_POWERS_KW = (100, 200, 300, 400, 500)
 # E3 cyclotron-phase-aware voltage scan for the beams Block C never covered (review §2.3).
 E3_BEAMS = (("extraction", 10), ("injection", 25))
 E3_VOLTAGES_KV = (10, 15, 20, 30)  # 25 kV = Block A
@@ -107,13 +103,6 @@ def emode_points() -> list[dict]:
                                      sigma_mm=10, power_kw=p, b_gs=b))
                 pts.append(point(mode="e", block="E1", beam="ramp", energy_mev=en, sigma_t_ns=st,
                                  sigma_mm=10, b_gs=b, sc_on=False))
-    # E2
-    for beam in ("injection", "extraction"):
-        for s in E2_SIGMAS_MM:
-            for b in E2_B_GS:
-                for p in E2_POWERS_KW:
-                    pts.append(point(mode="e", block="E2", beam=beam, sigma_mm=s, power_kw=p, b_gs=b))
-                pts.append(point(mode="e", block="E2", beam=beam, sigma_mm=s, b_gs=b, sc_on=False))
     # E3
     for beam, s in E3_BEAMS:
         for v in E3_VOLTAGES_KV:
@@ -232,7 +221,6 @@ def report(pts: list[dict], have: set[tuple]) -> str:
              "-" * 82]
     desc = {
         "E1": "ramp / β scan, 6 energies × 2 σ_t, 10 mm, 6 B, 100/500 kW",
-        "E2": "small beams 3–6 mm at 400–800 G, inj.+ext., 100–500 kW",
         "E3": "phase-aware B grid × V (10–30 kV), ext. 10 mm + inj. 25 mm",
         "E4": "low power 20/50/80 kW, 3 ref. beams, 5 B",
         "I1": "aligned extraction: sizes × 5 P × 2 B, V scan, 3 offsets",
@@ -240,7 +228,7 @@ def report(pts: list[dict], have: set[tuple]) -> str:
         "I3": "single bunch vs 3-bunch train, 3 ref. beams, 100 kW",
     }
     tot = [0, 0, 0]
-    for blk in ("E1", "E2", "E3", "E4", "I1", "I2", "I3"):
+    for blk in ("E1", "E3", "E4", "I1", "I2", "I3"):
         sel = [p for p in pts if p["block"] == blk]
         reuse = sum(1 for p in sel if is_reuse(p, have))
         lines.append(f"{blk:5s}  {desc[blk]:56s} {len(sel):5d} {reuse:7d} {len(sel) - reuse:6d}")
