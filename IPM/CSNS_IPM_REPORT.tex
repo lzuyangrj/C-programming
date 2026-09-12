@@ -93,7 +93,10 @@ mitigations---guiding $B$, cage voltage, and an identified-species
 correction---remove it?
 
 The calculation uses Virtual-IPM~2.3.1~\cite{Vilsmeier2017} with uniform
-cage fields and $10^5$ secondaries per case. Distortion is isolated by
+cage fields and $10^5$ secondaries per case. Figures~\ref{fig:kick}
+and~\ref{fig:cyc}--\ref{fig:ioff} are evaluated on
+$1\,\mathrm{kV}$ voltage and $1\,\mathrm{mm}$ orbit-offset grids;
+existing $10^5$-particle archives were not re-run. Distortion is isolated by
 comparing bunch space charge on and off at fixed guiding $E$ and $B$,
 \begin{equation}
 \label{eq:delta}
@@ -411,10 +414,10 @@ $4$, $1.4$, $0.9$ and $0.6\%$.
 
 Panel~(b) extracts the mean spacing between successive zeros on the
 $5$--$30\,\mathrm{kV}$ grid at $1\,\mathrm{kV}$ steps
-(Table~\ref{tab:cyc} lists the $5\,\mathrm{kV}$ subset). The points
+(Table~\ref{tab:cyc} lists every voltage). The points
 follow the $\sqrt{V}$ curve to $\le 5\%$ on the $5\,\mathrm{G}$ C2
 voltages; the $10\,\mathrm{G}$ C3 fill at $5$--$8\,\mathrm{kV}$ is
-coarser than a half-lobe and sits $6$--$12\%$ low. There is no free
+coarser than a half-lobe and sits $5$--$11\%$ low. There is no free
 parameter. That is the evidence that the oscillation in Figs.~\ref{fig:eB}
 and~\ref{fig:eBtail} is the cyclotron phase, and it is why
 $300\,\mathrm{G}$---the first field at which the envelope itself lies
@@ -424,24 +427,34 @@ any particular zero.
 \begin{table}[!ht]
 \centering
 \caption{Electron time of flight from the cage mid-plane and the
-spacing of $\Delta(B)$ zeros (dense $B$ scan, injection
+spacing of $\Delta(B)$ zeros on the $1\,\mathrm{kV}$ grid (injection
 $10\,\mathrm{mm}$, $100\,\mathrm{kW}$). The prediction is
 Eq.~(\ref{eq:dB}) with $\tau=\sqrt{2 d m_e/(eE)}$ and
-$d=115.5\,\mathrm{mm}$.}
+$d=115.5\,\mathrm{mm}$. C2 voltages ($10$, $12$, $15$, $18$, $20$,
+$25\,\mathrm{kV}$) use a $5\,\mathrm{G}$ $B$ scan; the others are the
+$10\,\mathrm{G}$ C3 fill.}
 \label{tab:cyc}
-{\small
-\begin{tabular}{cccc}
+{\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{ccccc@{\hspace{1.2em}}ccccc}
 \hline\hline
-Cage voltage & ToF $\tau$ & $\Delta B$ predicted & $\Delta B$ simulated \\
+$V$ & $\tau$ & pred. & sim. & step &
+$V$ & $\tau$ & pred. & sim. & step \\
+(kV) & (ns) & (G) & (G) & (G) &
+(kV) & (ns) & (G) & (G) & (G) \\
 \hline
-$5\,\mathrm{kV}$ & $7.79\,\mathrm{ns}$ & $22.9\,\mathrm{G}$ & $20.3\,\mathrm{G}$ \\
-$10\,\mathrm{kV}$ & $5.51\,\mathrm{ns}$ & $32.4\,\mathrm{G}$ & $30.9\,\mathrm{G}$ \\
-$12\,\mathrm{kV}$ & $5.03\,\mathrm{ns}$ & $35.5\,\mathrm{G}$ & $34.3\,\mathrm{G}$ \\
-$15\,\mathrm{kV}$ & $4.50\,\mathrm{ns}$ & $39.7\,\mathrm{G}$ & $39.1\,\mathrm{G}$ \\
-$18\,\mathrm{kV}$ & $4.11\,\mathrm{ns}$ & $43.5\,\mathrm{G}$ & $42.9\,\mathrm{G}$ \\
-$20\,\mathrm{kV}$ & $3.89\,\mathrm{ns}$ & $45.9\,\mathrm{G}$ & $45.7\,\mathrm{G}$ \\
-$25\,\mathrm{kV}$ & $3.48\,\mathrm{ns}$ & $51.3\,\mathrm{G}$ & $51.7\,\mathrm{G}$ \\
-$30\,\mathrm{kV}$ & $3.18\,\mathrm{ns}$ & $56.2\,\mathrm{G}$ & $57.2\,\mathrm{G}$ \\
+5  & 7.79 & 22.9 & 20.3 & 10 & 18 & 4.11 & 43.5 & 42.9 & 5 \\
+6  & 7.11 & 25.1 & 22.7 & 10 & 19 & 4.00 & 44.7 & 44.2 & 10 \\
+7  & 6.58 & 27.1 & 25.9 & 10 & 20 & 3.89 & 45.9 & 45.7 & 5 \\
+8  & 6.16 & 29.0 & 27.1 & 10 & 21 & 3.80 & 47.0 & 46.9 & 10 \\
+9  & 5.81 & 30.8 & 29.0 & 10 & 22 & 3.71 & 48.1 & 48.2 & 10 \\
+10 & 5.51 & 32.4 & 30.9 & 5  & 23 & 3.63 & 49.2 & 49.4 & 10 \\
+11 & 5.25 & 34.0 & 32.9 & 10 & 24 & 3.56 & 50.2 & 50.5 & 10 \\
+12 & 5.03 & 35.5 & 34.3 & 5  & 25 & 3.48 & 51.3 & 51.7 & 5 \\
+13 & 4.83 & 37.0 & 36.1 & 10 & 26 & 3.42 & 52.3 & 52.8 & 10 \\
+14 & 4.66 & 38.4 & 37.4 & 10 & 27 & 3.35 & 53.3 & 53.9 & 10 \\
+15 & 4.50 & 39.7 & 39.1 & 5  & 28 & 3.29 & 54.3 & 55.0 & 10 \\
+16 & 4.35 & 41.0 & 40.6 & 10 & 29 & 3.23 & 55.2 & 56.2 & 10 \\
+17 & 4.22 & 42.3 & 41.5 & 10 & 30 & 3.18 & 56.2 & 57.2 & 10 \\
 \hline\hline
 \end{tabular}
 }
@@ -883,7 +896,7 @@ Raise $V$ ($5\to 30\,\mathrm{kV}$)
   & not a size fix at $B=0$; unused once $B\ge 300\,\mathrm{G}$
   & $+395\%\to +77\%$ ($\mathrm{H}_2^+$, inj.\ $10\,\mathrm{mm}$,
     $100\,\mathrm{kW}$, $B=0$); $10\%$ would require
-    $\sim 280\,\mathrm{kV}$ \\
+    $\sim 250\,\mathrm{kV}$ \\
 Orbit $\lesssim 10\,\mathrm{mm}$
   & $300\,\mathrm{G}$ still $\lesssim 1\%$
   & $\Delta x$: none; $\Delta y$: a few percent \\
