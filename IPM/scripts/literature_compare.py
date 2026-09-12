@@ -156,59 +156,96 @@ def kick_model(
 
 def plot_imode(n_particles: int) -> Path:
     rng = np.random.default_rng(1)
-    bscan = load_summary(OUT / "csns_imode_bscan_summary.csv")
+    isize = load_summary(OUT / "csns_imode_size_summary.csv")
     volt = load_summary(OUT / "csns_imode_voltage_summary.csv")
+    v2 = load_summary(OUT / "csns_v2_summary.csv")
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.5))
     fig.subplots_adjust(left=0.08, right=0.98, bottom=0.14, top=0.92, wspace=0.28)
 
-    families = [("injection", 25), ("injection", 10), ("extraction", 10)]
     markers = {"ions": "o", "h2o_ions": "s", "n2_ions": "^"}
+    colors = {"ions": "C0", "h2o_ions": "C3", "n2_ions": "C2"}
     sims, models = [], []
     for slug, lab, mass_u in SPECIES:
-        xs, ys = [], []
-        for beam, sig in families:
-            sim = [
-                r["expansion_vs_no_sc_pct"]
-                for r in bscan
-                if r["species"] == slug
-                and r["beam"] == beam
-                and r["sigma_x_mm"] == sig
+        xs_i, ys_i, xs_e, ys_e = [], [], [], []
+        for r in isize:
+            if (
+                r["species"] == slug
+                and r["beam"] == "injection"
                 and r["power_kw"] == 100
                 and r["b_gs"] == 0
-            ]
-            if not sim:
-                continue
-            model = kick_model(N_100KW, beam, sig * 1e-3, mass_u, 25e3, n_particles, rng) * 100
-            xs.append(model)
-            ys.append(sim[0])
-        ax1.plot(xs, ys, marker=markers[slug], ls="none", label=lab)
-        sims += ys
-        models += xs
+                and 3 <= r["sigma_x_mm"] <= 20
+            ):
+                model = (
+                    kick_model(N_100KW, "injection", r["sigma_x_mm"] * 1e-3, mass_u, 25e3, n_particles, rng)
+                    * 100
+                )
+                xs_i.append(model)
+                ys_i.append(r["expansion_vs_no_sc_pct"])
+        for r in v2:
+            if (
+                r.get("block") == "I1"
+                and r.get("beam") == "extraction"
+                and r.get("species") == slug
+                and r["power_kw"] == 100
+                and r["b_gs"] == 0
+                and float(r.get("sigma_mm") or 0) in (3, 5, 7, 10, 15, 20)
+                and int(r.get("voltage_kv") or 0) == 25
+                and int(r.get("dx_mm") or 0) == 0
+                and int(r.get("dy_mm") or 0) == 0
+            ):
+                model = (
+                    kick_model(
+                        N_100KW,
+                        "extraction",
+                        float(r["sigma_mm"]) * 1e-3,
+                        mass_u,
+                        25e3,
+                        n_particles,
+                        rng,
+                        gen_center=204.6e-9,
+                    )
+                    * 100
+                )
+                xs_e.append(model)
+                ys_e.append(r["expansion_vs_no_sc_pct"])
+        ax1.plot(xs_i, ys_i, marker=markers[slug], ls="none", color=colors[slug], ms=5, label=lab)
+        ax1.plot(xs_e, ys_e, marker=markers[slug], ls="none", color=colors[slug], ms=5, fillstyle="none")
+        sims += ys_i + ys_e
+        models += xs_i + xs_e
     lim = max(sims + models) * 1.1
     ax1.plot([0, lim], [0, lim], ls="--", color="grey", lw=1)
+    ax1.plot([], [], "k", marker="o", ls="none", ms=5, label="injection")
+    ax1.plot([], [], "k", marker="o", ls="none", ms=5, fillstyle="none", label="aligned ext.")
     ax1.set_xlabel("Line-charge kick model [%]")
     ax1.set_ylabel("Virtual-IPM expansion [%]")
-    ax1.set_title("0 G, 100 kW, three reference beams", fontsize=12)
-    ax1.legend(fontsize=11)
+    ax1.set_title(r"0 G, 100 kW, $25\,\mathrm{kV}$", fontsize=12)
+    ax1.legend(fontsize=10)
 
-    voltages = np.array([5, 10, 15, 20, 25, 30])
+    voltages = np.arange(5, 31)
+    sim_by = {
+        (r["species"], int(r["voltage_kv"])): r["expansion_vs_no_sc_pct"]
+        for r in volt
+        if r["power_kw"] == 100 and r["b_gs"] == 0
+    }
     for slug, lab, mass_u in SPECIES:
-        sim = [
-            next(
-                r["expansion_vs_no_sc_pct"]
-                for r in volt
-                if r["species"] == slug and r["voltage_kv"] == v and r["power_kw"] == 100 and r["b_gs"] == 0
-            )
-            for v in voltages
-        ]
         model = [kick_model(N_100KW, "injection", 10e-3, mass_u, v * 1e3, n_particles, rng) * 100 for v in voltages]
-        (line,) = ax2.plot(voltages, sim, marker=markers[slug], ls="none", label=lab + " (Virtual-IPM)")
-        ax2.plot(voltages, model, ls="-", lw=1.2, color=line.get_color())
+        (line,) = ax2.plot(voltages, model, ls="-", lw=1.2, color=colors[slug], label=lab)
+        vs = [v for v in voltages if (slug, int(v)) in sim_by]
+        ax2.plot(
+            vs,
+            [sim_by[(slug, int(v))] for v in vs],
+            marker=markers[slug],
+            ls="none",
+            color=line.get_color(),
+            ms=6,
+        )
     ax2.plot([], [], ls="-", color="k", lw=1.2, label="kick model")
+    ax2.plot([], [], "ko", ms=6, label="Virtual-IPM")
     ax2.set_xlabel("Cage voltage [kV]")
     ax2.set_ylabel("Expansion vs no-SC [%]")
     ax2.set_title("inj. 10 mm, 100 kW, 0 G", fontsize=12)
+    ax2.set_xticks(range(5, 31, 5))
     ax2.set_yscale("log")
     ax2.set_yticks([50, 100, 200, 400])
     ax2.set_yticklabels(["50", "100", "200", "400"])
@@ -313,20 +350,27 @@ def scaling_checks() -> list[dict]:
     rows: list[dict] = []
     fine = load_summary(OUT / "csns_emode_voltage_fine_summary.csv")
     print("Fine C zero-crossing spacing of Δ(B) [G] vs π m_e/(e·ToF), inj 10 mm, 100 kW:")
-    for volt in (10, 15, 20, 25, 30):
+    for volt in range(5, 31):
         pts = sorted(
             (r["b_gs"], r["expansion_vs_no_sc_pct"])
             for r in fine
             if r["power_kw"] == 100 and r["voltage_kv"] == volt and 5 <= r["b_gs"] <= 300
         )
+        if len(pts) < 12:
+            continue
         b = np.array([p[0] for p in pts], float)
         y = np.array([p[1] for p in pts], float)
+        steps = np.diff(b)
+        if float(np.median(steps)) > 12:
+            continue
         zeros = [
             b[i] - y[i] * (b[i + 1] - b[i]) / (y[i + 1] - y[i])
             for i in range(len(b) - 1)
             if y[i] * y[i + 1] < 0
         ]
-        spacing = float(np.mean(np.diff(zeros))) if len(zeros) > 1 else np.nan
+        if len(zeros) < 3:
+            continue
+        spacing = float(np.mean(np.diff(zeros)))
         tof = _electron_tof(volt)
         pred = np.pi * m_e / (e * tof) * 1e4
         rows.append(dict(check="fineC_zero_spacing", voltage_kv=volt, tof_ns=tof * 1e9, sim=spacing, pred=pred))
@@ -426,7 +470,7 @@ def plot_cyclotron(rows: list[dict]) -> Path:
     ax1.plot([], [], "k:", lw=0.9, label=r"predicted zeros $n\pi m_e/(e\tau)$")
     ax1.set_xlabel(r"$B$ [G]")
     ax1.set_ylabel(r"$\Delta$ [\%]")
-    ax1.set_ylim(-15, 35)
+    ax1.set_ylim(-35, 35)
     ax1.set_xlim(0, 300)
     ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top", ha="left")
     ax1.legend(fontsize=11, loc="upper right")
@@ -592,12 +636,12 @@ def plot_orbit_offset_emode() -> Path:
             and r["b_gs"] == 300
             and r["dy_mm"] == 0
         )
-        ax2.plot([p[0] for p in pts], [p[1] for p in pts], "o-", color=color, lw=1.6, ms=7, label=lab)
+        ax2.plot([p[0] for p in pts], [p[1] for p in pts], "o-", color=color, lw=1.6, ms=5, label=lab)
     ax2.set_xlabel(r"$\Delta x$ [mm]")
     ax2.set_ylabel(r"$\Delta$ [\%]")
     ax2.set_xlim(-0.5, 10.5)
     ax2.set_ylim(-1.5, 1.5)
-    ax2.set_xticks([0, 5, 10])
+    ax2.set_xticks(range(0, 11, 2))
     ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
     ax2.legend(fontsize=11, loc="upper right")
     fig.tight_layout()
@@ -655,7 +699,7 @@ def plot_orbit_offset_imode() -> Path:
     ax1.set_xlabel(r"$\Delta y$ [mm] (away from collector)")
     ax1.set_ylabel(r"$\Delta$ [\%]")
     ax1.set_xlim(-6, 6)
-    ax1.set_xticks([-5, 0, 5])
+    ax1.set_xticks(range(-5, 6, 1))
     ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
     ax1.legend(fontsize=10, loc="lower right")
 
@@ -681,7 +725,7 @@ def plot_orbit_offset_imode() -> Path:
     ax2.set_xlabel(r"$\Delta x$ [mm]")
     ax2.set_ylabel(r"$\Delta$ [\%]")
     ax2.set_xlim(-0.5, 10.5)
-    ax2.set_xticks([0, 5, 10])
+    ax2.set_xticks(range(0, 11, 2))
     ax2.set_ylim(0, 120)
     ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
     ax2.legend(fontsize=11, loc="upper right")

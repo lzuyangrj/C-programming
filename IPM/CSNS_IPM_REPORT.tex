@@ -288,10 +288,14 @@ $\Delta$\,(\%)   & $+1172$ & $+435$ & $+219$ & $+104$ & $+44$ & $+24$ \\
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.98\textwidth]{csns_review_imode_model.png}
-\caption{Left: ion-mode expansion at $0\,\mathrm{G}$ and
-$100\,\mathrm{kW}$, reduced kick model versus Virtual-IPM. Right:
-cage-voltage scan at $0\,\mathrm{G}$. Agreement is
-$\pm 1\%$ absolute.}
+\caption{Left: ion-mode expansion at $0\,\mathrm{G}$,
+$100\,\mathrm{kW}$ and $25\,\mathrm{kV}$, reduced kick model versus
+Virtual-IPM. Filled markers: injection $\sigma_0=3$--$20\,\mathrm{mm}$.
+Open markers: aligned extraction ($3$, $5$, $7$, $10$, $15$,
+$20\,\mathrm{mm}$). Right: cage-voltage scan at $1\,\mathrm{kV}$
+steps, injection $10\,\mathrm{mm}$. Curves: kick model. Markers:
+Virtual-IPM. Agreement is $\pm 1\%$ absolute on the left and
+$\le 4\%$ relative on the right.}
 \label{fig:kick}
 \end{figure}
 
@@ -359,10 +363,10 @@ cyclotron phase of a nearly impulsive space-charge kick.
 cage voltages ($100\,\mathrm{kW}$, $10\,\mathrm{mm}$ injection).
 Dotted vertical lines (colour-matched to the curves) are the predicted
 zeros $B_n=n\pi m_e/(e\tau)$; circles are the simulated crossings. The
-grey band is $\pm 1\%$. The $25\,\mathrm{kV}$ point at $B=0$
-($\Delta=-48\%$) is off-scale. (b)~Mean spacing of those zeros versus
-cage voltage, compared with $\pi m_e/(e\tau)\propto\sqrt{V}$ (no free
-parameter).}
+grey band is $\pm 1\%$. The frame is $\pm 35\%$; the $25\,\mathrm{kV}$
+point at $B=0$ ($\Delta=-48\%$) remains off-scale. (b)~Mean spacing of
+those zeros versus cage voltage at $1\,\mathrm{kV}$ steps, compared
+with $\pi m_e/(e\tau)\propto\sqrt{V}$ (no free parameter).}
 \label{fig:cyc}
 \end{figure}
 
@@ -383,7 +387,8 @@ zero: a zero can be moved by a few kilovolts or a change of orbit,
 whereas the envelope is a property of $B$.
 
 Panel~(a) is a $5\,\mathrm{G}$-step scan at $100\,\mathrm{kW}$ and
-$10\,\mathrm{mm}$ injection, drawn at $10$ and $25\,\mathrm{kV}$.
+$10\,\mathrm{mm}$ injection, drawn at $10$ and $25\,\mathrm{kV}$, with
+vertical range $\pm 35\%$.
 Vertical dotted lines are the predicted zeros
 $B_n=n\pi m_e/(e\tau)$ for each voltage; filled circles mark the
 Virtual-IPM crossings. The $10\,\mathrm{kV}$ curve oscillates faster
@@ -394,10 +399,11 @@ below the frame. At $25\,\mathrm{kV}$ the remaining lobes sit near
 $85$, $140$, $195$, $240$ and $295\,\mathrm{G}$ with amplitudes $13$,
 $4$, $1.4$, $0.9$ and $0.6\%$.
 
-Panel~(b) extracts the mean spacing between successive zeros at five
-cage voltages and compares it with $\pi m_e/(e\tau)$
-(Table~\ref{tab:cyc}). The points follow the $\sqrt{V}$ curve to
-$\le 5\%$ from $10$ to $30\,\mathrm{kV}$ with no free parameter. That
+Panel~(b) extracts the mean spacing between successive zeros on the
+$5$--$30\,\mathrm{kV}$ grid at $1\,\mathrm{kV}$ steps
+(Table~\ref{tab:cyc} lists the $5\,\mathrm{kV}$ subset). The points
+follow the $\sqrt{V}$ curve to $\le 5\%$ wherever the $B$ scan is
+dense enough to interpolate the crossings, with no free parameter. That
 is the evidence that the oscillation in Figs.~\ref{fig:eB}
 and~\ref{fig:eBtail} is the cyclotron phase, and it is why
 $300\,\mathrm{G}$---the first field at which the envelope itself lies
@@ -407,7 +413,7 @@ any particular zero.
 \begin{table}[!ht]
 \centering
 \caption{Electron time of flight from the cage mid-plane and the
-spacing of $\Delta(B)$ zeros ($5\,\mathrm{G}$ voltage scan, injection
+spacing of $\Delta(B)$ zeros (dense $B$ scan, injection
 $10\,\mathrm{mm}$, $100\,\mathrm{kW}$). The prediction is
 Eq.~(\ref{eq:dB}) with $\tau=\sqrt{2 d m_e/(eE)}$ and
 $d=115.5\,\mathrm{mm}$.}
@@ -418,10 +424,11 @@ $d=115.5\,\mathrm{mm}$.}
 Cage voltage & ToF $\tau$ & $\Delta B$ predicted & $\Delta B$ simulated \\
 \hline
 $10\,\mathrm{kV}$ & $5.51\,\mathrm{ns}$ & $32.4\,\mathrm{G}$ & $30.9\,\mathrm{G}$ \\
+$12\,\mathrm{kV}$ & $5.03\,\mathrm{ns}$ & $35.5\,\mathrm{G}$ & $34.3\,\mathrm{G}$ \\
 $15\,\mathrm{kV}$ & $4.50\,\mathrm{ns}$ & $39.7\,\mathrm{G}$ & $39.1\,\mathrm{G}$ \\
+$18\,\mathrm{kV}$ & $4.11\,\mathrm{ns}$ & $43.5\,\mathrm{G}$ & $42.9\,\mathrm{G}$ \\
 $20\,\mathrm{kV}$ & $3.89\,\mathrm{ns}$ & $45.9\,\mathrm{G}$ & $45.7\,\mathrm{G}$ \\
 $25\,\mathrm{kV}$ & $3.48\,\mathrm{ns}$ & $51.3\,\mathrm{G}$ & $51.7\,\mathrm{G}$ \\
-$30\,\mathrm{kV}$ & $3.18\,\mathrm{ns}$ & $56.2\,\mathrm{G}$ & $55.1\,\mathrm{G}$ \\
 \hline\hline
 \end{tabular}
 }
@@ -501,9 +508,9 @@ $0.2\,\mathrm{mm}$ at $300\,\mathrm{G}$ on the extraction beam.
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.98\textwidth]{csns_emode_size_obtained.png}
-\caption{Electron-mode obtained width versus true width. From
-$200\,\mathrm{G}$ the points lie on the diagonal; $0.1\,\mathrm{T}$
-includes the $3\,\mathrm{mm}$ beams.}
+\caption{Electron-mode obtained width versus true width at
+$B=0$, $100$, $200$ and $300\,\mathrm{G}$. From $200\,\mathrm{G}$ the
+points lie on the diagonal except at $3\,\mathrm{mm}$.}
 \label{fig:esize}
 \end{figure}
 
@@ -540,7 +547,7 @@ Figure~\ref{fig:iV} is that voltage scan for the three
 time-of-flight-resolved species on the $10\,\mathrm{mm}$ injection
 beam at $100\,\mathrm{kW}$ and $B=0$. Curves are the line-charge kick
 model at $1\,\mathrm{kV}$ steps from $5$ to $30\,\mathrm{kV}$; markers
-are the Virtual-IPM Block~C points on the $5\,\mathrm{kV}$ grid. The
+are Virtual-IPM on the same $1\,\mathrm{kV}$ grid. The
 model tracks every marker to $\le 4\%$ relative ($\le 4$ points
 absolute). Expansion remains positive at every voltage: from $5$ to
 $30\,\mathrm{kV}$, $\mathrm{H}_2^+$ falls from $+395\%$ to $+77\%$,
@@ -564,16 +571,16 @@ does not transfer to CSNS.
 \caption{Ion-mode expansion versus cage voltage for
 $\mathrm{H}_2^+$, $\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$
 (injection $10\,\mathrm{mm}$, $100\,\mathrm{kW}$, $B=0$). Curves: kick
-model at $1\,\mathrm{kV}$ steps. Markers: Virtual-IPM. Guiding $B$ is
-not scanned.}
+model at $1\,\mathrm{kV}$ steps from $5$ to $30\,\mathrm{kV}$.
+Markers: Virtual-IPM on the same grid. Guiding $B$ is not scanned.}
 \label{fig:iV}
 \end{figure}
 
 \begin{table}[ht]
 \centering
 \caption{Ion-mode expansion versus cage voltage at $B=0$
-(injection $10\,\mathrm{mm}$, $100\,\mathrm{kW}$). Virtual-IPM
-Block~C.}
+(injection $10\,\mathrm{mm}$, $100\,\mathrm{kW}$). Virtual-IPM on the
+$5\,\mathrm{kV}$ subset of the $1\,\mathrm{kV}$ scan.}
 \label{tab:iV}
 {\small
 \begin{tabular}{lcccccc}
@@ -615,9 +622,9 @@ from the collector; injection at $B=0$ is compressed
 ($\Delta\simeq -48\%$) and almost flat. At $300\,\mathrm{G}$ both
 beams lie inside the $\pm 1\%$ band over the whole $\pm 10\,\mathrm{mm}$
 range ($\lvert\Delta\rvert\le 0.65\%$). Panel~(b) is the horizontal
-scan at that operating field: $\Delta x=+5$ and $+10\,\mathrm{mm}$
-leave $\Delta$ unchanged to the line thickness
-(injection $+0.61\%$, extraction $-0.11\%$). The
+scan at that operating field in $1\,\mathrm{mm}$ steps from $0$ to
+$10\,\mathrm{mm}$: $\Delta$ is unchanged to the line thickness
+(injection $+0.61\%$, extraction $-0.11\%$ at the centred point). The
 $\mathbf{E}\times\mathbf{B}$ centroid shift
 ($0.24\,\mathrm{mm}$ on extraction at $300\,\mathrm{G}$) is independent
 of $\Delta x$ and is a fixed, correctable offset.
@@ -626,9 +633,11 @@ of $\Delta x$ and is a fixed, correctable offset.
 \centering
 \includegraphics[width=0.98\textwidth]{csns_orbit_offset_emode.png}
 \caption{Electron-mode closed-orbit offset, $10\,\mathrm{mm}$ beams,
-$100\,\mathrm{kW}$. (a)~$\Delta$ versus $\Delta y$ (Fine~D). Dashed:
+$100\,\mathrm{kW}$. (a)~$\Delta$ versus $\Delta y$ (Fine~D,
+$1\,\mathrm{mm}$ steps). Dashed:
 $B=0$. Solid: $300\,\mathrm{G}$. The grey band is $\pm 1\%$.
-(b)~$\Delta$ versus $\Delta x$ at $300\,\mathrm{G}$.}
+(b)~$\Delta$ versus $\Delta x$ at $300\,\mathrm{G}$
+($0$--$10\,\mathrm{mm}$, $1\,\mathrm{mm}$ steps).}
 \label{fig:eoff}
 \end{figure}
 
@@ -641,20 +650,23 @@ Virtual-IPM point, with no free parameter. Injection $\mathrm{H}_2^+$
 is $+89.2\%$, $+92.0\%$ and $+94.7\%$ at
 $\Delta y=-5$, $0$ and $+5\,\mathrm{mm}$; the prediction is
 $+88.9\%$ and $+95.0\%$. Aligned extraction $\mathrm{H}_2^+$ is
-$+101\%$, $+104\%$ and $+107\%$ on the same $\Delta y$ grid. Every
-species and both beams agree with the drift-length law to
-$0.5\%$ absolute. Panel~(b): $\Delta x=+5$ and $+10\,\mathrm{mm}$
-leave every width unchanged to $0.1\%$, as required by a kick centred
-on the beam and as stated for ISIS within about $10\,\mathrm{mm}$ of
-the axis~\cite{Pine2006}.
+$+101\%$, $+104\%$ and $+107\%$ on the same $\Delta y$ grid. The
+$1\,\mathrm{mm}$ scan from $-5$ to $+5\,\mathrm{mm}$ stays on that
+line. Every species and both beams agree with the drift-length law to
+$0.5\%$ absolute. Panel~(b): the $1\,\mathrm{mm}$ $\Delta x$ scan from
+$0$ to $10\,\mathrm{mm}$ leaves every width unchanged to $0.1\%$, as
+required by a kick centred on the beam and as stated for ISIS within
+about $10\,\mathrm{mm}$ of the axis~\cite{Pine2006}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.98\textwidth]{csns_orbit_offset_imode.png}
 \caption{Ion-mode closed-orbit offset at $B=0$, $10\,\mathrm{mm}$,
-$100\,\mathrm{kW}$, $25\,\mathrm{kV}$. (a)~$\Delta$ versus $\Delta y$.
+$100\,\mathrm{kW}$, $25\,\mathrm{kV}$. (a)~$\Delta$ versus $\Delta y$
+($-5$ to $+5\,\mathrm{mm}$, $1\,\mathrm{mm}$ steps).
 Filled: injection. Open: aligned extraction. Lines:
-$\sigma_m^2-\sigma_0^2\propto d$. (b)~$\Delta$ versus $\Delta x$;
+$\sigma_m^2-\sigma_0^2\propto d$. (b)~$\Delta$ versus $\Delta x$
+($0$--$10\,\mathrm{mm}$, $1\,\mathrm{mm}$ steps);
 the width is translation-invariant. Guiding $B$ is not scanned.}
 \label{fig:ioff}
 \end{figure}

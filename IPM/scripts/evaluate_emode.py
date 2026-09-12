@@ -19,6 +19,7 @@ from generate_csns_configs import (  # noqa: E402
     EMODE_CHECK_POWERS_KW,
     EMODE_FINE_B_GS,
     EMODE_FINE_DIAG_B_GS,
+    EMODE_FINE_DX_MM,
     EMODE_FINE_VOLT_BFINE_KV,
     EMODE_FINE_VOLTAGES_KV,
     EMODE_OFFSET_B_GS,
@@ -311,10 +312,15 @@ def plot_offset_fine(rows: list[dict], plot_dir: Path) -> None:
 def collect_offset_rows(emode_dir: Path) -> list[dict]:
     """Block D plus the centred baseline from Block A (10 mm inj. and ext.)."""
     rows: list[dict] = []
+    offsets = {(0, 0), *EMODE_OFFSETS_MM}
+    offsets |= {(dx, 0) for dx in EMODE_FINE_DX_MM}
     for beam, _sigma in EMODE_OFFSET_BEAMS:
-        for dx, dy in ((0, 0), *EMODE_OFFSETS_MM):
+        for dx, dy in sorted(offsets):
+            b_list = (300,) if (dx, dy) not in ((0, 0), *EMODE_OFFSETS_MM) else EMODE_OFFSET_B_GS
             for power_kw in EMODE_CHECK_POWERS_KW:
-                for b_gs in EMODE_OFFSET_B_GS:
+                if (dx, dy) not in ((0, 0), *EMODE_OFFSETS_MM) and power_kw != 100:
+                    continue
+                for b_gs in b_list:
                     if (dx, dy) == (0, 0):
                         on, off = emode_paths(emode_dir, beam, 10, power_kw, b_gs)
                     else:
@@ -522,12 +528,14 @@ def plot_size_grid(
     ylabel: str,
     filename: str,
     diagonal: bool = False,
+    b_fields: tuple[int, ...] | None = None,
 ) -> None:
-    ncol = len(EMODE_SIZE_B_GS)
+    fields = EMODE_SIZE_B_GS if b_fields is None else b_fields
+    ncol = len(fields)
     fig, axes = plt.subplots(2, ncol, figsize=(3.4 * ncol + 1.0, 8.0), sharex=True, sharey=True)
     lims = np.array(SIZE_MM, dtype=float)
     for row_i, beam in enumerate(("injection", "extraction")):
-        for col_i, b_gs in enumerate(EMODE_SIZE_B_GS):
+        for col_i, b_gs in enumerate(fields):
             ax = axes[row_i, col_i]
             for power_kw in POWERS_KW:
                 series = sorted(
@@ -643,6 +651,7 @@ def main() -> None:
             "expansion_vs_no_sc_pct",
             "Expansion vs no SC [%]",
             "csns_emode_size_expansion.png",
+            b_fields=(0, 100, 200, 300),
         )
         plot_size_grid(
             size_rows,
@@ -651,6 +660,7 @@ def main() -> None:
             "Obtained beam size [mm]",
             "csns_emode_size_obtained.png",
             diagonal=True,
+            b_fields=(0, 100, 200, 300),
         )
     if not args.from_summary:
         write_csv(Path(args.summary_b), b_rows)

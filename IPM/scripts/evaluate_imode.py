@@ -20,6 +20,9 @@ from generate_csns_configs import (  # noqa: E402
     IMODE_OFFSET_BEAMS,
     IMODE_OFFSETS_MM,
     IMODE_REF_BEAMS,
+    IMODE_FINE_DX_MM,
+    IMODE_FINE_DY_MM,
+    IMODE_FINE_VOLTAGES_KV,
     IMODE_VOLTAGES_KV,
     ION_SPECIES,
     POWERS_KW,
@@ -71,8 +74,9 @@ def add_centroids(row: dict, on: Path, off: Path) -> dict:
 
 def collect_voltage_rows(imode_dir: Path) -> list[dict]:
     rows: list[dict] = []
+    voltages = tuple(dict.fromkeys((*IMODE_FINE_VOLTAGES_KV, *IMODE_VOLTAGES_KV)))
     for species in SPECIES_SLUGS:
-        for v_kv in IMODE_VOLTAGES_KV:
+        for v_kv in voltages:
             for power_kw in IMODE_CHECK_POWERS_KW:
                 for b_gs in IMODE_B_GS:
                     on = imode_dir / imode_volt_csv_name(species, v_kv, power_kw, b_gs, True)
@@ -90,9 +94,12 @@ def collect_voltage_rows(imode_dir: Path) -> list[dict]:
 
 def collect_offset_rows(imode_dir: Path) -> list[dict]:
     rows: list[dict] = []
+    offsets = {(0, 0), *IMODE_OFFSETS_MM}
+    offsets |= {(0, dy) for dy in IMODE_FINE_DY_MM}
+    offsets |= {(dx, 0) for dx in IMODE_FINE_DX_MM}
     for species in SPECIES_SLUGS:
         for beam, _sigma in IMODE_OFFSET_BEAMS:
-            for dx, dy in ((0, 0), *IMODE_OFFSETS_MM):
+            for dx, dy in sorted(offsets):
                 for power_kw in IMODE_CHECK_POWERS_KW:
                     for b_gs in IMODE_B_GS:
                         if (dx, dy) == (0, 0):
@@ -390,9 +397,51 @@ def main() -> None:
 
         v_rows = collect_voltage_rows(args.imode_dir)
         o_rows = collect_offset_rows(args.imode_dir)
+        # Particle CSVs of the closed A–D campaign were removed after
+        # summarising. Merge so a partial re-collect cannot drop those rows.
+        if Path(args.summary_voltage).is_file():
+            have = {
+                (r["species"], int(r["voltage_kv"]), int(r["power_kw"]), int(r["b_gs"])): r
+                for r in load_summary(args.summary_voltage)
+            }
+            have.update(
+                {
+                    (r["species"], int(r["voltage_kv"]), int(r["power_kw"]), int(r["b_gs"])): r
+                    for r in v_rows
+                }
+            )
+            v_rows = list(have.values())
+        if Path(args.summary_offset).is_file():
+            have = {
+                (
+                    r["species"],
+                    r["beam"],
+                    int(r["dx_mm"]),
+                    int(r["dy_mm"]),
+                    int(r["power_kw"]),
+                    int(r["b_gs"]),
+                ): r
+                for r in load_summary(args.summary_offset)
+            }
+            have.update(
+                {
+                    (
+                        r["species"],
+                        r["beam"],
+                        int(r["dx_mm"]),
+                        int(r["dy_mm"]),
+                        int(r["power_kw"]),
+                        int(r["b_gs"]),
+                    ): r
+                    for r in o_rows
+                }
+            )
+            o_rows = list(have.values())
 
-        write_csv(Path(args.summary_b), ref_rows)
-        write_csv(Path(args.summary_size), size_rows)
+        if ref_rows:
+            write_csv(Path(args.summary_b), ref_rows)
+        if size_rows:
+            write_csv(Path(args.summary_size), size_rows)
         write_csv(Path(args.summary_voltage), v_rows)
         write_csv(Path(args.summary_offset), o_rows)
 
