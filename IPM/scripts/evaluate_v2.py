@@ -127,9 +127,9 @@ def plot_i1_aligned(rows: list[dict]) -> None:
     fig, ax = plt.subplots()
     x = range(3)
     w = 0.25
-    ax.bar([i - w for i in x], [asrun[s] for s, _ in labels], w, label="v1 as-run (125 ns lag)", color="C0")
-    ax.bar(list(x), [aligned[s] for s, _ in labels], w, label="v2 aligned (this campaign)", color="C3")
-    ax.bar([i + w for i in x], [model[s] for s, _ in labels], w, label="kick model, aligned", color="0.45")
+    ax.bar([i - w for i in x], [asrun[s] for s, _ in labels], w, label="ion born 125 ns early", color="C0")
+    ax.bar(list(x), [aligned[s] for s, _ in labels], w, label="ion born with the bunch", color="C3")
+    ax.bar([i + w for i in x], [model[s] for s, _ in labels], w, label="kick model (born with bunch)", color="0.45")
     ax.set_xticks(list(x))
     ax.set_xticklabels([lab for _, lab in labels])
     ax.set_ylabel(r"expansion vs no-SC [\%]")

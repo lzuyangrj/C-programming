@@ -2,7 +2,7 @@
 
 CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) 2.3.1.
 
-**Combined results (e-mode + ion-mode):** [CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md) / [CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf) — round-beam A–D, fine C/D, and scan matrix v2 (§4.5; aligned extraction H₂⁺ +104 %).  
+**Physics note (for review):** [CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md) / [CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf) — space-charge distortion of IPM profiles, size growth, and mitigation efficiency.  
 **Literature review (2006–2026):** [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) / [LITERATURE_REVIEW.pdf](LITERATURE_REVIEW.pdf) — comparison of the simulated expansions with published IPM scaling, machines and correction methods.  
 **Revised scan matrix v2 (complete):** [SCAN_MATRIX_V2.md](SCAN_MATRIX_V2.md) / [SCAN_MATRIX_V2.pdf](SCAN_MATRIX_V2.pdf) — 1014 new 100k runs; aligned extraction H₂⁺ +104 % (was +33.5 % as-run). `JOBS=4 ./scripts/run_v2.sh` (SKIP-if-exists).  
 **Lab notebook:** [REPORT.md](REPORT.md) — chronological e-mode and early ion results.  
@@ -161,7 +161,7 @@ Useful CLI flags:
 
 | Path | Purpose |
 |------|---------|
-| `CSNS_IPM_REPORT.md` / `.pdf` | Combined e-mode + ion-mode results |
+| `CSNS_IPM_REPORT.md` / `.pdf` | Physics note: space-charge distortion, size growth, mitigation efficiency |
 | `LITERATURE_REVIEW.md` / `.pdf` | Review of the results against IPM papers 2006–2026 |
 | `SCAN_MATRIX_V2.md` / `.pdf` | Revised scan matrix v2 (executed; `scripts/run_v2.sh`, `output/csns_v2_summary.csv`) |
 | `IMODE_REPORT.md` / `.pdf` | Ion-mode A–D write-up |

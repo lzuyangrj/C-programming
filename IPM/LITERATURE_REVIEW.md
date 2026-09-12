@@ -1,6 +1,6 @@
 # CSNS RCS IPM simulations — review against IPM publications (2006–2026)
 
-**Scope.** This note checks the Virtual-IPM 2.3.1 results collected in [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) (electron mode, Blocks A–D + fine C/D; ion mode, Blocks A–D; scan matrix v2 I1–I3 / E1 / E3 / E4) against IPM design rules, measurements and simulation studies published in the last twenty years (2006–2026). Each comparison section states what the literature predicts for the CSNS parameters, what the simulations gave, and whether the two agree. A machine-by-machine survey of that period is in Section 4 and a block-by-block comparison matrix in Section 5. Reproduce the comparison figures with `python3 scripts/literature_compare.py` (summary CSVs only, no Virtual-IPM runs). V2 execution: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md) §7.
+**Scope.** This note checks the Virtual-IPM 2.3.1 results summarised in the physics note [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) against IPM design rules, measurements and simulation studies published in the last twenty years (2006–2026). Each comparison section states what the literature predicts for the CSNS parameters, what the simulations gave, and whether the two agree. A machine-by-machine survey of that period is in Section 4 and a block-by-block comparison matrix in Section 5. Reproduce the comparison figures with `python3 scripts/literature_compare.py` (summary CSVs only, no Virtual-IPM runs). V2 execution: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md) §7.
 
 **CSNS parameters used throughout.** Cage 220 × 231 mm, 25 kV so E ≈ 108 kV/m, design B = 0.1 T; 7.8 × 10¹² p/bunch at 100 kW (∝ power), two bunches per turn; injection 80 MeV (β = 0.39, σₜ = 120 ns, revolution 1.96 µs), extraction 1.6 GeV (β = 0.93, σₜ = 20 ns, revolution 0.82 µs). Round beams σ = 25 mm (painted injection) or 10 mm.
 
@@ -42,7 +42,7 @@ The first term is the space-charge term, the second the initial-velocity (gyrora
 
 **Assessment.** The ordering of the families and the absolute scale (tens to a few hundred gauss, far below the LHC-type 0.2–0.5 T regime) agree. The simulated thresholds exceed the fit by 1.1× (extraction, 500 kW) to 4× (painted injection). Three reasons are identifiable:
 
-- **Threshold definition.** Our curves oscillate in sign with B (focusing vs over-kick of the electron, Figures 1–2 and 6 of the report). "Last B at which |Δ| leaves the ±1 % band" is stricter than the monotonic σ_m/σ_t − 1 = τ used for the fit; a single excursion at, e.g., 285 G sets the 10 mm / 200 kW threshold to 290 G although 200–280 G are already inside the band.
+- **Threshold definition.** Our curves oscillate in sign with B (focusing vs over-kick of the electron, Figures 5–7 of the physics note). "Last B at which |Δ| leaves the ±1 % band" is stricter than the monotonic σ_m/σ_t − 1 = τ used for the fit; a single excursion at, e.g., 285 G sets the 10 mm / 200 kW threshold to 290 G although 200–280 G are already inside the band.
 - **Low β.** At 80 MeV the electrons stay in the bunch field 2.5× longer than for β ≈ 1 and the longitudinal bunch field is no longer negligible; the paper restricts its fit to β ≥ 0.99 for precisely this reason. The N/β column recovers part of the gap at injection but not all of it.
 - **Weak power dependence.** The fit scales as N^0.61 (×2.7 between 100 and 500 kW) whereas the simulated thresholds are flat or even decrease with power (10 mm injection 210 → 190 G). This is the same oscillatory mechanism: a stronger kick moves the first over-focusing peak to a different B rather than just raising the distortion, so a monotone power law cannot be expected.
 
@@ -154,7 +154,7 @@ Aligned vs as-run expansions at 0 G, 100 kW, 25 kV. Virtual-IPM as-run is v1; Vi
 | H₂O⁺ | +10.1 / +10.4 % | +64.4 / +64.7 % | +55.4 / +55.6 % | +40 / **+40.8 %** |
 | N₂⁺ | +8.8 / +8.9 % | +55.1 / +56.3 % | +50.2 / +49.9 % | +39 / **+40.0 %** |
 
-The as-run / model-aligned pair is written to `output/csns_imode_kick_model.csv` by `scripts/literature_compare.py`. The v2 measurement is in `output/csns_v2_summary.csv` and [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §4.5. I3 shows why the heavy-ion as-run numbers were high: a single aligned bunch gives H₂O⁺ / N₂⁺ +35.7 / +28.5 % (they miss the second RF bucket); the 3-bunch aligned run restores +40.8 / +40.0 %.
+The as-run / model-aligned pair is written to `output/csns_imode_kick_model.csv` by `scripts/literature_compare.py`. The v2 measurement is in `output/csns_v2_summary.csv` and [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §3.2 / Figure 11. I3 shows why the heavy-ion as-run numbers were high: a single aligned bunch gives H₂O⁺ / N₂⁺ +35.7 / +28.5 % (they miss the second RF bucket); the 3-bunch aligned run restores +40.8 / +40.0 %.
 
 ### 3.6 Beam size and offset scaling (ion Blocks B and D)
 

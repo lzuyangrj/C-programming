@@ -7,7 +7,7 @@
 
 This report summarises the ion-mode parameter scan parallel to the e-mode replan
 (`REPORT.md` §8) and the fine C/D e-mode scan (§9). Combined e-mode + ion-mode
-write-up (includes v2 §4.5): [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) / [`CSNS_IPM_REPORT.pdf`](CSNS_IPM_REPORT.pdf).
+physics note: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) / [`CSNS_IPM_REPORT.pdf`](CSNS_IPM_REPORT.pdf).
 Literature comparison (2006–2026): [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) / [`LITERATURE_REVIEW.pdf`](LITERATURE_REVIEW.pdf).
 V2 plan and timing contract: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md).
 Unlike e-mode, **no dense \(B\)-scan** was run: every
@@ -57,7 +57,7 @@ Re-run: `./scripts/run_imode_replan.sh` · Evaluate: `python3 scripts/evaluate_i
    `LongitudinalOffset` = −80 ns gives H₂⁺ **+104.1 %**, H₂O⁺ +40.8 %, N₂⁺ +40.0 %
    at 10 mm / 100 kW / 0 G — matching the kick model (+102 / +40 / +39 %). Use
    those widths, not v1 as-run +33.5 %. Injection was already aligned. See
-   [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §4.5 and
+   [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §§3–4 and
    [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) §3.5.
 
 ---
@@ -98,7 +98,7 @@ Aligned extraction, 10 mm, 100 kW, 25 kV (v2 I1; tracking offset −80 ns):
 
 H₂⁺ at extraction is the most distorted species once timing is correct. At 500 kW,
 0 G, aligned 10 mm: H₂⁺ +408 %, H₂O⁺ +243 %, N₂⁺ +235 %. Size / voltage / offset
-and the single-bunch check: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §4.5.
+and the single-bunch check: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §3.2.
 
 ---
 

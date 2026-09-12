@@ -1,333 +1,250 @@
-# CSNS RCS IPM — Electron-mode and ion-mode results
+# Space-charge distortion of CSNS RCS IPM profiles
 
-**Code:** Virtual-IPM 2.3.1. **Reference:** Rehman et al., NIM A **1092** (2026) 171809.  
-**Cage:** 220 × 231 mm, design \(V = 25\,\mathrm{kV}\) so \(E_y = V/d \approx 108\,\mathrm{kV/m}\); design \(B_y = 0.1\,\mathrm{T}\).  
-**Statistics:** 100000 secondaries per run; quoted \(\sigma\) is the RMS of **detected** \(x\). Space charge is the Gaussian bunch \(E\) plus Lorentz-boosted bunch \(B\), compared with those fields off. Guiding \(E\) and \(B\) stay uniform.
+**Measured beam-size error and the efficiency of mitigation**
 
-This report covers the **round-beam** e-mode replan (Blocks A–D + fine C/D), the parallel **ion-mode** matrix (Blocks A–D), and **scan matrix v2** (1014 new 100k-particle runs: aligned extraction ions, ramp / β, phase-aware voltage, commissioning power, single-bunch train). Elliptical 25×20 / 10×8 mm archives remain in [`REPORT.md`](REPORT.md) §§1–6 as a closed reference; they are not reused here. V2 plan and timing contract: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md).
+Prepared for internal review · 12 September 2026
 
----
+Hardware: Rehman et al., Nucl. Instrum. Meth. A **1092** (2026) 171809.
 
-## 1. Setup
-
-| | Injection | Extraction |
-|---|---|---|
-| Proton energy | 80 MeV | 1.6 GeV |
-| Bunch length \(\sigma_t\) | 120 ns | 20 ns |
-| Round-beam \(\sigma_x=\sigma_y\) | 25 mm (painted) or 10 mm | 10 mm |
-| Bunch population at 100 kW | \(7.8\times10^{12}\) | same, \(\propto P\) |
-
-- **Electron mode:** Voitkiv DDCS, GasType Hydrogen only (Virtual-IPM has no N₂/H₂O electron DDCS). Collection at the top electrode. Tracker: Boris, 8000 steps. RNG 1234.
-- **Ion mode:** ZeroMomentum ions at rest masses 2 / 18 / 28 u (H₂⁺, H₂O⁺, N₂⁺ — the paper ToF peaks). Collection at the bottom electrode. Bunch fields off in the generator plus a circular 3-bunch train.
-- **SC-off** is run once per geometry at 100 kW and shared across power (no bunch field ⇒ independent of bunch population).
-
-Re-run: `./scripts/run_emode_replan.sh`, `./scripts/run_emode_fine_cd.sh`, `./scripts/run_imode_replan.sh`, `JOBS=4 ./scripts/run_v2.sh`.  
-Evaluate: `python3 scripts/evaluate_emode.py --from-summary`, `python3 scripts/evaluate_imode.py --from-summary`, `python3 scripts/evaluate_v2.py`.
+Calculation: Virtual-IPM 2.3.1, uniform cage fields, 100 000 residual-gas secondaries per case. Quoted \(\sigma\) is the RMS of detected \(x\). Distortion is isolated by comparing bunch space charge on versus off, with the same guiding \(E\) and \(B\).
 
 ---
 
-## 2. Takeaways
+## Abstract
 
-1. **Electron IPM is recoverable with guiding \(B\).** Expansion oscillates with \(B\) (focusing / over-kick of opposite-sign electrons). **300 G** keeps every scanned round-beam family, power (100–500 kW), cage voltage (5–30 kV), and \(\Delta y\) offset (\(\pm10\,\mathrm{mm}\)) within \(\lesssim 1\%\). Painted injection recovers first (~105–155 G); extraction and 10 mm injection need ~190–290 G.
-2. **Ion IPM is not recovered by \(B\).** Expansion is flat from 0 to 200 G and only slightly lower at 0.1 T. Cyclotron radii at these fields are metres. **Do not use the e-mode \(B\) knob on ions.**
-3. **Ion distortion scales with power and inversely with beam size.** H₂⁺ injection, 10 mm, 0.1 T: +82% at 100 kW → +422% at 500 kW. At \(\sigma=3\,\mathrm{mm}\) / 500 kW the obtained width saturates on the cage (~56 mm, +1700%+) for all three species.
-4. **Cage voltage has opposite roles.** In e-mode at \(B=0\), 100 kW **crosses zero at 13 kV** (expansion → compression); 500 kW never flips. In ion-mode expansion stays **positive** at every \(V\); higher \(V\) shortens ToF and **reduces** the kick (H₂⁺ inj. 10 mm @ 0.1 T: +198% at 5 kV → +70% at 30 kV).
-5. **Offset:** \(\Delta x\) is translation-invariant in both modes. \(\Delta y\) (toward/away from the detector) changes expansion by a few percent and does not undo the 300 G e-mode recovery.
-6. **Extraction ion timing is now aligned (v2 I1).** The v1 extraction train arrived 125 ns late. Re-running with tracking `LongitudinalOffset` = −80 ns gives H₂⁺ **+104 %** at 10 mm / 100 kW / 0 G (v1 as-run +33.5 % was a lower bound), H₂O⁺ +41 %, N₂⁺ +40 % — matching the kick model (+102 / +40 / +39 %). Use the aligned table for extraction ion widths.
-7. **Practical implication:** tune \(B\) and \(V\) for a faithful **electron** profile; treat **ion-mode sizes as space-charge biased** unless a correction is applied. At commissioning power (20–80 kW) e-mode at 300 G stays ≤ 0.5 %.
+The CSNS RCS ionization profile monitor (IPM) records the transverse proton distribution by collecting residual-gas electrons or ions. While those secondaries drift to the collector they are kicked by the bunch space-charge field, so the detected RMS width \(\sigma_m\) is not the beam width \(\sigma_0\).
 
----
+This note states how large that error is for CSNS beams, how it grows with bunch charge and shrinks with beam size, and how efficiently the available knobs — guiding \(B\), cage voltage, and a species-resolved correction — remove it.
 
-## 3. Electron mode
+**Electrons** can be restored. Without a magnet the collected profile is compressed or expanded by tens of percent (the sign depends on intensity and cage voltage). A guiding field of **300 G** brings every examined family, power (20–500 kW), cage voltage (10–30 kV), energy along the ramp, and few-millimetre orbit offset back to **\(\lvert\Delta\rvert\lesssim 1\%\)**. The design 0.1 T is conservative, including for \(\sigma_0=3\,\mathrm{mm}\).
 
-**Status: complete.** Replan A–D 2502 / 2502; fine C/D 3270 / 3270 new (5772 particle CSVs including A–D). All blocks use **round beams** \(\sigma_y=\sigma_x\).
+**Ions cannot be restored by \(B\).** The same-sign kick always inflates the profile. At 100 kW a 10 mm beam is already +92 % (H₂⁺, injection) and **+104 %** (H₂⁺, extraction). At 500 kW the same H₂⁺ injection family reaches +422 % and a 3 mm beam fills the cage. Raising the cage from 5 to 30 kV cuts the kick but leaves a +70 % residual; a 10 % ion-mode error would need an impractical \(\sim 380\,\mathrm{kV}\). A look-up inversion of \(\sigma_m=\sigma_0\,h(\sigma_0,N,V,\mathrm{species})\) recovers \(\sigma_0\) when the ToF peak and the DCCT charge are known.
 
-| Block | What is scanned | Beams | \(\sigma\) | \(B\) | Power |
-|---|---|---|---|---|---|
-| **A** | Guiding field | inj. 25 mm; ext. 10 mm; inj. 10 mm | round | **0–300 G / 5 G** | 100–500 kW |
-| **B** | Beam size | inj.; ext. | 3–20 mm / 1 mm | 0, 100, 200, 300 G, 0.1 T | 100–500 kW |
-| **C** | Cage voltage | inj. 10 mm | round | 0–300 G / 25 G + 0.1 T | 100, 500 kW |
-| Fine C | Voltage × \(B\) | inj. 10 mm | round | diagnostic \(B\) + 5 G at 10–25 kV | 100, 500 kW |
-| **D** | Beam offset | inj.; ext. 10 mm | round | 0, 100, 200, 300 G, 0.1 T | 100, 500 kW |
-| Fine D | \(\Delta y\) | inj.; ext. 10 mm | round | diagnostic \(B\) + 5 G at \(\pm5\,\mathrm{mm}\) | 100, 500 kW |
-
-Diagnostic \(B\): 0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 1000 G. Fine C voltages: 5–30 kV / 1 kV. Fine D: \(\Delta y=-10\ldots+10\,\mathrm{mm}\) / 1 mm, \(\Delta x=0\).
-
-### 3.1 Block A — \(B\) scan 0–300 G
-
-![E-mode expansion vs B, 0–300 G](plots/csns_emode_bscan300.png)
-
-**Figure 1.** Profile expansion vs no-SC for the three round reference beams, 100–500 kW. The grey band is \(\pm1\%\).
-
-![E-mode B-scan tail, 150–300 G](plots/csns_emode_bscan300_tail.png)
-
-**Figure 2.** Same scan, 150–300 G, \(\pm3\%\) zoom. Extraction and 10 mm injection still oscillate through ~150–250 G; **300 G** has settled.
-
-Smallest \(B\) after which \(|\Delta|\) stays below 1% for the rest of the grid, and \(\Delta\) at 300 G:
-
-| Family | 100 kW | 200 kW | 300 kW | 400 kW | 500 kW |
-|---|---|---|---|---|---|
-| Inj. 25×25 mm | 105 G (+0.03%) | 115 G (+0.09%) | 155 G (+0.16%) | 155 G (+0.19%) | 155 G (+0.15%) |
-| Ext. 10×10 mm | 240 G (−0.11%) | 190 G (−0.24%) | 185 G (−0.17%) | 195 G (−0.02%) | 205 G (+0.08%) |
-| Inj. 10×10 mm | 210 G (+0.61%) | 290 G (+0.40%) | 235 G (−0.04%) | 190 G (−0.16%) | 190 G (−0.15%) |
-
-Painted injection recovers first. The last curve to settle is 10×10 mm injection at 200 kW (threshold 290 G). **300 G keeps every power \(\lesssim 1\%\).**
-
-### 3.2 Block B — size 3–20 mm
-
-![E-mode true vs obtained size](plots/csns_emode_size_obtained.png)
-
-**Figure 3.** Obtained \(\sigma\) vs true \(\sigma\) at 0, 100, 200, 300 G and 0.1 T. Dashed line: obtained = true.
-
-![E-mode expansion vs true size](plots/csns_emode_size_expansion.png)
-
-**Figure 4.** Expansion vs true beam size at the same \(B\) points.
-
-At \(B=0\) obtained \(\sigma\) is **not** a monotonic function of true \(\sigma\) (focusing vs over-kick). From **200 G** the points lie on the diagonal except the tiniest beams. At **300 G**, injection 3 mm is still +1% (100 kW) to +4% (500 kW). **0.1 T** puts 3, 10, and 20 mm on the diagonal at every power.
-
-### 3.3 Block C — cage voltage, including the 1 kV / 5 G fine scan
-
-![E-mode cage voltage, coarse](plots/csns_emode_voltage.png)
-
-**Figure 5.** Coarse C: 5–30 kV / 5 kV on injection 10×10 mm.
-
-![Fine C: 1 kV heatmap and 5 G B-scans](plots/csns_emode_voltage_fine.png)
-
-**Figure 6.** Fine C: 1 kV heatmap at diagnostic \(B\), and 5 G \(B\)-scans at 10, 12, 15, 18, 20, 25 kV.
-
-At \(B=0\), **100 kW crosses zero at 13 kV** (12 kV +9.4%, 13 kV ~0%, 14 kV −8.3%). **500 kW never flips**: \(\Delta\) stays positive and grows with \(V\) (+29% at 5 kV to +83% at 30 kV).
-
-The 5 G scans show the same cyclotron/ToF oscillation as Block A, with the first peak later in \(B\) as \(V\) rises. 1% threshold on 0–300 G:
-
-| \(V\) [kV] | 100 kW | 500 kW | \(\Delta\) at 300 G (100 / 500 kW) |
-|---:|---:|---:|---|
-| 10 | 150 G | 130 G | +0.15% / +0.02% |
-| 12 | 195 G | 135 G | −0.31% / −0.05% |
-| 15 | 195 G | 145 G | +0.47% / +0.03% |
-| 18 | 210 G | 160 G | −0.47% / +0.01% |
-| 20 | 220 G | 170 G | −0.57% / −0.19% |
-| 25 (Block A) | 210 G | 190 G | +0.61% / −0.15% |
-
-**300 G** still puts every scanned voltage \(\lesssim 1\%\). Higher cage voltage needs more \(B\) at 100 kW; 500 kW recovers earlier at every \(V\).
-
-### 3.4 Block D — beam offset, including the 1 mm \(\Delta y\) fine scan
-
-![E-mode beam offset, coarse](plots/csns_emode_offset.png)
-
-**Figure 7.** Coarse D: four offsets on 10×10 mm injection and extraction.
-
-![Fine D: Δy scan and 5 G at ±5 mm](plots/csns_emode_offset_fine.png)
-
-**Figure 8.** Fine D: expansion vs \(\Delta y\) at diagnostic \(B\), and 5 G \(B\)-scans at \(\Delta y=\pm5\,\mathrm{mm}\) vs centred.
-
-Expansion vs \(\Delta y\) is **smooth and nearly linear** from −10 to +10 mm. Toward the detector (\(\Delta y<0\)) vs away (\(\Delta y>0\)) changes \(\Delta\) by a few percent at \(B=0\) and by \(\lesssim 1\%\) once \(B=300\,\mathrm{G}\). The \(\pm5\,\mathrm{mm}\) 5 G scans overlay the centred Block A curves; the 1% threshold moves by at most ~10 G.
-
-| Family | \(\Delta y=-5\) mm | centred | \(\Delta y=+5\) mm |
-|---|---|---|---|
-| Inj. 100 kW | 210 G | 210 G | 205 G |
-| Inj. 500 kW | 190 G | 190 G | 185 G |
-| Ext. 100 kW | 245 G | 240 G | 235 G |
-| Ext. 500 kW | 205 G | 205 G | 205 G |
-
-At **300 G** and **0.1 T**, expansion stays \(\lesssim 1\%\) for every offset. Centroid shift vs no-SC is \(\lesssim 0.2\,\mathrm{mm}\) (injection) and \(\lesssim 0.6\,\mathrm{mm}\) (extraction, 500 kW, 300 G). A few-mm orbit offset does not undo the \(B\) recovery. No \(\Delta x\) scan: the cage is translation-invariant in \(x\).
+**Operating recommendation.** Collect **electrons at \(B\gtrsim 300\,\mathrm{G}\)**. Use ion time-of-flight for species identification, not for an uncorrected size.
 
 ---
 
-## 4. Ion mode
+## 1. The measurement and the error
 
-**Status: complete.** v1: 2070 / 2070 runs (Blocks A–D). v2 I1–I3: aligned extraction, look-up powers, and single-bunch train (see §4.5). Round beams; H₂⁺ / H₂O⁺ / N₂⁺. **No dense \(B\)-scan** — only \(\{0, 200, 1000\}\,\mathrm{G}\) in v1 — because closed ion scans were already flat vs \(B\).
+The CSNS RCS IPM is a 220 × 231 mm cage with a design bias of 25 kV (\(E_y\approx 108\,\mathrm{kV/m}\)) and a magnet specified at 0.1 T (available to 0.2 T). Residual-gas ionization in the proton beam produces electrons (collected at the top electrode) and the three ion species resolved in the hardware paper — H₂⁺, H₂O⁺, N₂⁺ (collected at the bottom). The detector reports an RMS width \(\sigma_m\). The quantity of interest for operations is the true beam \(\sigma_0\).
 
-| Block | What is scanned | Beams | \(\sigma\) | \(B\) [G] | Power [kW] |
-|---|---|---|---|---:|---|
-| **A** | Reference beams | inj. 25 mm; ext. 10 mm; inj. 10 mm | round | 0, 200, 1000 | 100–500 |
-| **B** | Beam size | inj.; ext. | 3–20 mm / 1 mm | 0, 200, 1000 | 100–500 |
-| **C** | Cage voltage | inj. 10 mm | round | 0, 200, 1000 | 100, 500 |
-| **D** | Beam offset | inj.; ext. 10 mm | round | 0, 200, 1000 | 100, 500 |
+Two bunches circulate. At 100 kW each carries \(N=7.8\times 10^{12}\) protons (scaled \(\propto P\)). Injection is 80 MeV, \(\beta=0.39\), \(\sigma_t=120\,\mathrm{ns}\), painted \(\sigma_0\simeq 25\,\mathrm{mm}\) or a 10 mm core. Extraction is 1.6 GeV, \(\beta=0.93\), \(\sigma_t=20\,\mathrm{ns}\), \(\sigma_0\simeq 10\,\mathrm{mm}\).
 
-SC-off reference: H₂⁺ @ 100 kW only (mass-independent without bunch fields, shared).
+The bunch is a line charge. Its electric field, and the Lorentz-boosted magnetic field, act on every secondary for as long as that secondary remains near the beam. The error used throughout is \(\Delta=(\sigma_\mathrm{SC}-\sigma_\mathrm{off})/\sigma_\mathrm{off}\). A positive \(\Delta\) is an **inflated** size; a negative \(\Delta\) is **compression**. \(\Delta=0\) means the bunch field has not changed the collected width.
 
-### 4.1 Block A — reference beams vs \(B\)
+This study treats only that space-charge contribution. The cage fields are uniform; MCP saturation, EMI, secondary electrons from the ion trap, and the measured field map are not included. Those hardware effects, not space charge, are what the IBIC 2024–2026 CSNS papers identify as the present e-mode limit once a sufficient \(B\) is applied.
 
-![Ion-mode expansion vs B](plots/csns_imode_bscan.png)
+---
 
-**Figure 9.** Expansion vs \(B\) for the three reference beams. Each row is a species; columns are painted injection (25×25 mm), extraction (10×10 mm), and small injection (10×10 mm).
+## 2. Why electrons and ions distort differently
 
-Expansion is **essentially independent of \(B\)** between 0 and 200 G. The 0.1 T point is sometimes slightly lower but never restores the profile.
+Flight times set the physics. At 25 kV an electron crosses the 115.5 mm half-gap in \(\tau\simeq 3.5\,\mathrm{ns}\). The same path takes \(\tau_2\simeq 210 / 631 / 787\,\mathrm{ns}\) for H₂⁺ / H₂O⁺ / N₂⁺. The time to leave a 10 mm beam is \(\tau_0\simeq 74 / 221 / 275\,\mathrm{ns}\). Injection bunches (120 ns) are longer than \(\tau_0\) for H₂⁺; extraction bunches (20 ns) are shorter than every \(\tau_0\). Bunch spacing is 980 ns (injection) and 409 ns (extraction).
 
-Expansion at 100 kW [%]:
+**Electrons** are attracted to the proton bunch. A moderate kick focuses them toward the axis (compression). When the bunch field exceeds the cage field they cross the axis and the collected profile is wider than the beam (over-focus). Peak transverse bunch fields at 10 mm are \(\approx 29\,\mathrm{kV/m}\) (injection) and \(\approx 73\,\mathrm{kV/m}\) (extraction) at 100 kW, versus 145 and 363 kV/m at 500 kW; the cage is 108 kV/m. At 500 kW the extraction electrons are trapped in the beam potential during the passage — voltage alone cannot sort them.
 
-| Species | Inj. 25 mm 0 G | 200 G | 1000 G | Inj. 10 mm 0 G | 200 G | 1000 G | Ext. 10 mm 0 G | 200 G | 1000 G |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| H₂⁺ | +16.7 | +16.7 | +15.0 | +92.0 | +91.6 | +82.1 | +33.5† | +33.4† | +31.6† |
-| H₂O⁺ | +10.4 | +10.4 | +10.2 | +64.7 | +64.7 | +63.8 | +55.6† | +55.6† | +54.9† |
-| N₂⁺ | +8.9 | +8.9 | +8.9 | +56.3 | +56.2 | +55.7 | +49.9† | +49.9† | +49.5† |
+A guiding \(B\) converts the kick into a cyclotron motion. If the kick is delivered early in the flight, the displacement at the collector is \(\propto \sin(\omega_c\tau)/\omega_c\) and vanishes whenever \(\omega_c\tau=n\pi\). Successive zeros of \(\Delta(B)\) are therefore spaced by \(\Delta B=\pi m_e/(e\tau)\propto\sqrt{V}\). The **envelope** of that oscillation falls as \(B\) rises. Mitigation by \(B\) is the decay of the envelope, not a particular zero.
 
-† v1 as-run extraction (125 ns generation lag). **Superseded by v2 I1** (table below). Painted injection matches the elliptical-beam design-field numbers (~+16% H₂⁺). The 10 mm injection family is the most distorted at every \(B\). Injection is correctly aligned in v1 (both centres at 480 ns).
+**Ions** have the same sign as the beam, so the kick is always outward and \(\Delta\) is always positive. In the impulsive limit (bunch \(\ll\tau_0\)) the transverse impulse scales as \(N/\sigma_0^2\) and the subsequent drift as \(\tau_2\propto 1/\sqrt{V}\), so \(h-1\equiv\Delta\propto N/(V\sigma_0^2)\) and lighter ions expand more (\(\propto M^{-1/2}\)). CSNS sits in a mixed regime: extraction is impulsive; injection is not quite, because H₂⁺ leaves the 120 ns bunch while it is still passing. Magnetic confinement is an electron tool. Even at 0.1 T the ion cyclotron phase is \(\omega_c\tau_2\simeq 1.0\) rad (H₂⁺) and 0.3 rad (heavy ions) — a \(\mathrm{sinc}\) factor of 0.84 and \(\approx 0.98\), not a restoration of the profile.
 
-Aligned extraction, 10 mm, 100 kW, 25 kV (v2 I1; tracking offset −80 ns):
+---
 
-| Species | 0 G aligned | 0.1 T aligned | v1 as-run 0 G | Kick model aligned |
-|---|---:|---:|---:|---:|
-| H₂⁺ | **+104.1 %** | +89.1 % | +33.5 % | +102 % |
-| H₂O⁺ | **+40.8 %** | +40.1 % | +55.6 % | +40 % |
-| N₂⁺ | **+40.0 %** | +39.6 % | +49.9 % | +39 % |
+## 3. Distortion and size growth
 
-H₂⁺ at extraction is the most distorted species once timing is correct (impulsive 20 ns bunch, light ion). H₂O⁺ / N₂⁺ drop from the as-run whole-bunch values to the half-bunch kick-model values. At 500 kW, 0 G, aligned 10 mm: H₂⁺ +408 %, H₂O⁺ +243 %, N₂⁺ +235 %. Details: [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) §§3.5–3.7 and [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md) §7.
+### 3.1 Electrons without a magnet
 
-### 4.2 Block B — size 3–20 mm
+At \(B=0\) the collected electron width is **not** a reliable size. On the 10 mm injection beam, 100 kW **crosses from expansion to compression at 13 kV** (12 kV +9 %, 13 kV \(\approx 0\), 14 kV −8 %). At 500 kW the same voltage scan **never changes sign**: \(\Delta\) stays positive and grows with \(V\) (+29 % at 5 kV to +83 % at 30 kV). That is the trapping regime of §2: raising \(V\) does not un-trap a 500 kW bunch.
+
+![Electron-mode cage voltage](plots/csns_emode_voltage.png)
+
+**Figure 1.** Electron expansion versus cage voltage and \(B\) on the 10 mm injection beam. At \(B=0\) the 100 kW curve crosses zero; the 500 kW curve does not.
+
+Obtained \(\sigma_m\) versus true \(\sigma_0\) is **not monotonic** at \(B=0\): a small beam can look larger or smaller than a large one, depending on whether the kick focuses or over-focuses. The initial Voitkiv ionization smear (\(\approx 2\)–\(2.5\,\mathrm{eV}\) per axis) adds a \(\sigma\)-independent quadrature of 2.9–3.2 mm, which is +40–48 % at \(\sigma_0=3\,\mathrm{mm}\) and only +1 % at 20 mm — and is removed as soon as \(B\) provides one gyration (§4.1).
+
+Along the energy ramp at \(B=0\), a long bunch (120 ns) is compressed and a short bunch (20 ns) is inflated. Both errors become milder as \(\beta\) rises (the electrons spend less time in the bunch): at 100 kW the 120 ns family goes from −46 % (200 MeV) to −32 % (1.6 GeV); the 20 ns family from +77 % (80 MeV) to +38 % (1.2 GeV). **Energy does not replace a magnet.**
+
+### 3.2 Ions: the profile is always larger than the beam
+
+Every ion point in this study has \(\Delta>0\). Figure 2 is the size plot at the design 0.1 T and 100 kW: every species and both rings sit **above** the diagonal.
 
 ![Ion-mode true vs obtained size](plots/csns_imode_size_obtained.png)
 
-**Figure 10.** Obtained \(\sigma\) vs true \(\sigma\) at 0.1 T, 100 kW. Dashed line: obtained = true. Every point lies **above** the diagonal.
+**Figure 2.** Ion-mode obtained \(\sigma_m\) versus true \(\sigma_0\) at 0.1 T, 100 kW. Dashed line: \(\sigma_m=\sigma_0\). Space charge inflates every point.
+
+The growth with charge and the shrinkage with beam size are shown in Figure 3. Smaller beams and higher power inflate more, as \(N/\sigma_0^2\) requires.
 
 ![Ion-mode expansion vs size and power](plots/csns_imode_size_expansion.png)
 
-**Figure 11.** Expansion vs true \(\sigma\) at 0.1 T for 100–500 kW. Smaller beams and higher power inflate more.
+**Figure 3.** Ion expansion versus true size at 0.1 T, 100–500 kW. The 3 mm / 500 kW family saturates on the cage wall (\(\sigma_m\approx 56\,\mathrm{mm}\)).
 
-Obtained size at \(\sigma_x = 10\,\mathrm{mm}\), 0.1 T, 100 kW:
-
-| Species | Inj. obtained | Inj. expansion | Ext. obtained† | Ext. expansion† |
-|---|---:|---:|---:|---:|
-| H₂⁺ | 18.2 mm | +82% | 13.2 mm | +32% |
-| H₂O⁺ | 16.4 mm | +64% | 15.5 mm | +55% |
-| N₂⁺ | 15.5 mm | +56% | 15.0 mm | +50% |
-
-† v1 as-run extraction (125 ns lag). Aligned 0.1 T / 100 kW / 10 mm: H₂⁺ 19.0 mm (+89 %), H₂O⁺ 14.0 mm (+40 %), N₂⁺ 14.0 mm (+40 %).
-
-H₂⁺ injection, \(\sigma=10\,\mathrm{mm}\), 0.1 T vs power:
+**Injection, 10 mm, 0.1 T, H₂⁺** — size growth with power:
 
 | 100 kW | 200 kW | 300 kW | 400 kW | 500 kW |
 |---:|---:|---:|---:|---:|
-| +82% (18.2 mm) | +175% (27.5 mm) | +279% (37.8 mm) | +390% (48.9 mm) | +422% (52.1 mm) |
+| +82 % (18.2 mm) | +175 % (27.5 mm) | +279 % (37.8 mm) | +390 % (48.9 mm) | +422 % (52.1 mm) |
 
-Lighter ions expand more at injection (\(\Delta v = q\int E_\mathrm{sc}\,dt/m\)). Once extraction timing is aligned, the short 20 ns bunch is impulsive and **H₂⁺ is the most distorted species at extraction** (+104 % at 0 G, +89 % at 0.1 T); the v1 as-run table above under-states that kick. Worst case remains **injection, \(\sigma=3\,\mathrm{mm}\), 500 kW, 0.1 T** — obtained \(\sigma \approx 56\,\mathrm{mm}\) (+1700%+) for all three species (cage-wall saturation). Aligned extraction at 3 mm / 100 kW / 0 G already gives H₂⁺ +1172 % (38 mm).
+Between 100 and 400 kW the growth is \(\propto P^{1.12}\), the linear kick plus the second-order term \(\sigma_m^{2}=\sigma_0^{2}+\kappa N+\cdots\). At 500 kW the profile hits the 110 mm half-cage and the exponent saturates.
 
-### 4.3 Block C — cage voltage 5–30 kV
+**Extraction, 10 mm, 100 kW, 25 kV** (ions born in time with the bunch):
+
+| Species | 0 G | 0.1 T | Kick model (0 G) |
+|---|---:|---:|---:|
+| H₂⁺ | **+104 %** (20.4 mm) | +89 % | +102 % |
+| H₂O⁺ | +41 % | +40 % | +40 % |
+| N₂⁺ | +40 % | +40 % | +39 % |
+
+The 20 ns bunch is impulsive, so **H₂⁺ is the most distorted species at extraction**. At 500 kW the same 10 mm extraction family is +408 / +243 / +235 % (H₂⁺ / H₂O⁺ / N₂⁺). A reduced line-charge integration of the same equations reproduces the 0 G / 100 kW Virtual-IPM numbers to \(\pm 1\%\) absolute (Figure 4): the inflation is the space-charge kick, not a tracking artefact.
+
+![Reduced kick model vs Virtual-IPM](plots/csns_review_imode_model.png)
+
+**Figure 4.** Left: 0 G, 100 kW expansions, reduced kick model versus Virtual-IPM. Right: cage-voltage scan at 0 G. Agreement is \(\pm 1\%\) absolute.
+
+**Size law.** Between \(\sigma_0=5\) and 20 mm at 100 kW, \(\Delta\propto\sigma_0^{-1.84\ldots-2.01}\). That is the impulsive \(\sigma_0^{-2}\) of §2, not the continuous-beam \(\sigma_0^{-1.5}\). Aligned extraction H₂⁺ at 0 G / 100 kW:
+
+| True \(\sigma_0\) [mm] | 3 | 5 | 7 | 10 | 15 | 20 |
+|---:|---:|---:|---:|---:|---:|---:|
+| Obtained [mm] | 38.2 | 26.8 | 22.4 | 20.4 | 21.7 | 24.9 |
+| \(\Delta\) | +1172 % | +435 % | +219 % | +104 % | +44 % | +24 % |
+
+A 3 mm extraction beam is already unusable as a size measurement at 100 kW. The worst case in the study remains **injection, 3 mm, 500 kW**: \(\sigma_m\approx 56\,\mathrm{mm}\) (+1700 %+) for all three species.
+
+**Species ordering** follows the mixed regime. At injection, 10 mm, 0 G, 100 kW: H₂⁺ +92 %, H₂O⁺ +65 %, N₂⁺ +56 % — lighter ions expand more, but less than a pure \(M^{-1/2}\) law because H₂⁺ leaves during the 120 ns bunch. Painted injection (25 mm) is much milder: +17 / +10 / +9 %. A second extraction bunch, still in the cage when H₂O⁺ and N₂⁺ arrive, adds a few points of extra width (single-bunch +36 / +29 % versus three-bunch +41 / +40 %); H₂⁺ does not see that second bunch (+104 % either way).
+
+Commissioning powers (aligned extraction, 10 mm, 0 G, H₂⁺): +19 % at 20 kW, +82 % at 80 kW. Even at 80 kW a 10 mm ion profile is not a 10 mm beam.
+
+---
+
+## 4. Mitigation and its efficiency
+
+### 4.1 Guiding \(B\) on electrons — efficient
+
+Figure 5 is the electron expansion versus \(B\) for the three reference beams and 100–500 kW. The curves oscillate through focusing and over-kick; the grey band is \(\pm 1\%\).
+
+![Electron expansion vs guiding B](plots/csns_emode_bscan300.png)
+
+**Figure 5.** Electron-mode expansion versus \(B\), 0–300 G. Painted injection recovers first; extraction and the 10 mm injection core still oscillate through 150–250 G.
+
+![Electron expansion, 150–300 G](plots/csns_emode_bscan300_tail.png)
+
+**Figure 6.** Same data, 150–300 G, \(\pm 3\%\) zoom. At **300 G** every family has settled inside \(\pm 1\%\).
+
+The zeros of \(\Delta(B)\) are the cyclotron condition of §2. Their spacing follows \(\pi m_e/(e\tau)\propto\sqrt{V}\) to \(\le 5\%\) at every cage voltage from 10 to 30 kV, with no free parameter (Figure 7). At 25 kV the lobe amplitudes are 13, 4, 1.4, 0.9, 0.6 %; **300 G is the first field at which the envelope itself is \(\le 1\%\)** for all powers. That is why 300 G, not a particular zero, is the operating point.
+
+![Cyclotron-phase zeros of electron Δ(B)](plots/csns_review_emode_cyclotron.png)
+
+**Figure 7.** Left: \(\Delta(B)\) at 10 and 25 kV with the predicted zeros \(n\pi m_e/(e\tau)\). Right: measured zero spacing versus \(\propto\sqrt{V}\).
+
+**Efficiency of \(B\) on electrons** — smallest field after which \(\lvert\Delta\rvert\) stays below 1 %, and the residual at 300 G:
+
+| Beam | 100 kW | 200 kW | 300 kW | 400 kW | 500 kW |
+|---|---|---|---|---|---|
+| Inj. 25 mm | 105 G (+0.03 %) | 115 G (+0.09 %) | 155 G (+0.16 %) | 155 G (+0.19 %) | 155 G (+0.15 %) |
+| Ext. 10 mm | 240 G (−0.11 %) | 190 G (−0.24 %) | 185 G (−0.17 %) | 195 G (−0.02 %) | 205 G (+0.08 %) |
+| Inj. 10 mm | 210 G (+0.61 %) | 290 G (+0.40 %) | 235 G (−0.04 %) | 190 G (−0.16 %) | 190 G (−0.15 %) |
+
+Painted injection is fixed first. The last curve to settle is the 10 mm injection core at 200 kW (290 G). **300 G keeps every power \(\lesssim 1\%\).**
+
+The same 300 G point holds when the other axes are opened:
+
+- **Size.** From 200 G the obtained-versus-true plot lies on the diagonal except at 3 mm. At 300 G, injection 3 mm is still +1 % (100 kW) to +4 % (500 kW). **0.1 T puts 3, 10 and 20 mm on the diagonal at every power** (\(\lvert\Delta\rvert\le 0.05\%\)).
+- **Cage voltage.** At 300 G, 10–25 kV, both 100 and 500 kW stay \(\lesssim 1\%\). Higher \(V\) needs slightly more \(B\) at 100 kW (150 G at 10 kV → 210 G at 25 kV) because \(\tau\) is shorter and the first lobes move out; 500 kW recovers earlier at every \(V\).
+- **Energy.** At 300 G / 100 kW, \(\lvert\Delta\rvert\le 0.5\%\) from 80 MeV to 1.6 GeV for both 120 ns and 20 ns bunches. The low-\(\beta\) injection error of §3.1 is a \(B=0\) phenomenon.
+- **Commissioning power.** At 300 G and 20 / 50 / 80 kW: painted injection +0.00 / +0.01 / +0.02 %; extraction 10 mm +0.28 / +0.56 / +0.18 %; injection 10 mm +0.11 / +0.29 / +0.49 %.
+- **Orbit.** A few millimetres of \(\Delta y\) (toward or away from the collector) changes \(\Delta\) by a few percent at \(B=0\) and by \(\lesssim 1\%\) at 300 G. The 1 % threshold moves by at most \(\sim 10\,\mathrm{G}\). \(\Delta x\) is a translation of a uniform cage and does not change the width. Centroid shift versus no-SC falls as \(1/B\) (E×B / polarisation drift): 0.9 mm at 100 G → 0.2 mm at 300 G on the extraction beam.
+
+![Electron obtained vs true size](plots/csns_emode_size_obtained.png)
+
+**Figure 8.** Electron obtained \(\sigma_m\) versus true \(\sigma_0\). From 200 G the points lie on the diagonal; 0.1 T includes the 3 mm beams.
+
+**Net efficiency.** Guiding \(B=300\,\mathrm{G}\) reduces an electron-mode error of tens of percent (and the wrong sign at 100 kW / high \(V\)) to \(\lesssim 1\%\). The design 0.1 T has a factor-of-three margin and is the right field for a 3 mm beam. The CSNS magnet (0.2 T) is not the limiting device. SNS designed 300 G for \(25\times\) this bunch charge and estimated \(\approx 7\%\) residual; \(\lesssim 1\%\) at CSNS is the expected scaling.
+
+### 4.2 Guiding \(B\) on ions — inefficient
+
+![Ion expansion vs B](plots/csns_imode_bscan.png)
+
+**Figure 9.** Ion expansion versus \(B\) for the three reference beams. Rows are species. The curves are flat from 0 to 200 G; 0.1 T is a small downward step for H₂⁺ only.
+
+Between 0 and 200 G every ion expansion changes by \(<0.5\%\). At 0.1 T, injection H₂⁺ (10 mm, 100 kW) falls from +92 % to +82 % — the \(\mathrm{sinc}(1.01)\approx 0.84\) factor of §2 — while H₂O⁺ and N₂⁺ move by \(<1\%\). Aligned extraction H₂⁺ falls from +104 % to +89 %. The 0.2 T magnet would give \(\omega_c\tau_2\approx 2\,\mathrm{rad}\) for H₂⁺ and still not return \(\Delta\) to the percent level.
+
+**Net efficiency.** The e-mode \(B\) knob is **not** an ion-mode size knob. Do not raise \(B\) expecting an ion profile to recover.
+
+### 4.3 Cage voltage — opposite roles, incomplete for ions
+
+For **electrons at \(B=0\)**, voltage is not a size correction: it can flip the sign of \(\Delta\) at 100 kW and cannot flip it at 500 kW (§3.1). With \(B\ge 300\,\mathrm{G}\) the design 25 kV is already inside 1 %, so voltage is free for collection efficiency and MCP operation.
+
+For **ions**, higher \(V\) shortens \(\tau_2\) and reduces the integrated kick, as at ISIS (broadening \(\propto 1/E\)). H₂⁺ injection, 10 mm, 100 kW, 0.1 T:
+
+| 5 kV | 10 kV | 15 kV | 20 kV | 25 kV | 30 kV |
+|---:|---:|---:|---:|---:|---:|
+| +198 % | +168 % | +126 % | +100 % | +82 % | +70 % |
+
+Aligned extraction H₂⁺, 10 mm, 100 kW, 0 G: +280 % (5 kV) → +104 % (25 kV) → +93 % (30 kV). The 0 G scan scales as \(V^{-0.92}\) (H₂⁺) and \(V^{-0.77}\) (H₂O⁺). Extrapolating the \(V^{-0.9}\) law, a **10 %** bias on the 10 mm injection beam at 100 kW would need \(\approx 380\,\mathrm{kV}\) across the cage. That is not a hardware path.
 
 ![Ion-mode cage voltage](plots/csns_imode_voltage.png)
 
-**Figure 12.** Expansion vs \(B\) for each cage voltage, injection 10×10 mm. Unlike e-mode, ion expansion **never changes sign**.
+**Figure 10.** Ion expansion versus \(B\) at each cage voltage (injection 10 mm). Expansion stays positive at every \(V\).
 
-H₂⁺ injection 10 mm, 100 kW, 0.1 T vs cage voltage:
+**Net efficiency.** Voltage is a useful **lever** on ion bias (a factor \(\sim 3\) from 5 to 30 kV) and is **not a cure**. ESS can run ions at 300 kV/m because its bunches are \(5000\times\) weaker; CSNS cannot copy that choice.
 
-| 5 kV | 10 kV | 15 kV | 20 kV | 25 kV | 30 kV |
-|---:|---:|---:|---:|---:|---:|
-| +198% | +168% | +126% | +100% | +82% | +70% |
+### 4.4 Orbit offset — mitigation is robust
 
-Higher \(V\) shortens ion drift and reduces the integrated kick. At 500 kW the same trend holds at much larger expansion (+300% to +800% range).
+\(\Delta x=+5\) or \(+10\,\mathrm{mm}\) leaves both electron and ion widths unchanged at 100 kW (the kick is centred on the beam). \(\Delta y=\pm 5\,\mathrm{mm}\) changes the drift length and therefore \(\tau\): ion \(\Delta\) moves by a few percent, in quantitative agreement with \(\sigma_m^{2}-\sigma_0^{2}\propto d\) (0.5 % absolute). Electron recovery at 300 G is preserved (\(\lvert\Delta\rvert\le 0.65\%\) out to \(\pm 10\,\mathrm{mm}\)).
 
-### 4.4 Block D — beam offset
+At 500 kW an uncorrected ion profile (\(\sigma_m\approx 52\,\mathrm{mm}\)) is clipped by the cage; a 10 mm horizontal offset then pulls the centroid by 4 mm. That is an aperture effect, not a failure of the 300 G e-mode point.
 
-![Ion-mode beam offset](plots/csns_imode_offset.png)
+**Net efficiency.** A few-millimetre closed-orbit offset does not undo electron recovery and is a small, predictable correction on ions.
 
-**Figure 13.** Expansion vs \(B\) for each offset (100 kW). \(\Delta x=+5\) and \(+10\,\mathrm{mm}\) overlay the centred beam. \(\Delta y=\pm5\,\mathrm{mm}\) changes expansion by a few percent.
+### 4.5 Software inversion of ion widths — efficient if \(N\) and species are known
 
-H₂⁺ injection 10 mm, 0.1 T, 100 kW vs offset:
+Because the ion bias is large, smooth, and reproduced by a one-dimensional kick model, \(\sigma_0\) can be recovered from \(\sigma_m\) without changing the hardware.
 
-| centred | \(\Delta x=+5\) | \(\Delta x=+10\) | \(\Delta y=+5\) | \(\Delta y=-5\) |
-|---|---:|---:|---:|---:|
-| +82.1% | +82.1% | +82.1% | +84.0% | +80.0% |
+1. Identify the ToF peak (H₂⁺, H₂O⁺ or N₂⁺).
+2. Read \(\sigma_m\) and the DCCT bunch charge \(N\).
+3. Invert \(\sigma_m=\sigma_0\cdot(1+\Delta)\) using a table \(\Delta(\sigma_0,N,V,\mathrm{species})\) — the kick model or the Virtual-IPM points — by a few substitutions starting from \(\sigma_0=\sigma_m\).
 
-Toward the detector (\(\Delta y<0\)): slightly less expansion. Centroid shift vs no-SC is \(\lesssim 0.6\,\mathrm{mm}\) at extraction, 500 kW.
+This is the Fermilab Booster / Shiltsev recipe (15 % early in the cycle to a factor of two at 8 GeV; 5–10 % accuracy on \(\sigma_0\)). CSNS has the same inputs plus resolved ToF peaks. Use the **aligned** extraction column (H₂⁺ +104 % at 10 mm / 100 kW / 0 G), not an ion born off the bunch. Do not apply the 300 G e-mode factor to ions.
 
-### 4.5 Scan matrix v2 — aligned extraction, ramp, commissioning
+**Limits.** The inversion assumes the profile has not hit the cage. At 3 mm / 500 kW it has; no table recovers \(\sigma_0\) from a wall-saturated RMS. Field-cage non-uniformity (J-PARC reported a factor-of-two shrink from the external map alone) is not in the present table and will have to be folded in once the CSNS CST/measured map exists.
 
-**Status: complete.** 1014 / 1014 new 100k-particle CSVs (finished 2026-09-12 05:48 UTC). 735 evaluated SC-on pairs in `output/csns_v2_summary.csv`. Plan and timing contract: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md). Extraction ions use tracking `LongitudinalOffset` = −80 ns so the generation window and the first field-carrying bunch are both centred at 80 ns.
+![Aligned extraction ions vs kick model](plots/csns_v2_aligned_extraction.png)
 
-| Block | What is scanned | Result used below |
+**Figure 11.** Extraction 10 mm, 0 G, 100 kW, 25 kV. Virtual-IPM with the ion born in time with the bunch matches the kick model. These are the extraction ion widths to invert.
+
+### 4.6 Summary of efficiencies
+
+| Mitigation | Electron mode | Ion mode |
 |---|---|---|
-| **I1** | Aligned extraction: sizes 3–20 mm, \(V\) 5–30 kV, offsets, 0 / 0.1 T, 100–500 kW | Replaces every v1 extraction ion width |
-| **I2** | Look-up \(h(\sigma_0,N)\): 5 sizes × 10 powers, aligned extraction (injection low-\(P\) unpaired) | Correction table at commissioning powers |
-| **I3** | Single bunch vs 3-bunch at 100 kW | Multi-bunch term for heavy ions only |
-| **E1** | Ramp 80–1600 MeV at fixed \(\sigma=10\,\mathrm{mm}\), \(\sigma_t\in\{120,20\}\,\mathrm{ns}\) | Low-\(\beta\) check at 300 G |
-| **E3** | Phase-aware \(B\) grids × 10/15/20/30 kV on ext. 10 mm and inj. 25 mm | 300 G still \(\lesssim 1\%\) |
-| **E4** | 20 / 50 / 80 kW on the three reference beams | Commissioning at 300 G |
-
-![Aligned extraction vs as-run and the kick model](plots/csns_v2_aligned_extraction.png)
-
-**Figure 14.** Extraction 10 mm, 0 G, 100 kW, 25 kV. v2 aligned Virtual-IPM matches the kick-model aligned column (H₂⁺ +104 % vs +102 %; H₂O⁺ +41 % vs +40 %; N₂⁺ +40 % vs +39 %) and replaces the v1 as-run lower bound (H₂⁺ +33.5 %).
-
-Aligned extraction H₂⁺ vs true size, 100 kW, 0 G, 25 kV:
-
-| \(\sigma_0\) [mm] | 3 | 5 | 7 | 10 | 15 | 20 |
-|---:|---:|---:|---:|---:|---:|---:|
-| Obtained [mm] | 38.2 | 26.8 | 22.4 | 20.4 | 21.7 | 24.9 |
-| Expansion | +1172 % | +435 % | +219 % | +104 % | +44.5 % | +24.4 % |
-
-Aligned extraction H₂⁺ vs cage voltage, 10 mm, 100 kW, 0 G:
-
-| 5 kV | 10 kV | 15 kV | 20 kV | 25 kV | 30 kV |
-|---:|---:|---:|---:|---:|---:|
-| +280 % | +179 % | +141 % | +119 % | +104 % | +93 % |
-
-Same trend as injection Block C (higher \(V\) shortens ToF) but starting from the aligned, not the as-run, 25 kV point. Offsets at 10 mm / 100 kW / 0 G: \(\Delta x=+10\,\mathrm{mm}\) identical to centred (+104.1 %); \(\Delta y=+5\,\mathrm{mm}\) +106.7 %; \(\Delta y=-5\,\mathrm{mm}\) +101.4 %.
-
-**I3** (100 kW, 0 G). Injection single-bunch equals the v1 3-bunch reference (H₂⁺ +16.7 % at 25 mm, +92.0 % at 10 mm). Extraction H₂⁺ single-bunch equals the I1 3-bunch point (+104.1 %): the 20 ns bunch is gone before the next RF bucket. Extraction H₂O⁺ / N₂⁺ drop from +40.8 / +40.0 % (3-bunch) to +35.7 / +28.5 % (single): the heavy ions still sit in the cage when the second bunch arrives.
-
-**I2** aligned extraction, 0 G, look-up powers (H₂⁺, 10 mm): +19 % (20 kW), +82 % (80 kW), +160 % (150 kW), +277 % (250 kW). At 25 mm / 80 kW the same species is only +12 %. Use these columns — not v1 as-run extraction — for the §3.7 correction recipe.
-
-**E1** at 300 G / 100 kW stays inside \(\pm0.5\%\) at every scanned energy for both \(\sigma_t\). At 0 G the long-bunch (120 ns) family is compressed and the short-bunch (20 ns) family is inflated; both shrink toward the 1.6 GeV values as \(\beta\) rises. 80 MeV / 120 ns is the reused v1 Block A injection 10 mm point (+0.61 % at 300 G).
-
-| Energy | 0 G, 120 ns | 300 G, 120 ns | 0 G, 20 ns | 300 G, 20 ns |
-|---|---:|---:|---:|---:|
-| 80 MeV | (v1) | (v1 +0.61 %) | +77.3 % | −0.20 % |
-| 200 MeV | −45.6 % | +0.42 % | +77.6 % | −0.28 % |
-| 400 MeV | −39.6 % | +0.32 % | +66.7 % | −0.25 % |
-| 800 MeV | −34.8 % | +0.27 % | +47.4 % | −0.17 % |
-| 1.2 GeV | −33.0 % | +0.25 % | +38.2 % | −0.13 % |
-| 1.6 GeV | −32.0 % | +0.24 % | (v1) | (v1 −0.11 %) |
-
-**E3.** Phase-aware grids at 10–30 kV on extraction 10 mm and painted injection 25 mm. Near 300 G, 30 kV / 100 kW: ext. 10 mm +0.05 % (280 G) / +0.97 % (310 G); inj. 25 mm \(\lesssim 0.1\%\). The 300 G recommendation still holds on the beams and voltages that v1 Block C did not cover.
-
-**E4** at 300 G (commissioning):
-
-| Beam | 20 kW | 50 kW | 80 kW |
-|---|---:|---:|---:|
-| Inj. 25 mm | +0.00 % | +0.01 % | +0.02 % |
-| Ext. 10 mm | +0.28 % | +0.56 % | +0.18 % |
-| Inj. 10 mm | +0.11 % | +0.29 % | +0.49 % |
+| \(B=300\,\mathrm{G}\) | Tens of % → ≲ 1 % (all \(P\), \(V\), energy; \(\sigma\ge 4\,\mathrm{mm}\)) | No recovery (flat to 200 G) |
+| Design \(B=0.1\,\mathrm{T}\) | 3 mm on the diagonal; residual ≤ 0.05 % | H₂⁺ down ~10 % relatively; heavy ions unchanged |
+| Raise \(V\) (5 → 30 kV) | Not a size fix at \(B=0\); unused once \(B\ge 300\,\mathrm{G}\) | +198 % → +70 % (H₂⁺ inj. 10 mm, 100 kW). 10 % needs ~380 kV |
+| Orbit ≲ 10 mm | 300 G still ≲ 1 % | Δx: none. Δy: a few % |
+| Invert \(\sigma_m=\sigma_0\,h(\sigma_0,N,V)\) | Unnecessary at ≥ 300 G | Recovers \(\sigma_0\) if \(N\) and species known and the profile is inside the cage |
 
 ---
 
-## 5. Electron vs ion
+## 5. Recommended operating point
 
-| | Electron mode | Ion mode |
-|---|---|---|
-| Secondaries | e− (Voitkiv H₂) | H₂⁺ / H₂O⁺ / N₂⁺ |
-| \(B\) grid | dense (5 G / 25 G) | 0, 200, 1000 G only |
-| Effect of \(B\) | oscillatory recovery; **300 G fixes** the profile | **flat**; no recovery |
-| Cage voltage | sign flip at 13 kV (100 kW, \(B=0\)); 500 kW never flips | always positive; higher \(V\) **reduces** kick |
-| Beam offset | \(\Delta x\) invariant; \(\Delta y\) few % | same |
-| Worst case | low \(B\), wrong \(V\) polarity | small \(\sigma\), high \(P\); aligned extraction H₂⁺ or injection |
-| Design 0.1 T | conservative for electrons (also on the E1 ramp and at 20–80 kW) | still +15 % (painted inj.) to +89 % (aligned ext. H₂⁺, 10 mm, 100 kW) |
-| Extraction ions | n/a | **use v2 aligned widths** (H₂⁺ +104 % at 0 G / 10 mm / 100 kW); v1 +33.5 % is a timing artefact |
-
-**Operate the CSNS RCS IPM in electron mode with \(B\gtrsim 300\,\mathrm{G}\).** That point stays \(\lesssim 1\%\) on the v1 families, the E1 ramp, E3 voltages, and E4 commissioning powers. Ion-mode profiles remain space-charge inflated at every scanned \(B\), \(V\), size, power, and offset; invert them with the aligned \(h(\sigma_0,N)\) table, or restrict ion ToF to species identification rather than size.
+1. **Collect electrons with \(B\gtrsim 300\,\mathrm{G}\).** This is the only mitigation that returns a faithful size. The design 0.1 T is a conservative setting, including at 500 kW and \(\sigma_0=3\,\mathrm{mm}\), and sits well below the 0.2 T magnet.
+2. **Keep the design 25 kV** for electron collection once \(B\) is in place. Do not try to tune size with voltage at \(B=0\).
+3. **Commissioning (20–80 kW) at 300 G** already has \(\lvert\Delta\rvert\le 0.5\%\). Space charge will not be the e-mode error at those currents.
+4. **Do not report an uncorrected ion RMS as a beam size.** At 100 kW a 10 mm beam is +17 % (painted H₂⁺) to +104 % (extraction H₂⁺). Invert with the species-resolved table, or use the ion ToF only to label the residual gas.
+5. **After space charge is removed, the remaining e-mode systematic is hardware:** MCP saturation after \(\sim 200\,\mu\mathrm{s}\), EMI, secondary electrons, and the real cage map. Those are outside this calculation.
 
 ---
 
-## 6. Data products
+## 6. Conclusions
 
-| File | Contents |
-|---|---|
-| `output/csns_emode_bscan300_summary.csv` | E-mode Block A |
-| `output/csns_emode_size_summary.csv` | E-mode Block B |
-| `output/csns_emode_voltage_summary.csv` | E-mode Block C (coarse) |
-| `output/csns_emode_offset_summary.csv` | E-mode Block D (coarse) |
-| `output/csns_emode_voltage_fine_summary.csv` | Fine C |
-| `output/csns_emode_offset_fine_summary.csv` | Fine D |
-| `output/csns_imode_bscan_summary.csv` | Ion-mode Block A (135 rows) |
-| `output/csns_imode_size_summary.csv` | Ion-mode Block B (1620 rows) |
-| `output/csns_imode_voltage_summary.csv` | Ion-mode Block C (108 rows) |
-| `output/csns_imode_offset_summary.csv` | Ion-mode Block D (180 rows) |
-| `output/csns_imode_kick_model.csv` | Reduced line-charge model vs Virtual-IPM (0 G); aligned extraction column |
-| `output/csns_review_scaling_checks.csv` | Literature scaling checks: Fine C zero spacing vs π m_e/(e ToF), Block B initial-velocity smear, ion size exponents, ion Δy vs drift length |
-| `output/csns_v2_summary.csv` | Scan matrix v2: 735 SC-on pairs (E1, E3, E4, I1–I3) |
-| `output/csns_scan_matrix_v2.csv` | Planned v2 point list |
-| `plots/csns_emode_*.png` | Figures 1–8 |
-| `plots/csns_imode_*.png` | Figures 9–13 |
-| `plots/csns_v2_aligned_extraction.png` | Figure 14 — aligned vs as-run vs kick model |
+Space charge distorts CSNS RCS IPM profiles by a mechanism that is now quantitative.
 
-Particle CSVs under `output/emode/`, `output/imode/`, and `output/v2/` are gitignored. Lab notebook with the closed elliptical campaigns: [`REPORT.md`](REPORT.md). Ion-only write-up: [`IMODE_REPORT.md`](IMODE_REPORT.md). Comparison with IPM papers 2006–2026: [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) / [`LITERATURE_REVIEW.pdf`](LITERATURE_REVIEW.pdf). V2 plan: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md).
+Electrons see an attractive kick that can focus or over-focus. The resulting \(\Delta(B)\) is a cyclotron-phase oscillation whose envelope falls below 1 % at **300 G** for every beam, power, voltage and offset examined, and along the energy ramp. Size growth with charge, and the non-monotonic \(\sigma_m(\sigma_0)\) at \(B=0\), both disappear at that field. The design 0.1 T is a margin, not a requirement, except for the smallest (3 mm) beams.
 
-Rebuild this PDF: `python3 scripts/md_to_pdf.py --md CSNS_IPM_REPORT.md --pdf CSNS_IPM_REPORT.pdf --footer "CSNS RCS IPM — e-mode and ion-mode"`.
+Ions see a repulsive kick and **always** come out larger than the beam. The inflation scales as \(N/\sigma_0^2\) (impulsive) and as \(\approx 1/V\), matches a reduced kick model to 1 %, and is essentially independent of \(B\). Raising the cage voltage or the magnet cannot bring a 10 mm, 100 kW ion profile to the 10 % level. A look-up inversion can, provided the profile has not hit the wall.
+
+The practical conclusion is therefore unchanged by the size, power, voltage, offset and ramp checks: **operate the IPM in electron mode at \(B\gtrsim 300\,\mathrm{G}\); treat ion-mode widths as space-charge biased unless they are inverted.**
+
+Comparison with the IPM literature (2006–2026), including the Vilsmeier–Sapinski–Storey \(B_\mathrm{min}\) fit and the Shiltsev / ISIS ion corrections, is in `LITERATURE_REVIEW.md`.
+
+## Appendix
+
+Rebuild this PDF: `python3 scripts/md_to_pdf.py --md CSNS_IPM_REPORT.md --pdf CSNS_IPM_REPORT.pdf --footer "CSNS RCS IPM — space-charge distortion"`.
+
+Campaign matrices, particle CSVs and evaluators remain in `IMODE_REPORT.md`, `SCAN_MATRIX_V2.md` and `output/`. This note does not document those scans.
