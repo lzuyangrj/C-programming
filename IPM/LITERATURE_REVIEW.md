@@ -1,6 +1,6 @@
 # CSNS RCS IPM simulations — review against IPM publications (2006–2026)
 
-**Scope.** This note checks the Virtual-IPM 2.3.1 results collected in [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) (electron mode, Blocks A–D + fine C/D; ion mode, Blocks A–D) against IPM design rules, measurements and simulation studies published in the last twenty years (2006–2026). Each comparison section states what the literature predicts for the CSNS parameters, what the simulations gave, and whether the two agree. A machine-by-machine survey of that period is in Section 4. Reproduce the comparison figures with `python3 scripts/literature_compare.py` (summary CSVs only, no Virtual-IPM runs).
+**Scope.** This note checks the Virtual-IPM 2.3.1 results collected in [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) (electron mode, Blocks A–D + fine C/D; ion mode, Blocks A–D) against IPM design rules, measurements and simulation studies published in the last twenty years (2006–2026). Each comparison section states what the literature predicts for the CSNS parameters, what the simulations gave, and whether the two agree. A machine-by-machine survey of that period is in Section 4 and a block-by-block comparison matrix in Section 5. Reproduce the comparison figures with `python3 scripts/literature_compare.py` (summary CSVs only, no Virtual-IPM runs).
 
 **CSNS parameters used throughout.** Cage 220 × 231 mm, 25 kV so E ≈ 108 kV/m, design B = 0.1 T; 7.8 × 10¹² p/bunch at 100 kW (∝ power), two bunches per turn; injection 80 MeV (β = 0.39, σₜ = 120 ns, revolution 1.96 µs), extraction 1.6 GeV (β = 0.93, σₜ = 20 ns, revolution 0.82 µs). Round beams σ = 25 mm (painted injection) or 10 mm.
 
@@ -8,8 +8,8 @@
 
 ## 1. Summary of the review
 
-1. **Electron mode agrees with the field-scaling literature in trend and order of magnitude.** The 1 % thresholds found here (105–155 G painted injection, 185–240 G extraction, 190–290 G 10 mm injection) are 1.1–4× above the Vilsmeier–Sapinski–Storey minimum-field fit (PRAB 22, 052801), which was fitted for β ≥ 0.99 and a monotonic distortion. The recommended 300 G matches the SNS ring IPM design point (300 G, ≈7 % estimated error for 2 × 10¹⁴ p) and sits well below the CSNS design (0.1 T) and the 0.2 T available magnet — the same field used by the CERN PS BGI (< 2.5 % distortion for LHC-type bunches).
-2. **Ion mode agrees quantitatively with space-charge kick theory.** A reduced line-charge model of the type used by Shiltsev (NIM A 986 (2021) 164744) reproduces every 0 G / 100 kW Virtual-IPM expansion to within ±1 % absolute (Figure 2), the V⁻⁰·⁹ cage-voltage law matches the ISIS "broadening ∝ 1/drift field" result, and the flatness versus B follows from the cyclotron phase ω τ ≲ 1 rad accumulated during the ion flight. The ion-mode bias (+9 % to +92 % at 100 kW, up to +422 % at 500 kW) is of the size reported operationally at J-PARC RCS (IPM 20–30 % wider than the MWPM) and at the Fermilab Booster (correction ≈ 15 % to ≈ 2×).
+1. **Electron mode agrees with the field-scaling literature in trend and order of magnitude.** The 1 % thresholds found here (105–155 G painted injection, 185–240 G extraction, 190–290 G 10 mm injection) are 1.1–4× above the Vilsmeier–Sapinski–Storey minimum-field fit (PRAB 22, 052801), which was fitted for β ≥ 0.99 and a monotonic distortion. The oscillation of the distortion with B that drives this gap is the cyclotron phase of the space-charge kick: the zeros of Δ(B) are spaced by π m_e/(e · ToF) ∝ √V to within 5 % at every cage voltage of Fine C (Section 2.3). For σ = 3 mm and for σ ≥ 4 mm at 300 G the fit and the simulation agree directly (Section 2.4). The recommended 300 G matches the SNS ring IPM design point (300 G, ≈7 % estimated error for 2 × 10¹⁴ p) and sits well below the CSNS design (0.1 T) and the 0.2 T available magnet — the same field used by the CERN PS BGI (< 2.5 % distortion for LHC-type bunches).
+2. **Ion mode agrees quantitatively with space-charge kick theory.** A reduced line-charge model of the type used by Shiltsev (NIM A 986 (2021) 164744) reproduces every 0 G / 100 kW Virtual-IPM expansion to within ±1 % absolute (Figure 2), the V⁻⁰·⁹ cage-voltage law matches the ISIS "broadening ∝ 1/drift field" result, and the flatness versus B follows from the cyclotron phase ω τ ≲ 1 rad accumulated during the ion flight. The size scaling (σ₀^−2, impulsive regime) and the ±5 mm vertical-offset dependence (σ_m² − σ₀² ∝ drift length) also follow the kick model to within 0.5 %. The ion-mode bias (+9 % to +92 % at 100 kW, up to +422 % at 500 kW) is of the size reported operationally at J-PARC RCS (IPM 20–30 % wider than the MWPM) and at the Fermilab Booster (correction ≈ 15 % to ≈ 2×).
 3. **Two caveats surfaced by the review.**
    - The **extraction ion-mode configuration** generates ions 125 ns before the first field-carrying bunch (generation bunch centred at 4σₜ = 80 ns, tracking train centred at 204.6 ns). H₂⁺ therefore drifts ≈ 40 mm before the kick and the extraction H₂⁺ expansion (+33 %) is under-estimated; the reduced model gives ≈ +100 % for a time-aligned generation. H₂O⁺ and N₂⁺ barely move in 125 ns and instead see the whole bunch instead of half of it (≈ +40 % expected vs +50–56 % obtained). Injection is correctly aligned (both centred at 480 ns). Section 3.5 gives the fix for a future run; no existing run was repeated.
    - The simulations use **uniform** guiding fields and stop at the collector: no MCP, no ion trap, no field-cage non-uniformity, no secondary electrons. J-PARC reported that its RCS IPM profile was shrunk to half by external-field distortion alone, and the CSNS IBIC 2024–2026 papers describe MCP saturation after 200 µs and secondary-electron suppression as the dominant hardware issues. These effects, not space charge, currently limit the CSNS e-mode measurement.
@@ -46,16 +46,46 @@ The first term is the space-charge term, the second the initial-velocity (gyrora
 - **Low β.** At 80 MeV the electrons stay in the bunch field 2.5× longer than for β ≈ 1 and the longitudinal bunch field is no longer negligible; the paper restricts its fit to β ≥ 0.99 for precisely this reason. The N/β column recovers part of the gap at injection but not all of it.
 - **Weak power dependence.** The fit scales as N^0.61 (×2.7 between 100 and 500 kW) whereas the simulated thresholds are flat or even decrease with power (10 mm injection 210 → 190 G). This is the same oscillatory mechanism: a stronger kick moves the first over-focusing peak to a different B rather than just raising the distortion, so a monotone power law cannot be expected.
 
-The initial-velocity term of the fit (0.038/σ_t^0.967 T) alone gives 15 G (25 mm) to 38 G (10 mm) and 0.13 T at 3 mm; this is why in Block B the 3 mm beams stay +1–4 % at 300 G and only 0.1 T brings them onto the diagonal. The 0.1 T CSNS design value is therefore the right order for the smallest beams, and 300 G is ample for σ ≥ 10 mm.
+The initial-velocity term of the fit (0.038/σ_t^0.967 T) alone gives 17 G (25 mm), 41 G (10 mm) and 131 G (3 mm); with the space-charge term the full fit gives 200 G (injection) and 320 G (extraction) for σ = 3 mm at 100 kW. This is why in Block B the 3 mm beams stay at +1.0 / +1.5 % at 300 G and only 0.1 T brings them onto the diagonal — for the smallest beams the fit and the simulation agree. The 0.1 T CSNS design value is therefore the right order for the smallest beams, and 300 G is ample for σ ≥ 10 mm.
 
 ### 2.2 Distortion mechanisms
 
 The report's B = 0 phenomenology (expansion at low V, compression above 13 kV at 100 kW, never-flipping expansion at 500 kW) maps onto the regimes described in the PRAB paper and in the early SNS design notes:
 
 - **Trapping when the bunch field exceeds the extraction field.** Peak transverse bunch fields for the CSNS cases (2D Gaussian line charge): 12 kV/m (inj. 25 mm), 29 kV/m (inj. 10 mm), 73 kV/m (ext. 10 mm) at 100 kW; 145 and 363 kV/m for the 10 mm beams at 500 kW. The cage field is 108 kV/m. At 500 kW the extraction bunch field exceeds the cage field around 1–2 σ, i.e. the electrons are trapped in the beam potential during the bunch passage — the situation the PRAB paper identifies as needing B rather than V. This is the origin of the "500 kW never flips" observation in Block C.
-- **Polarisation drift and gyroradius increase.** With B on, the paper describes the distortion as a gyroradius increase plus an E × B / polarisation drift; roughly 90 % of the electrons end up with larger gyroradii. In our 5 G scans this shows as the damped oscillation of Δ with B whose period lengthens as V rises (later first peak in Fine C), consistent with the electron time-of-flight setting the number of gyrations performed inside the bunch field.
+- **Polarisation drift and gyroradius increase.** With B on, the paper describes the distortion as a gyroradius increase plus an E × B / polarisation drift; roughly 90 % of the electrons end up with larger gyroradii. In our 5 G scans this shows as the damped oscillation of Δ with B whose period lengthens as V rises (later first peak in Fine C), consistent with the electron time-of-flight setting the number of gyrations performed inside the bunch field. Section 2.3 makes this quantitative.
+- **Sign reversal with intensity.** At 25 kV and 0 G the 10 mm injection profile is *compressed* by 48 % at 100 kW but *expanded* by 80 % at 500 kW. Electrons are attracted towards the positive bunch, so a moderate kick focuses them; once the bunch field exceeds the cage field they cross the axis and oscillate in the bunch potential, and the collected profile is wider than the beam. GSI (DIPAC'11) reports the same sign rule — "ions broaden, electrons shrink without B" — for its moderate-intensity beams, and J-PARC (HB2010) a 2× shrunk e-mode profile; the CSNS 500 kW case is the over-focused continuation of the same curve.
 
-### 2.3 Machine comparisons
+### 2.3 Cyclotron-phase check of the B oscillation (Fine C)
+
+If the space-charge kick is delivered early in the electron flight (the electron leaves the 10 mm beam in ≈ 1 ns of its 3.5 ns ToF), its transverse displacement at the collector is (Δv/ω_c) · sin(ω_c τ) and vanishes whenever ω_c · ToF = nπ. Successive zero crossings of Δ(B) are then spaced by ΔB = π m_e / (e · ToF), with ToF = √(2 d m_e / (eE)) ∝ 1/√V (d = 115.5 mm, E = V / 231 mm). Fine C (injection 10 mm, 100 kW, 5 G steps) gives:
+
+| Cage voltage | ToF | ΔB predicted | ΔB, Fine C zeros |
+|---:|---:|---:|---:|
+| 10 kV | 5.51 ns | 32.4 G | 30.9 G (10 zeros) |
+| 15 kV | 4.50 ns | 39.7 G | 39.1 G (7) |
+| 20 kV | 3.89 ns | 45.9 G | 45.7 G (6) |
+| 25 kV | 3.48 ns | 51.3 G | 51.7 G (5) |
+| 30 kV | 3.18 ns | 56.2 G | 55.1 G (5) |
+
+![Cyclotron-phase check](plots/csns_review_emode_cyclotron.png)
+
+**Figure 3.** Left: Fine C expansion vs B at 10 and 25 kV (100 kW) with the predicted zeros n · π m_e/(e · ToF) as dotted lines. Right: spacing between zero crossings vs cage voltage against π m_e/(e · ToF) ∝ √V.
+
+**Assessment.** The measured spacing follows the √V law to within 5 % at every voltage, with no free parameter. This confirms (i) that the oscillatory Δ(B) in Blocks A and C and in Fine C is the cyclotron phase of a quasi-impulsive kick, as described qualitatively in PRAB 22, 052801 and in the GSI/J-PARC "one gyration" tuning rule, and (ii) why the 1 % threshold cannot follow a monotone N^0.61 law: the envelope of the oscillation decays with B while its zeros move with V, so the last excursion beyond ±1 % (our threshold definition) jumps between lobes. At 25 kV the lobes are at 85, 140, 195, 240, 295 G with amplitudes 12.8, −3.9, 1.4, −0.9, 0.6 %; 300 G is the first field at which the envelope is ≤ 1 % for all powers, which is the origin of the recommendation. The same phase also explains the SC-off result of Block B: at 100 G the electron performs 0.98 gyrations in 3.5 ns, so the initial-velocity smear of 3.2 mm at 0 G collapses to 0.08 mm rms (measured 0.077 mm), independent of σ.
+
+### 2.4 Beam size and the initial-velocity term (Block B)
+
+- **Initial-velocity smear.** With space charge off and B = 0 the collected width exceeds the beam width by a σ-independent quadrature term σ_v = 3.24 ± 0.01 mm (extraction) and 2.91 ± 0.03 mm (injection), i.e. +48 % / +40 % at σ = 3 mm and +1.3 % / +1.0 % at 20 mm. Divided by the 3.5 ns ToF this is v_rms = 0.93 / 0.83 × 10⁶ m/s, or 2.5 / 2.0 eV per transverse axis — the low-energy peak of the Voitkiv H₂ DDCS used by both Virtual-IPM and the PRAB paper; the dependence on β (extraction electrons slightly hotter) is the expected DDCS projectile-velocity dependence.
+- **Vilsmeier initial-velocity term.** f/σ_t^e = 131 G (3 mm), 41 G (10 mm), 21 G (20 mm), 17 G (25 mm). Because the CSNS ToF is close to one cyclotron period at 100 G (Section 2.3), the SC-off residual is already 0.02–0.06 % at 100 G and ≤ 0.16 % at 300 G for every σ from 3 to 20 mm, well inside the fit's 1 % criterion; the fit was derived for a different gap/voltage and is conservative for CSNS.
+- **Residual space-charge distortion vs σ.** At 300 G and 100 kW the SC-on expansion stays within −0.34 … +1.53 % (extraction) and +0.09 … +0.98 % (injection) for 3 ≤ σ ≤ 20 mm, with the largest values at 3 mm; at 0.1 T all values are ≤ 0.05 %. The full PRAB fit gives B_min,1% = 320 G (extraction) and 200 G (injection) for 3 mm at 100 kW, so a residual just above 1 % at 300 G for the extraction beam and just below for injection is exactly what the fit predicts. For σ ≥ 4 mm the fit (≤ 240 G) and the simulation (|Δ| ≤ 0.5 % at 300 G) agree as well; the 3 mm extraction bunch field (peak ≈ 240 kV/m at 100 kW) exceeds the cage field, which is why this is the only Block B case needing the full 0.1 T.
+
+### 2.5 Beam offsets (Block D, Fine D)
+
+- **Vertical offsets (towards / away from the collector), Δy = ±10 mm in 1 mm steps.** At 300 G the expansion stays within |Δ| ≤ 0.65 % for both beams and both powers, and at 0.1 T within 0.05 %; at 0 G the extraction expansion changes by 0.85 % per mm (24.6 % at −10 mm to 41.7 % at +10 mm, 100 kW) because the electron stays longer in the bunch field when the beam is farther from the collector. The PRAB fit and the SNS/J-PARC design notes assume a centred beam; for CSNS at ≥ 300 G the assumption costs < 1 %.
+- **Centroid.** The space-charge-induced centroid shift along the measured axis is −0.89 / −0.37 / −0.24 / −0.07 mm at 100 / 200 / 300 / 1000 G (extraction, 100 kW), i.e. ∝ 1/B — the E × B / polarisation drift discussed in PRAB 22, 052801 — and roughly doubles at 500 kW (−0.59 mm at 300 G). It is independent of Δy to ± 0.02 mm and so is a fixed, correctable offset rather than a position error.
+
+### 2.6 Machine comparisons
 
 | Machine / paper | Beam and field | Reported distortion | CSNS this work |
 |---|---|---|---|
@@ -95,7 +125,7 @@ To test the Virtual-IPM numbers against this physics, `scripts/literature_compar
 | Ext. 10 mm | +32.6 / +33.5 % | +55.4 / +55.6 % | +50.2 / +49.9 % |
 | Inj. 10 mm, 5 → 30 kV | 391 / 395 % → 75 / 77 % | 226 / 227 % → 56 / 56 % | 220 / 221 % → 51 / 49 % |
 
-**Assessment.** Agreement is within ±1 % absolute for every point, including the counter-intuitive extraction ordering (heavy ions more distorted than H₂⁺). The Virtual-IPM ion-mode numbers are therefore exactly what the space-charge kick physics of the configured beams predicts; there is no numerical artefact. The agreement also means the reduced model can serve as a fast correction curve generator (Section 3.6).
+**Assessment.** Agreement is within ±1 % absolute for every point, including the counter-intuitive extraction ordering (heavy ions more distorted than H₂⁺). The Virtual-IPM ion-mode numbers are therefore exactly what the space-charge kick physics of the configured beams predicts; there is no numerical artefact. The agreement also means the reduced model can serve as a fast correction curve generator (Section 3.7).
 
 ### 3.3 Cage voltage and beam power
 
@@ -126,7 +156,13 @@ Aligned vs as-run expansions at 0 G, 100 kW, 25 kV (reduced model; Virtual-IPM i
 
 The as-run / aligned pair is written to `output/csns_imode_kick_model.csv` by `scripts/literature_compare.py`.
 
-### 3.6 Correction strategies in the literature
+### 3.6 Beam size and offset scaling (ion Blocks B and D)
+
+- **Size.** Between σ₀ = 5 and 20 mm at 0 G / 100 kW the expansion falls as σ₀^−1.98 (H₂O⁺, inj.), σ₀^−2.01 (N₂⁺, inj.), σ₀^−1.92 / σ₀^−1.87 (H₂O⁺ / N₂⁺, ext.) and σ₀^−1.84 (H₂⁺, inj.). Shiltsev's impulsive kick Δvₓ ∝ x₀/σ₀² gives h − 1 ∝ N/σ₀² in the linear regime, i.e. exponent −2, whereas the continuous (long-bunch) regime gives σ₀^−1.5. CSNS heavy ions are therefore firmly in the impulsive regime even at injection (τ₀ = 220–275 ns > σₜ = 120 ns); H₂⁺ at injection (−1.84) starts to feel the finite bunch length, and the mis-timed extraction H₂⁺ (σ₀^−0.91, Section 3.5) does not follow either law because the ion has already left the beam when the kick arrives. At 3 mm the expansions reach +480 to +840 % (mis-timed extraction H₂⁺: +70 %), the ion-mode equivalent of the "500 kW never flips" e-mode result: the profile fills the cage.
+- **Vertical offset.** Moving the beam Δy = ±5 mm changes the ion drift length d = 115.5 mm and thus the transit time τ₂ ∝ √d. With σ_m² − σ₀² ∝ τ₂² ∝ d the predicted expansions for all six species/beam cases agree with Virtual-IPM to within 0.5 % absolute (e.g. H₂⁺ injection: 89.2 / 92.0 / 94.7 % simulated vs 88.9 / — / 95.0 % predicted for Δy = −5 / 0 / +5 mm; H₂O⁺ extraction 54.0 / 55.6 / 57.2 vs 53.6 / — / 57.6 %). Shiltsev's √(d/σ₀) factor in h is the same dependence in the continuous limit. The ion centroid does not move (< 0.02 mm).
+- **Horizontal offset.** Δx = 5 and 10 mm along the measured axis leaves the expansion unchanged to 0.1 % at 100 kW for all species and the centroid within 0.01 mm: the kick is centred on the beam, so the ISIS statement that a linear scaling correction holds "within ≈ 10 mm of the axis" is reproduced. At 500 kW the H₂⁺ centroid is pulled back by −2.0 / −4.1 mm for Δx = 5 / 10 mm because the +420 % profile (σ_m ≈ 52 mm) is clipped asymmetrically by the 110 mm half-cage; this is an aperture effect, not space charge, and would appear as a position error in an uncorrected ion-mode measurement at high power.
+
+### 3.7 Correction strategies in the literature
 
 - **Analytic inversion (Fermilab Booster).** Shiltsev inverts σ_m = σ₀ h(σ₀, N, V₀, D, d) turn by turn using the DCCT intensity; the correction is ≈ 15 % early in the cycle and ≈ 2× at 8 GeV, and reaches 5–10 % accuracy on σ₀. CSNS has the same inputs (bunch charge, cage voltage, geometry) plus species-resolved ToF peaks, so a per-species inversion is possible. Because CSNS is in the mixed regime (Section 3.1), the inversion should use a numerically generated h(σ₀, N, V, species) table — the reduced model or Virtual-IPM itself — rather than the closed form.
 
@@ -162,7 +198,53 @@ The last two decades of IPM work fall into three overlapping threads: **magnetic
 
 ---
 
-## 5. Modelling assumptions versus the literature
+## 5. Comparison matrix
+
+Every simulated block is listed against the published prediction it was checked with. "Verdict" uses: **agrees** (quantitative, within the stated tolerance), **consistent** (same sign, order of magnitude or trend, no closed-form prediction), **partial** (agreement with an identified reason for the residual), **open** (no published benchmark, or the check needs data not in this campaign). Numbers are 100 kW unless stated.
+
+**Electron mode**
+
+| Simulated result | Literature prediction | Virtual-IPM | Verdict |
+|---|---|---|---|
+| Block A: 1 % threshold, 6 families (§2.1) | PRAB 22 Eq. (8): 24–181 G | 105–290 G | partial — 1.1–4×, oscillatory threshold definition and β < 0.99 |
+| Block A: threshold vs power (§2.1) | Eq. (8): ∝ N^0.61, ×2.7 for 100 → 500 kW | flat or falling (210 → 190 G) | partial — lobe structure, not a monotone law |
+| Block A/C: trapping at 500 kW (§2.2) | electrons trapped when E_bunch > E_cage | 145–363 kV/m vs 108 kV/m; never flips | consistent |
+| Block C, 0 G: sign vs intensity (§2.2) | GSI DIPAC'11: electrons shrink without B; J-PARC HB2010: 2× shrink | −48 % (100 kW) → +80 % (500 kW) | consistent |
+| Fine C: zeros of Δ(B) (§2.3) | ΔB = π m_e/(e ToF) ∝ √V, no free parameter | 30.9 / 39.1 / 45.7 / 51.7 / 55.1 G vs 32.4 / 39.7 / 45.9 / 51.3 / 56.2 G | agrees, ≤ 5 % |
+| Block B, SC-off 0 G smear (§2.4) | Voitkiv DDCS: few-eV electrons | σ_v = 2.9 / 3.2 mm ⇒ 2.0 / 2.5 eV per axis | consistent |
+| Block B, SC-off with B (§2.4) | Eq. (8) initial-velocity term 17–131 G | ≤ 0.16 % at 300 G for all σ; 0.077 mm rms at 100 G = (v/ω) sin(ω ToF) | agrees |
+| Block B, 3 mm at 300 G (§2.4) | Eq. (8): 320 G (ext.), 200 G (inj.) | +1.5 % (ext.), +1.0 % (inj.) at 300 G; ≤ 0.05 % at 0.1 T | agrees |
+| Block B, σ ≥ 4 mm at 300 G (§2.4) | Eq. (8): ≤ 240 G | Δ within ±0.5 % | agrees |
+| Fine D: Δy = ±10 mm at 300 G (§2.5) | centred-beam assumption (PRAB, SNS) | Δ within ±0.65 %; 0.85 %/mm at 0 G | agrees — assumption costs < 1 % |
+| Fine D: centroid shift (§2.5) | E × B / polarisation drift ∝ 1/B | −0.89 / −0.37 / −0.24 / −0.07 mm at 100 / 200 / 300 / 1000 G | consistent |
+| 300 G recommendation (§2.6) | SNS 300 G ≈ 7 % at 25× the charge; PS 200 mT < 2.5 % | ≲ 1 % all families | consistent |
+| Field non-uniformity, MCP, secondaries (§2.6) | J-PARC 2× shrink; CSNS IBIC'24–26 | not modelled | open — needs the CSNS field map |
+| Low-β benchmark (§2.1) | none published for β ≈ 0.4 | injection thresholds 105–290 G | open |
+
+**Ion mode**
+
+| Simulated result | Literature prediction | Virtual-IPM | Verdict |
+|---|---|---|---|
+| Block A, 0 G, 3 species × 3 beams (§3.2) | reduced line-charge kick model (Shiltsev-type) | 9 cases within ±1 % absolute | agrees |
+| Block A: species ordering (§3.1) | impulsive: ∝ M^−1/2; continuous: species-independent | inj. +92 / +65 / +56 % (H₂⁺ / H₂O⁺ / N₂⁺) | consistent — mixed regime |
+| Block C: cage voltage (§3.3) | ISIS: broadening ∝ 1/E | V^−0.92 (H₂⁺), V^−0.77 (H₂O⁺) | agrees |
+| Block C: power (§3.3) | Shiltsev h − 1 ∝ N (+ second order) | P^1.12, saturating on the cage at 500 kW | agrees |
+| Block A: B dependence (§3.4) | cyclotron phase ω_c τ₂ ≲ 1 rad ⇒ sin x / x | 92 → 82 % (H₂⁺, 0.1 T), < 1 % change for heavy ions | agrees |
+| Block B: size (§3.6) | impulsive ⇒ σ₀^−2; continuous ⇒ σ₀^−1.5 | σ₀^−1.84 … −2.01 (aligned cases) | agrees — impulsive regime |
+| Block D: Δy = ±5 mm (§3.6) | σ_m² − σ₀² ∝ d (τ₂ ∝ √d) | 6 cases within 0.5 % absolute | agrees |
+| Block D: Δx = 5, 10 mm (§3.6) | ISIS: linear correction within 10 mm of axis | width unchanged (0.1 %), centroid < 0.01 mm at 100 kW; −2 / −4 mm aperture pull at 500 kW | agrees at 100 kW; aperture effect at 500 kW |
+| Ext. H₂⁺ as-run (§3.5) | aligned model: ≈ +100 % | +33.5 % (125 ns generation lag) | partial — configuration artefact, lower bound |
+| Ion-mode bias magnitude (§3.3) | J-PARC 20–30 % wider; Booster 15 % → 2× | +9 … +92 % (100 kW); up to +422 % (500 kW) | consistent |
+| ESS ion-mode choice (§3.3) | ions < 5 % at 300 kV/m, 1.5 × 10⁹ p | 10 % bias would need ≈ 380 kV at CSNS | consistent — opposite conclusion because N differs by 5000× |
+| Dissociation energy, MCP window (§6) | ≈ 1 mm quadrature (Shiltsev); 30 × 80 mm MCP | not modelled | open — negligible / detector-level |
+
+The numbers behind the Fine C, Block B and ion Block B/D rows are written to `output/csns_review_scaling_checks.csv` by `python3 scripts/literature_compare.py --checks-only` (summary CSVs only).
+
+**Reading the matrix.** Twelve of the twenty-six rows are quantitative agreements with a published or first-principles prediction, eight are consistent in sign and magnitude with operational reports, three are partial, and the three open rows all concern hardware that the tracking does not include (field map, detector) or the absence of a low-β benchmark. The two "partial" e-mode rows share one cause — the oscillatory Δ(B) that Section 2.3 now pins to the cyclotron phase — and the partial ion row is the extraction timing artefact of Section 3.5.
+
+---
+
+## 6. Modelling assumptions versus the literature
 
 | Assumption here | Literature practice | Impact |
 |---|---|---|
@@ -175,7 +257,7 @@ The last two decades of IPM work fall into three overlapping threads: **magnetic
 
 ---
 
-## 6. References
+## 7. References
 
 Papers are grouped by laboratory. Within each group the order is chronological.
 

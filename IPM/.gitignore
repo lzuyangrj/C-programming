@@ -26,6 +26,7 @@ output/imode/*.csv
 !output/csns_imode_voltage_summary.csv
 !output/csns_imode_offset_summary.csv
 !output/csns_imode_kick_model.csv
+!output/csns_review_scaling_checks.csv
 plots/*.png
 !plots/csns_space_charge_impact.png
 !plots/csns_space_charge_impact_sig10.png
@@ -54,6 +55,7 @@ plots/*.png
 !plots/csns_imode_offset.png
 !plots/csns_review_emode_bmin.png
 !plots/csns_review_imode_model.png
+!plots/csns_review_emode_cyclotron.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml
