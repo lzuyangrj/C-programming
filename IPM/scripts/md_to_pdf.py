@@ -281,10 +281,9 @@ def render(pdf: ReportPDF, blocks: list[tuple[str, object]], root: Path) -> None
             for ri, row in enumerate(rows):
                 # wrap estimate
                 max_lines = 1
-                wrapped = []
+                pdf.set_font("DejaVu", "B" if ri == 0 else "", 7.4)
                 for cell in row:
-                    lines = pdf.multi_cell(col_w, line_h, cell, dry_run=True, output="LINES")
-                    wrapped.append(cell)
+                    lines = pdf.multi_cell(col_w - 1.2, line_h, cell, dry_run=True, output="LINES")
                     max_lines = max(max_lines, len(lines))
                 need = max_lines * line_h + 1.2
                 if pdf.get_y() + need > pdf.h - 16:
