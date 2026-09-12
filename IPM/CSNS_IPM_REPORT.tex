@@ -47,9 +47,11 @@ voltage from $5$ to $30\,\mathrm{kV}$ reduces but does not remove the
 bias. The residual-gas species is identified in the time-of-flight
 spectrum; the true size is then recovered from one peak
 ($\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$) by inverting a
-look-up of the expansion against bunch charge and cage voltage. The
-recommended operating point is electron collection at
-$B\gtrsim 300\,\mathrm{G}$.
+look-up of the expansion against bunch charge and cage voltage. At
+$100\,\mathrm{kW}$ that invert returns an $8$--$20\,\mathrm{mm}$ beam
+to $0.2\%$ at injection ($80\,\mathrm{MeV}$) and $0.1\%$ at aligned
+extraction ($1.6\,\mathrm{GeV}$). The recommended operating point is
+electron collection at $B\gtrsim 300\,\mathrm{G}$.
 \end{abstract}
 
 \keywords{ionization profile monitor; space charge; CSNS RCS;
@@ -734,8 +736,11 @@ return $\sigma_0$. Cage voltage and a BPM $\Delta y$ enter as
 parameters of the same table ($\Delta\propto 1/V$ and
 $\sigma_m^2-\sigma_0^2\propto d$, Sections~\ref{sec:V}
 and~\ref{sec:off}). The extraction column must be the aligned
-generation (Fig.~\ref{fig:align}; $\mathrm{H}_2^+$ $+104\%$ at
-$10\,\mathrm{mm}$, $100\,\mathrm{kW}$), not the v1 as-run $+33.5\%$.
+generation (Fig.~\ref{fig:align}): at $10\,\mathrm{mm}$,
+$100\,\mathrm{kW}$, $0\,\mathrm{G}$, $25\,\mathrm{kV}$ the aligned
+expansions are $+104.1\%$ ($\mathrm{H}_2^+$), $+40.8\%$
+($\mathrm{H}_2\mathrm{O}^+$) and $+40.0\%$ ($\mathrm{N}_2^+$), not
+the v1 as-run $\mathrm{H}_2^+$ $+33.5\%$.
 
 \begin{figure}[ht]
 \centering
@@ -784,19 +789,54 @@ wall-clipped families.}
 \label{fig:invr}
 \end{figure}
 
-Aligned extraction at $100\,\mathrm{kW}$ has the same fold
-($\mathrm{H}_2\mathrm{O}^+$ minimum $12.7\,\mathrm{mm}$ at
-$7\,\mathrm{mm}$; $\mathrm{N}_2^+$ $11.9\,\mathrm{mm}$ at
-$5\,\mathrm{mm}$). The $10\,\mathrm{mm}$ design size is already on
-the rising branch ($\sigma_m=14.1$ and $14.0\,\mathrm{mm}$). The I1
-size grid is too coarse
-($3$, $5$, $7$, $10$, $15$, $20$, $25\,\mathrm{mm}$) for a
-leave-one-out invert at the $0.2\%$ injection level; a production
-table should be filled at $1\,\mathrm{mm}$ in $\sigma_0$, as Block~B
-already is at injection. Field-cage non-uniformity---J-PARC reported a
+The same invert is applied to aligned extraction
+($1.6\,\mathrm{GeV}$, $\beta=0.929$, $\sigma_t=20\,\mathrm{ns}$,
+generation centre $=4\sigma_t=80\,\mathrm{ns}$).
+Figure~\ref{fig:invx}(a) is the $1\,\mathrm{mm}$ I2 fill-in at
+$100\,\mathrm{kW}$, $25\,\mathrm{kV}$, $B=0$
+($\sigma_0=3$--$20\,\mathrm{mm}$ plus the existing $25\,\mathrm{mm}$
+point). Each heavy-ion curve has a minimum
+($\mathrm{H}_2\mathrm{O}^+$: $\sigma_m=12.66\,\mathrm{mm}$ at
+$\sigma_0=6\,\mathrm{mm}$; $\mathrm{N}_2^+$:
+$11.89\,\mathrm{mm}$ at $6\,\mathrm{mm}$). The $10\,\mathrm{mm}$
+design size sits on the rising branch
+($\sigma_m=14.11$ and $14.03\,\mathrm{mm}$;
+$\mathrm{d}\sigma_m/\mathrm{d}\sigma_0\simeq 0.65$ and $0.73$),
+steeper than the injection $10\,\mathrm{mm}$ slopes
+($0.36$ and $0.42$). $\mathrm{H}_2^+$ remains the poorly conditioned
+alternative: its minimum is at the design size itself
+($20.45\,\mathrm{mm}$ at $10\,\mathrm{mm}$) and the coarse I1
+points are not inverted.
+
+Panel~(b): leave-one-out on $\sigma_0\ge\sigma_0^*$ recovers
+$8$--$20\,\mathrm{mm}$ to a median $0.10\%$
+($\mathrm{H}_2\mathrm{O}^+$) and $0.09\%$ ($\mathrm{N}_2^+$),
+maxima $2.8\%$ and $1.4\%$ at the fold ($8\,\mathrm{mm}$). The
+$10\,\mathrm{mm}$ design point returns $9.94\,\mathrm{mm}$
+($\mathrm{H}_2\mathrm{O}^+$) and $9.97\,\mathrm{mm}$
+($\mathrm{N}_2^+$). A $5\,\mathrm{mm}$ beam has no root on
+$\sigma_0\ge 6\,\mathrm{mm}$. Other I2 powers
+($20$--$80$, $150$--$500\,\mathrm{kW}$) remain on the
+$5\,\mathrm{mm}$ size grid and are not quoted as a
+$0.1\%$ invert. Field-cage non-uniformity---J-PARC reported a
 factor-of-two shrink from the external map
 alone~\cite{Satou2010}---is not in the table and will have to be folded
 in once the CSNS measured map is available.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_imode_inversion_extraction.png}
+\caption{Aligned extraction, $100\,\mathrm{kW}$, $25\,\mathrm{kV}$,
+$B=0$, $1.6\,\mathrm{GeV}$.
+(a)~Collected $\sigma_m$ versus true $\sigma_0$ on the $1\,\mathrm{mm}$
+I2 grid. Dotted lines are the $\mathrm{H}_2\mathrm{O}^+$ and
+$\mathrm{N}_2^+$ widths of a $10\,\mathrm{mm}$ beam ($14.11$ and
+$14.03\,\mathrm{mm}$). $\mathrm{H}_2^+$ is the coarse I1 curve.
+(b)~Leave-one-out invert of the identified $\mathrm{H}_2\mathrm{O}^+$
+or $\mathrm{N}_2^+$ table on $\sigma_0\ge\sigma_0^*$. Grey squares:
+uncorrected $\mathrm{N}_2^+$ $\sigma_m$.}
+\label{fig:invx}
+\end{figure}
 
 \begin{figure}[ht]
 \centering
@@ -816,8 +856,8 @@ $300\,\mathrm{G}$ is the only mitigation that returns a faithful
 electron size. Cage voltage reduces the ion bias but does not bring an
 uncorrected $10\,\mathrm{mm}$, $100\,\mathrm{kW}$ profile to the
 $10\%$ level. An identified $\mathrm{H}_2\mathrm{O}^+$ or
-$\mathrm{N}_2^+$ invert does, at $100$--$300\,\mathrm{kW}$, provided
-the ions stay inside the cage.
+$\mathrm{N}_2^+$ invert does, at injection and at aligned extraction,
+provided the ions stay inside the cage.
 
 \begin{table}[ht]
 \centering
@@ -847,7 +887,9 @@ Invert $\sigma_m=\sigma_0\,h(\sigma_0,N,V)$
   & unnecessary at $\ge 300\,\mathrm{G}$
   & identify $\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$;
     that peak recovers $\sigma_0$ to $0.2\%$
-    (inj.\ $100\,\mathrm{kW}$, $8$--$20\,\mathrm{mm}$);
+    (inj.\ $100\,\mathrm{kW}$, $8$--$20\,\mathrm{mm}$)
+    and $0.1\%$ (aligned ext.\ $100\,\mathrm{kW}$,
+    $8$--$20\,\mathrm{mm}$);
     $\mathrm{H}_2^+$ is poorly conditioned at $10\,\mathrm{mm}$;
     fails at the wall ($P\gtrsim 400\,\mathrm{kW}$) \\
 \hline\hline
@@ -875,10 +917,13 @@ $\sigma_m>\sigma_0$. The inflation scales as $N/\sigma_0^2$
 $1\%$. Raising the cage voltage cannot bring a $10\,\mathrm{mm}$,
 $100\,\mathrm{kW}$ ion profile to the $10\%$ level. A look-up
 inversion of one identified species ($\mathrm{H}_2\mathrm{O}^+$ or
-$\mathrm{N}_2^+$) recovers $\sigma_0$ to $0.2\%$ at
-$100\,\mathrm{kW}$ on $\sigma_0=8$--$20\,\mathrm{mm}$, provided the
-profile has not reached the wall. $\mathrm{H}_2^+$ is not used for
-the size.
+$\mathrm{N}_2^+$) recovers $\sigma_0$ to $0.2\%$ at injection and
+$0.1\%$ at aligned extraction, both at $100\,\mathrm{kW}$ on
+$\sigma_0=8$--$20\,\mathrm{mm}$, provided the profile has not
+reached the wall. $\mathrm{H}_2^+$ is not used for the size. The
+extraction column is the aligned generation
+($+104.1\%/\!+40.8\%/\!+40.0\%$ at $10\,\mathrm{mm}$), not the
+v1 as-run $+33.5\%$.
 
 The recommended operating point is therefore electron collection at
 $B\gtrsim 300\,\mathrm{G}$. Ion time-of-flight identifies the residual

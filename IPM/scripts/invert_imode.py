@@ -223,7 +223,7 @@ def plot_extraction(ext: dict) -> Path:
     ax1.set_xlabel(r"true $\sigma_0$ [mm]")
     ax1.set_ylabel(r"collected $\sigma_m$ [mm]")
     ax1.set_xlim(2.5, 20.5)
-    ax1.set_ylim(10, 30)
+    ax1.set_ylim(11, 29)
     ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
     ax1.legend(fontsize=11, loc="upper right")
 
@@ -238,9 +238,9 @@ def plot_extraction(ext: dict) -> Path:
     ax2.set_xlabel(r"true $\sigma_0$ [mm]")
     ax2.set_ylabel(r"recovered $\sigma_0$ [mm]")
     ax2.set_xlim(2.5, 20.5)
-    ax2.set_ylim(2.5, 30)
+    ax2.set_ylim(2.5, 28)
     ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
-    ax2.legend(fontsize=10, loc="upper left")
+    ax2.legend(fontsize=10, loc="lower right")
     fig.tight_layout()
     path = PLOTS / "csns_imode_inversion_extraction.png"
     fig.savefig(path, dpi=200)
@@ -251,12 +251,14 @@ def plot_extraction(ext: dict) -> Path:
 def plot_extraction_power(ext: dict) -> Path | None:
     """Identified-species residual versus σ₀ at extraction powers that have a table."""
     powers = sorted({p for (slug, p) in ext if slug in ("h2o_ions", "n2_ions")})
+    # Only quote tables with a 1 mm-class grid; the coarse I2 5 mm
+    # powers are kept in the CSV but are not a 0.2% invert.
     usable = [
         p
         for p in powers
         if ("h2o_ions", p) in ext
         and ("n2_ions", p) in ext
-        and len(ext[("n2_ions", p)]["sigma0"]) >= 4
+        and len(ext[("n2_ions", p)]["sigma0"]) >= 10
     ]
     if not usable:
         return None
