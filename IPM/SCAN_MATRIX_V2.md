@@ -1,6 +1,6 @@
 # CSNS RCS IPM — revised scan matrix (v2), derived from the literature review
 
-**Status: plan only.** Nothing in this document has been generated or launched. The point list is enumerated by `python3 scripts/scan_matrix_v2.py` (counts + `output/csns_scan_matrix_v2.csv`), which writes no XML. The executed v1 campaign (e-mode 2502 + fine C/D 3555 runs, ion mode 2070 runs) stays as it is; no existing CSV is re-run.
+**Status: executing.** XMLs are written by `python3 scripts/write_v2_configs.py --write` (reuse rows skipped; extraction ions abort if generation and first-bunch centres differ by more than 1 ns). Run with `JOBS=4 ./scripts/run_v2.sh` (SKIP-if-exists). The executed v1 campaign stays as it is; no existing v1 CSV is re-run.
 
 **Source.** Every change below is traced to a section of [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) (the comparison matrix in its Section 5 in particular). The v1 matrices are described in `configs/csns_rcs_ipm/emode/README.md` and `configs/csns_rcs_ipm/imode/README.md`.
 

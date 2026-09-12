@@ -63,4 +63,7 @@ configs/csns_rcs_ipm/ionsize/*.xml
 configs/csns_rcs_ipm/emode/*.xml
 configs/csns_rcs_ipm/imode/*.xml
 !configs/csns_rcs_ipm/imode/README.md
+configs/csns_rcs_ipm/v2/*.xml
+output/v2/*.csv
+!output/csns_v2_summary.csv
 *.log
