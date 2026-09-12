@@ -265,42 +265,38 @@ def plot_size_expansion(rows: list[dict], plot_dir: Path) -> None:
 
 
 def plot_voltage(rows: list[dict], plot_dir: Path) -> None:
-    fig, axes = plt.subplots(3, 2, figsize=(11.0, 10.0), sharey=True)
-    for row_i, species in enumerate(SPECIES_SLUGS):
-        for col_i, power_kw in enumerate(IMODE_CHECK_POWERS_KW):
-            ax = axes[row_i, col_i]
-            for v_kv in IMODE_VOLTAGES_KV:
-                series = sorted(
-                    (
-                        r
-                        for r in rows
-                        if r["species"] == species
-                        and r["voltage_kv"] == v_kv
-                        and r["power_kw"] == power_kw
-                    ),
-                    key=lambda r: r["b_gs"],
-                )
-                if not series:
-                    continue
-                ax.plot(
-                    [r["b_gs"] for r in series],
-                    [r["expansion_vs_no_sc_pct"] for r in series],
-                    "o-",
-                    ms=4,
-                    lw=1.1,
-                    label=f"{v_kv} kV",
-                )
-            ax.axhline(0.0, color="0.5", lw=0.8)
-            ax.set_title(f"{SPECIES_LABELS[species]}, {power_kw} kW", fontsize=9)
-            ax.set_xticks(IMODE_B_GS)
-            ax.set_xticklabels([str(b) for b in IMODE_B_GS])
-            ax.grid(True, alpha=0.3)
-            if row_i == 0 and col_i == 1:
-                ax.legend(fontsize=7, title="cage V")
-            if row_i == 2:
-                ax.set_xlabel("B [G]")
-            if col_i == 0:
-                ax.set_ylabel("Expansion vs no SC [%]")
+    """Expansion versus cage voltage at B = 0 (ion mode does not use B)."""
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.6), sharex=True)
+    for ax, power_kw in zip(axes, IMODE_CHECK_POWERS_KW):
+        for species in SPECIES_SLUGS:
+            series = sorted(
+                (
+                    r
+                    for r in rows
+                    if r["species"] == species
+                    and r["power_kw"] == power_kw
+                    and r["b_gs"] == 0
+                ),
+                key=lambda r: r["voltage_kv"],
+            )
+            if not series:
+                continue
+            ax.plot(
+                [r["voltage_kv"] for r in series],
+                [r["expansion_vs_no_sc_pct"] for r in series],
+                "o-",
+                ms=5,
+                lw=1.3,
+                label=SPECIES_LABELS[species],
+            )
+        ax.axhline(0.0, color="0.5", lw=0.8)
+        ax.set_title(f"{power_kw} kW", fontsize=11)
+        ax.set_xlabel("cage voltage [kV]")
+        ax.set_xticks(IMODE_VOLTAGES_KV)
+        ax.grid(True, alpha=0.3)
+        if power_kw == IMODE_CHECK_POWERS_KW[0]:
+            ax.set_ylabel(r"$\Delta$ [\%]")
+            ax.legend(fontsize=9)
     fig.tight_layout()
     fig.savefig(plot_dir / "csns_imode_voltage.png", dpi=150)
     print(f"Wrote {plot_dir / 'csns_imode_voltage.png'}")

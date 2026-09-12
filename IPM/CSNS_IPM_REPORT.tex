@@ -530,48 +530,70 @@ $1\%$, so the voltage may be chosen for collection efficiency and
 detector operation.
 
 For ions, a higher $V$ shortens $\tau_2$ and reduces the integrated
-kick, as at ISIS (broadening $\propto 1/E$)~\cite{Pine2006}.
-Table~\ref{tab:iV} gives $\mathrm{H}_2^+$ at injection,
-$10\,\mathrm{mm}$, $100\,\mathrm{kW}$ and $0.1\,\mathrm{T}$. Aligned
-extraction $\mathrm{H}_2^+$ ($10\,\mathrm{mm}$, $100\,\mathrm{kW}$,
-$0\,\mathrm{G}$) falls from $+280\%$ at $5\,\mathrm{kV}$ to
-$+104\%$ at $25\,\mathrm{kV}$ and $+93\%$ at $30\,\mathrm{kV}$. The
-$0\,\mathrm{G}$ scan scales as $V^{-0.92}$ ($\mathrm{H}_2^+$) and
-$V^{-0.77}$ ($\mathrm{H}_2\mathrm{O}^+$). Extrapolating
-$V^{-0.9}$, a $10\%$ bias on the $10\,\mathrm{mm}$ injection beam at
-$100\,\mathrm{kW}$ would require approximately $380\,\mathrm{kV}$
-across the cage, which is not a practical path. ESS can operate an ion
-IPM at $300\,\mathrm{kV\,m^{-1}}$ because its bunches are weaker by
-about $5000$~\cite{Marroncle2023}; that choice does not transfer to
-CSNS. Figure~\ref{fig:iV} shows that the ion expansion remains positive
-at every scanned voltage.
+kick, as at ISIS (broadening $\propto 1/E$)~\cite{Pine2006}. The
+relevant ion-mode scan is therefore $\Delta(V)$, not $\Delta(B)$:
+even at the design $0.1\,\mathrm{T}$ the ion cyclotron phase is
+$\omega_c\tau_2\lesssim 1\,\mathrm{rad}$, so a guiding field is not a
+size correction.
+
+Figure~\ref{fig:iV} is that voltage scan for the three
+time-of-flight-resolved species on the $10\,\mathrm{mm}$ injection
+beam at $100\,\mathrm{kW}$ and $B=0$. Curves are the line-charge kick
+model at $1\,\mathrm{kV}$ steps from $5$ to $30\,\mathrm{kV}$; markers
+are the Virtual-IPM Block~C points on the $5\,\mathrm{kV}$ grid. The
+model tracks every marker to $\le 4\%$ relative ($\le 4$ points
+absolute). Expansion remains positive at every voltage: from $5$ to
+$30\,\mathrm{kV}$, $\mathrm{H}_2^+$ falls from $+395\%$ to $+77\%$,
+$\mathrm{H}_2\mathrm{O}^+$ from $+227\%$ to $+56\%$, and
+$\mathrm{N}_2^+$ from $+221\%$ to $+49\%$ (Table~\ref{tab:iV}). The
+Virtual-IPM points scale as $V^{-0.92}$ ($\mathrm{H}_2^+$),
+$V^{-0.77}$ ($\mathrm{H}_2\mathrm{O}^+$) and $V^{-0.83}$
+($\mathrm{N}_2^+$). Aligned extraction $\mathrm{H}_2^+$
+($10\,\mathrm{mm}$, $100\,\mathrm{kW}$) falls from $+280\%$ at
+$5\,\mathrm{kV}$ to $+104\%$ at $25\,\mathrm{kV}$ and $+93\%$ at
+$30\,\mathrm{kV}$. Extrapolating $V^{-0.92}$ from the $25\,\mathrm{kV}$
+injection point, a $10\%$ bias would require approximately
+$280\,\mathrm{kV}$ across the cage, which is not a practical path. ESS
+can operate an ion IPM at $300\,\mathrm{kV\,m^{-1}}$ because its
+bunches are weaker by about $5000$~\cite{Marroncle2023}; that choice
+does not transfer to CSNS.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.92\textwidth]{csns_imode_voltage.png}
+\caption{Ion-mode expansion versus cage voltage for
+$\mathrm{H}_2^+$, $\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$
+(injection $10\,\mathrm{mm}$, $100\,\mathrm{kW}$, $B=0$). Curves: kick
+model at $1\,\mathrm{kV}$ steps. Markers: Virtual-IPM. Guiding $B$ is
+not scanned.}
+\label{fig:iV}
+\end{figure}
 
 \begin{table}[ht]
 \centering
-\caption{$\mathrm{H}_2^+$ injection, $10\,\mathrm{mm}$,
-$100\,\mathrm{kW}$, $0.1\,\mathrm{T}$: expansion versus cage voltage.}
+\caption{Ion-mode expansion versus cage voltage at $B=0$
+(injection $10\,\mathrm{mm}$, $100\,\mathrm{kW}$). Virtual-IPM
+Block~C.}
 \label{tab:iV}
+{\small
 \begin{tabular}{lcccccc}
 \hline\hline
 $V$\,(kV) & 5 & 10 & 15 & 20 & 25 & 30 \\
 \hline
-$\Delta$\,(\%) & $+198$ & $+168$ & $+126$ & $+100$ & $+82$ & $+70$ \\
+$\mathrm{H}_2^+$
+  & $+395$ & $+229$ & $+153$ & $+115$ & $+92$ & $+77$ \\
+$\mathrm{H}_2\mathrm{O}^+$
+  & $+227$ & $+126$ & $+94$ & $+77$ & $+65$ & $+56$ \\
+$\mathrm{N}_2^+$
+  & $+221$ & $+110$ & $+81$ & $+66$ & $+56$ & $+49$ \\
 \hline\hline
 \end{tabular}
+}
 \end{table}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.98\textwidth]{csns_imode_voltage.png}
-\caption{Ion-mode expansion versus guiding field at cage voltages from
-$5$ to $30\,\mathrm{kV}$ (injection $10\,\mathrm{mm}$). Expansion
-remains positive at every $V$.}
-\label{fig:iV}
-\end{figure}
-
 Voltage is therefore a useful lever on the ion bias (a factor of about
-three from $5$ to $30\,\mathrm{kV}$) but not a substitute for
-correction or for electron-mode operation.
+five for $\mathrm{H}_2^+$ from $5$ to $30\,\mathrm{kV}$) but not a
+substitute for correction or for electron-mode operation.
 
 \subsection{Closed-orbit offset}
 \label{sec:off}
@@ -653,8 +675,9 @@ Design $B=0.1\,\mathrm{T}$
   & --- \\
 Raise $V$ ($5\to 30\,\mathrm{kV}$)
   & not a size fix at $B=0$; unused once $B\ge 300\,\mathrm{G}$
-  & $+198\%\to +70\%$ ($\mathrm{H}_2^+$, inj.\ $10\,\mathrm{mm}$,
-    $100\,\mathrm{kW}$); $10\%$ would require $\sim 380\,\mathrm{kV}$ \\
+  & $+395\%\to +77\%$ ($\mathrm{H}_2^+$, inj.\ $10\,\mathrm{mm}$,
+    $100\,\mathrm{kW}$, $B=0$); $10\%$ would require
+    $\sim 280\,\mathrm{kV}$ \\
 Orbit $\lesssim 10\,\mathrm{mm}$
   & $300\,\mathrm{G}$ still $\lesssim 1\%$
   & $\Delta x$: none; $\Delta y$: a few percent \\

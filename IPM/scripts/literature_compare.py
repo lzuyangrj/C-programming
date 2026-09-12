@@ -455,6 +455,86 @@ def plot_cyclotron(rows: list[dict]) -> Path:
     return path
 
 
+def evaluate_imode_voltage_1kv(n_particles: int) -> list[dict]:
+    """Kick-model Δ(V) at 1 kV steps, 0 G, injection 10 mm, 100 kW.
+
+    Virtual-IPM Block C anchors the 5 kV grid. B is not scanned: ion
+    cyclotron phase is ω_c τ ≲ 1 rad even at 0.1 T, so Δ(V) is the
+    relevant ion-mode lever.
+    """
+    rng = np.random.default_rng(1)
+    volt = load_summary(OUT / "csns_imode_voltage_summary.csv")
+    voltages = list(range(5, 31))
+    rows: list[dict] = []
+    for slug, lab, mass_u in SPECIES:
+        sim_by_v = {
+            int(r["voltage_kv"]): float(r["expansion_vs_no_sc_pct"])
+            for r in volt
+            if r["species"] == slug and r["power_kw"] == 100 and r["b_gs"] == 0
+        }
+        for v in voltages:
+            model = kick_model(N_100KW, "injection", 10e-3, mass_u, v * 1e3, n_particles, rng) * 100
+            sim = sim_by_v.get(v)
+            rows.append(
+                dict(
+                    species=slug,
+                    species_label=lab,
+                    voltage_kv=v,
+                    model_pct=round(model, 2),
+                    virtual_ipm_pct="" if sim is None else round(sim, 2),
+                )
+            )
+            mark = f"  VIPM {sim:6.1f}%" if sim is not None else ""
+            print(f"  {lab:5s} {v:2d} kV  model {model:6.1f}%{mark}")
+    path = OUT / "csns_imode_voltage_1kv.csv"
+    keys = ["species", "species_label", "voltage_kv", "model_pct", "virtual_ipm_pct"]
+    with path.open("w") as fh:
+        fh.write(",".join(keys) + "\n")
+        for r in rows:
+            fh.write(",".join(str(r[k]) for k in keys) + "\n")
+    print("wrote", path)
+    return rows
+
+
+def plot_imode_voltage_scan(rows: list[dict]) -> Path:
+    """Fig. 9: ion-mode expansion versus cage voltage for the three species."""
+    fig, ax = plt.subplots(figsize=(7.2, 4.8))
+    colors = {"ions": "b", "h2o_ions": "r", "n2_ions": "g"}
+    markers = {"ions": "o", "h2o_ions": "s", "n2_ions": "^"}
+    for slug, lab, _mass in SPECIES:
+        sel = [r for r in rows if r["species"] == slug]
+        ax.plot(
+            [r["voltage_kv"] for r in sel],
+            [r["model_pct"] for r in sel],
+            "-",
+            color=colors[slug],
+            lw=1.6,
+            label=lab,
+        )
+        vipm = [r for r in sel if r["virtual_ipm_pct"] != ""]
+        ax.plot(
+            [r["voltage_kv"] for r in vipm],
+            [r["virtual_ipm_pct"] for r in vipm],
+            markers[slug],
+            color=colors[slug],
+            ms=7,
+            zorder=5,
+        )
+    ax.plot([], [], "k-", lw=1.6, label=r"kick model ($1$\,kV steps)")
+    ax.plot([], [], "ko", ms=7, label="Virtual-IPM")
+    ax.set_xlabel("cage voltage [kV]")
+    ax.set_ylabel(r"$\Delta$ [\%]")
+    ax.set_xlim(4, 31)
+    ax.set_xticks(range(5, 31, 5))
+    ax.set_ylim(0, 420)
+    ax.legend(fontsize=12, loc="upper right")
+    fig.tight_layout()
+    path = PLOTS / "csns_imode_voltage.png"
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+    return path
+
+
 def write_checks_table(rows: list[dict]) -> Path:
     path = OUT / "csns_review_scaling_checks.csv"
     keys = ["check", "beam", "species", "voltage_kv", "dy_mm", "tof_ns", "ekin_ev", "sim", "pred"]
@@ -469,9 +549,20 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--particles", type=int, default=30000, help="ions per reduced-model case")
     ap.add_argument("--checks-only", action="store_true", help="only print the scaling checks (no plots, no model)")
+    ap.add_argument(
+        "--imode-voltage",
+        action="store_true",
+        help="only evaluate the 1 kV ion-mode voltage scan (no Virtual-IPM runs)",
+    )
     args = ap.parse_args()
     plot_conf()
     PLOTS.mkdir(exist_ok=True)
+
+    if args.imode_voltage:
+        print("Ion-mode Δ(V), 1 kV steps, 0 G, injection 10 mm, 100 kW:")
+        vrows = evaluate_imode_voltage_1kv(args.particles)
+        print("wrote", plot_imode_voltage_scan(vrows))
+        return
 
     checks = scaling_checks()
     print("wrote", write_checks_table(checks))
