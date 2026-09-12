@@ -4,7 +4,7 @@ CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipms
 
 **Combined results (e-mode + ion-mode):** [CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md) / [CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf) — round-beam A–D (and fine C/D) with figures.  
 **Literature review (2006–2026):** [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) / [LITERATURE_REVIEW.pdf](LITERATURE_REVIEW.pdf) — comparison of the simulated expansions with published IPM scaling, machines and correction methods.  
-**Revised scan matrix v2:** [SCAN_MATRIX_V2.md](SCAN_MATRIX_V2.md) / [SCAN_MATRIX_V2.pdf](SCAN_MATRIX_V2.pdf) — 1014 new runs; `JOBS=4 ./scripts/run_v2.sh` (SKIP-if-exists).  
+**Revised scan matrix v2 (complete):** [SCAN_MATRIX_V2.md](SCAN_MATRIX_V2.md) / [SCAN_MATRIX_V2.pdf](SCAN_MATRIX_V2.pdf) — 1014 new 100k runs; aligned extraction H₂⁺ +104 % (was +33.5 % as-run). `JOBS=4 ./scripts/run_v2.sh` (SKIP-if-exists).  
 **Lab notebook:** [REPORT.md](REPORT.md) — chronological e-mode and early ion results.  
 **Ion-mode only:** [IMODE_REPORT.md](IMODE_REPORT.md) / [IMODE_REPORT.pdf](IMODE_REPORT.pdf).
 

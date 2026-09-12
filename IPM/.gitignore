@@ -57,6 +57,7 @@ plots/*.png
 !plots/csns_review_emode_bmin.png
 !plots/csns_review_imode_model.png
 !plots/csns_review_emode_cyclotron.png
+!plots/csns_v2_aligned_extraction.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml

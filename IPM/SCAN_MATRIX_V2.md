@@ -1,6 +1,6 @@
 # CSNS RCS IPM — revised scan matrix (v2), derived from the literature review
 
-**Status: executing.** XMLs are written by `python3 scripts/write_v2_configs.py --write` (reuse rows skipped; extraction ions abort if generation and first-bunch centres differ by more than 1 ns). Run with `JOBS=4 ./scripts/run_v2.sh` (SKIP-if-exists). The executed v1 campaign stays as it is; no existing v1 CSV is re-run.
+**Status: complete.** 1014 new 100k-particle CSVs in `output/v2/` (finished 2026-09-12 05:48 UTC). XMLs from `python3 scripts/write_v2_configs.py --write` (reuse skipped; extraction ions abort if generation and first-bunch centres differ by more than 1 ns). Re-run with `JOBS=4 ./scripts/run_v2.sh` (SKIP-if-exists). No v1 CSV was overwritten.
 
 **Source.** Every change below is traced to a section of [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) (the comparison matrix in its Section 5 in particular). The v1 matrices are described in `configs/csns_rcs_ipm/emode/README.md` and `configs/csns_rcs_ipm/imode/README.md`.
 
@@ -130,6 +130,21 @@ The v1 generator `scripts/generate_csns_configs.py` needs five additions before 
 | Bunch length σₜ(t) along the ramp (WCM) | RCS operations | ramp-realistic E1 variant |
 | Ion initial-momentum model in Virtual-IPM (thermal / dissociation energy) | Virtual-IPM feature check | §6 "ions at rest" assumption; otherwise add ≈ 1 mm in quadrature |
 | MCP window 30 × 80 mm and gain model | IBIC'25 TUPMO41 geometry | detector-level widths at 500 kW / 3 mm (cage-limited today) |
+
+## 7. Execution results
+
+All 1014 new runs finished (4 parallel Virtual-IPM jobs). `scripts/evaluate_v2.py` pairs each SC-on CSV with its SC-off partner (v2 file, or the v1 file when the off point was reused). 735 SC-on pairs are in `output/csns_v2_summary.csv`. 78 pairs are unpaired because the matching v1 SC-off particle CSV is not on disk (I2 injection at 20/50/80/150/250 kW; E4 painted injection at 1000 G).
+
+![Aligned extraction vs as-run and the kick model](plots/csns_v2_aligned_extraction.png)
+
+**Figure.** Extraction 10 mm, 0 G, 100 kW, 25 kV. The v2 aligned Virtual-IPM expansions match the kick-model aligned column of the review (H₂⁺ +104 % vs +102 %; H₂O⁺ +41 % vs +40 %; N₂⁺ +40 % vs +39 %) and replace the v1 as-run lower bound (H₂⁺ +33.5 %).
+
+| Check | Result |
+|---|---|
+| I1 timing contract | tracking `LongitudinalOffset` = −80 ns; first bunch at 80 ns |
+| I1 aligned 10 mm / 100 kW / 0 G | H₂⁺ +104.1 %, H₂O⁺ +40.8 %, N₂⁺ +40.0 % |
+| E4 80 kW at 300 G | inj. 25 mm +0.02 %, ext. 10 mm +0.18 %, inj. 10 mm +0.49 % |
+| E1 300 G / 100 kW / σₜ = 120 ns | +0.42 % (200 MeV) → +0.24 % (1.6 GeV); 80 MeV is the reused v1 point |
 
 ## Appendix
 
