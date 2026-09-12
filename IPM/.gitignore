@@ -60,6 +60,8 @@ plots/*.png
 !plots/csns_v2_aligned_extraction.png
 !plots/csns_orbit_offset_emode.png
 !plots/csns_orbit_offset_imode.png
+!plots/csns_imode_inversion_curves.png
+!plots/csns_imode_inversion_recover.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml
