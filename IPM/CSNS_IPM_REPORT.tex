@@ -44,7 +44,9 @@ mode the same-sign kick always inflates the profile: at $100\,\mathrm{kW}$
 a $10\,\mathrm{mm}$ beam is expanded by $92\%$ ($\mathrm{H}_2^+$,
 injection) and $104\%$ ($\mathrm{H}_2^+$, extraction). Raising the cage
 voltage from $5$ to $30\,\mathrm{kV}$ reduces but does not remove the
-bias. The true size can be recovered by inverting a species-resolved
+bias. The residual-gas species is identified in the time-of-flight
+spectrum; the true size is then recovered from one peak
+($\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$) by inverting a
 look-up of the expansion against bunch charge and cage voltage. The
 recommended operating point is electron collection at
 $B\gtrsim 300\,\mathrm{G}$.
@@ -85,7 +87,7 @@ Storey~\cite{Vilsmeier2019} and for ion IPMs by Shiltsev~\cite{Shiltsev2021}
 and by the ISIS group~\cite{Pine2006}. The question for CSNS is
 quantitative: how large is the error, how does it grow with bunch charge
 and shrink with beam size, and how efficiently do the available
-mitigations---guiding $B$, cage voltage, and a species-resolved
+mitigations---guiding $B$, cage voltage, and an identified-species
 correction---remove it?
 
 The calculation uses Virtual-IPM~2.3.1~\cite{Vilsmeier2017} with uniform
@@ -683,101 +685,107 @@ space-charge shift of the ion image.
 
 The ion bias is large, smooth, and reproduced by the kick model
 (Fig.~\ref{fig:kick}), so $\sigma_0$ can be recovered from $\sigma_m$
-without changing the hardware. On the Fermilab Booster the inversion is
-$\sigma_m=\sigma_0\,h(\sigma_0,N,V)$ with a closed-form $h$ and a
-single collected species; the iteration is started at
-$\sigma_0=\sigma_m$ and is quoted at $5$--$10\%$ on
-$\sigma_0$~\cite{Shiltsev2021}. CSNS cannot copy that recipe. The
-machine is in the mixed impulsive/continuous regime
-(Section~\ref{sec:mech}), three ToF peaks are resolved, and
-$\sigma_m(\sigma_0)$ is not one-to-one. The correction used here is
-built from the Virtual-IPM Block~B / I2 tables at $B=0$,
-$25\,\mathrm{kV}$.
+without changing the hardware. The residual-gas species is identified
+from the time-of-flight spectrum. The working peak is then a single
+identified species---$\mathrm{H}_2\mathrm{O}^+$ or
+$\mathrm{N}_2^+$, which are less impulsive than $\mathrm{H}_2^+$
+(Section~\ref{sec:mech})---and $\sigma_0$ is read from that species'
+look-up $\sigma_m(\sigma_0,N,V)$ at $B=0$, $25\,\mathrm{kV}$
+(Virtual-IPM Block~B / I2). On the Fermilab Booster the same idea is a
+closed-form $h$ started at $\sigma_0=\sigma_m$ and quoted at
+$5$--$10\%$~\cite{Shiltsev2021}. CSNS substitutes a tabulated
+$h$ for the mixed regime and an identified ToF peak for an unresolved
+mixture.
 
 Figure~\ref{fig:invc}(a) is the collected width versus the true size
-for the three species at injection and $100\,\mathrm{kW}$. Each curve has a minimum
+for the three species at injection and $100\,\mathrm{kW}$. Each curve
+has a minimum
 ($\mathrm{H}_2^+$: $\sigma_m=19.01\,\mathrm{mm}$ at
 $\sigma_0=9\,\mathrm{mm}$; $\mathrm{H}_2\mathrm{O}^+$:
 $16.01\,\mathrm{mm}$ at $8\,\mathrm{mm}$; $\mathrm{N}_2^+$:
-$15.02\,\mathrm{mm}$ at $8\,\mathrm{mm}$). A single measured
-$\sigma_m$ above that minimum has two roots. The closed-form
-Shiltsev law $\Delta\propto N/(V\sigma_0^2)$ has only the large root
-of $\sigma_m=\sigma_0+\kappa/\sigma_0$ and cannot represent the
-minimum at all.
+$15.02\,\mathrm{mm}$ at $8\,\mathrm{mm}$). A width above that
+minimum has two roots, so the interpolant is taken on the physical
+branch $\sigma_0\ge\sigma_0^*(P)$ (the location of the minimum).
+Injection cores and painted beams sit on that branch at
+$100\,\mathrm{kW}$. The closed-form Shiltsev law
+$\Delta\propto N/(V\sigma_0^2)$ has only the large root of
+$\sigma_m=\sigma_0+\kappa/\sigma_0$ and cannot represent the minimum.
 
-A concrete case: injection $\mathrm{H}_2^+$ at $100\,\mathrm{kW}$
-gives $\sigma_m=19.16\,\mathrm{mm}$ for a true $10\,\mathrm{mm}$ beam
-(dotted line in Fig.~\ref{fig:invc}a). The same collected width is
-also produced by $\sigma_0\simeq 8\,\mathrm{mm}$. Between $7$ and
-$11\,\mathrm{mm}$ the $\mathrm{H}_2^+$ width changes by only
-$0.4\,\mathrm{mm}$, so a single-species inversion is ill-conditioned
-exactly at the design core. Starting the Booster iteration at
-$\sigma_0=\sigma_m$ selects the large root and returns
-$9.7\,\mathrm{mm}$ here only because both roots sit next to the
-minimum; for a $5\,\mathrm{mm}$ beam ($\sigma_m=21.3\,\mathrm{mm}$)
-the same start returns $14.7\,\mathrm{mm}$.
+$\mathrm{H}_2^+$ is not the working peak. At the $10\,\mathrm{mm}$
+design core its slope is only
+$\mathrm{d}\sigma_m/\mathrm{d}\sigma_0\simeq 0.22$, the two roots
+($7.6$ and $10\,\mathrm{mm}$) sit next to the fold, and a
+leave-one-out invert on $\sigma_0=8$--$20\,\mathrm{mm}$ has a
+maximum error of $15\%$. $\mathrm{H}_2\mathrm{O}^+$ and
+$\mathrm{N}_2^+$ are steeper at $10\,\mathrm{mm}$
+($0.36$ and $0.42$) and better conditioned.
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.98\textwidth]{csns_imode_inversion_curves.png}
-\caption{Injection, $100\,\mathrm{kW}$, $25\,\mathrm{kV}$, $B=0$.
-(a)~Collected $\sigma_m$ versus true $\sigma_0$. The dotted line is
-the $\mathrm{H}_2^+$ width of a $10\,\mathrm{mm}$ beam
-($19.16\,\mathrm{mm}$); it cuts the $\mathrm{H}_2^+$ curve twice.
-(b)~Ratio $\sigma_m(\mathrm{H}_2^+)/\sigma_m(\mathrm{N}_2^+)$,
-monotonic in $\sigma_0$.}
-\label{fig:invc}
-\end{figure}
-
-CSNS resolves the three ToF peaks, so two independent widths are
-available on every shot. The ratio
-$\sigma_m(\mathrm{H}_2^+)/\sigma_m(\mathrm{N}_2^+)$ falls
-monotonically from $1.35$ at $3\,\mathrm{mm}$ to $1.10$ at
-$20\,\mathrm{mm}$ (Fig.~\ref{fig:invc}b). That ratio inverts uniquely.
-The operational sequence is therefore: identify the $\mathrm{H}_2^+$
-and $\mathrm{N}_2^+$ ToF peaks; read $\sigma_m$ of each and the DCCT
-bunch charge $N$; interpolate
-$R(\sigma_0,N,V)=\sigma_m^{\mathrm{H}_2^+}/\sigma_m^{\mathrm{N}_2^+}$
-from the Block~B / I2 table (or from the kick model); return
-$\sigma_0=R^{-1}$. Cage voltage and a BPM $\Delta y$ enter as
+The operational sequence is: identify the $\mathrm{H}_2\mathrm{O}^+$
+or $\mathrm{N}_2^+$ ToF peak; read that $\sigma_m$ and the DCCT bunch
+charge $N$; interpolate $\sigma_m(\sigma_0,N,V)$ from the Block~B /
+I2 table of the identified species on $\sigma_0\ge\sigma_0^*(P)$;
+return $\sigma_0$. Cage voltage and a BPM $\Delta y$ enter as
 parameters of the same table ($\Delta\propto 1/V$ and
 $\sigma_m^2-\sigma_0^2\propto d$, Sections~\ref{sec:V}
 and~\ref{sec:off}). The extraction column must be the aligned
 generation (Fig.~\ref{fig:align}; $\mathrm{H}_2^+$ $+104\%$ at
 $10\,\mathrm{mm}$, $100\,\mathrm{kW}$), not the v1 as-run $+33.5\%$.
 
-Figure~\ref{fig:invr} applies that correction to the Virtual-IPM
-points themselves, leaving the tested $\sigma_0$ out of the
-interpolant. Panel~(a), injection $100\,\mathrm{kW}$: the uncorrected
-$\sigma_m$ lies far above the diagonal; the single-species large root
-recovers $\sigma_0\gtrsim 10\,\mathrm{mm}$ but maps every smaller beam
-onto the right-hand branch; the $\mathrm{H}_2^+/\mathrm{N}_2^+$ ratio
-recovers $4$--$19\,\mathrm{mm}$ to a median $0.33\%$
-(maximum $2.7\%$ at $4\,\mathrm{mm}$). The $10\,\mathrm{mm}$ design
-point returns $10.03\,\mathrm{mm}$. Panel~(b): the same two-species
-invert at $200$ and $300\,\mathrm{kW}$ stays inside $\pm 2\%$ wherever
-the profile is inside the cage ($14$ and $10$ sizes respectively). At
-$400$ and $500\,\mathrm{kW}$ every $\mathrm{H}_2^+$ family with
-$\sigma_0\le 20\,\mathrm{mm}$ is clipped
-($\sigma_m\simeq 42$--$56\,\mathrm{mm}$, detected fraction
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_imode_inversion_curves.png}
+\caption{Injection, $100\,\mathrm{kW}$, $25\,\mathrm{kV}$, $B=0$.
+(a)~Collected $\sigma_m$ versus true $\sigma_0$. Dotted lines are the
+$\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$ widths of a
+$10\,\mathrm{mm}$ beam ($16.44$ and $15.60\,\mathrm{mm}$).
+(b)~Leave-one-out invert of the identified $\mathrm{H}_2\mathrm{O}^+$
+or $\mathrm{N}_2^+$ table on $\sigma_0\ge\sigma_0^*$. Empty markers
+at $\sigma_0<8\,\mathrm{mm}$ have no root on that branch.}
+\label{fig:invc}
+\end{figure}
+
+Figure~\ref{fig:invr} applies that invert to the Virtual-IPM points,
+leaving the tested $\sigma_0$ out of the interpolant.
+Panel~(a), injection $100\,\mathrm{kW}$: the uncorrected
+$\mathrm{N}_2^+$ $\sigma_m$ lies far above the diagonal; the
+identified $\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$ tables
+recover $8$--$20\,\mathrm{mm}$ to a median $0.25\%$ and $0.21\%$
+(maxima $4.3\%$ and $3.0\%$ at the fold). The $10\,\mathrm{mm}$
+design point returns $9.83\,\mathrm{mm}$ ($\mathrm{H}_2\mathrm{O}^+$)
+and $9.86\,\mathrm{mm}$ ($\mathrm{N}_2^+$). A $5\,\mathrm{mm}$ beam
+has no root on $\sigma_0\ge 8\,\mathrm{mm}$ and is not an RCS
+operating size at this intensity. Panel~(b): the same identified-species
+invert at $200\,\mathrm{kW}$ stays inside a few percent wherever the
+profile is inside the cage (median $2.0\%$ and $1.6\%$); the fold has
+moved out to $12$ and $11\,\mathrm{mm}$, so a $10\,\mathrm{mm}$ core
+is then the small root and must be selected as the core, not the
+paint, hypothesis. At $300\,\mathrm{kW}$ $\mathrm{N}_2^+$ is still
+usable (median $2.4\%$, nine sizes). At $400$ and $500\,\mathrm{kW}$
+the heavies clip
+($\sigma_m\simeq 31$--$47\,\mathrm{mm}$, detected fraction
 $<0.995$) and no table recovers $\sigma_0$.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.98\textwidth]{csns_imode_inversion_recover.png}
-\caption{(a)~Injection $100\,\mathrm{kW}$: uncorrected $\sigma_m$,
-single-species large root, and $\mathrm{H}_2^+/\mathrm{N}_2^+$
-inversion, each versus true $\sigma_0$ (leave-one-out).
-(b)~Two-species residual at $100$--$300\,\mathrm{kW}$. The grey band
-is $\pm 2\%$. Open markers are wall-clipped families.}
+\caption{(a)~Injection $100\,\mathrm{kW}$: uncorrected
+$\mathrm{N}_2^+$ $\sigma_m$ and the identified
+$\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$ inverts versus true
+$\sigma_0$ (leave-one-out). (b)~Identified-species residual at
+$100$--$300\,\mathrm{kW}$. Red: $\mathrm{H}_2\mathrm{O}^+$. Green:
+$\mathrm{N}_2^+$. The grey band is $\pm 2\%$. Open markers are
+wall-clipped families.}
 \label{fig:invr}
 \end{figure}
 
-Aligned extraction at $100\,\mathrm{kW}$ has the same two-valued
-$\sigma_m(\sigma_0)$ ($\mathrm{H}_2^+$ minimum $20.4\,\mathrm{mm}$ at
-the $10\,\mathrm{mm}$ design size). The I1 size grid is too coarse
+Aligned extraction at $100\,\mathrm{kW}$ has the same fold
+($\mathrm{H}_2\mathrm{O}^+$ minimum $12.7\,\mathrm{mm}$ at
+$7\,\mathrm{mm}$; $\mathrm{N}_2^+$ $11.9\,\mathrm{mm}$ at
+$5\,\mathrm{mm}$). The $10\,\mathrm{mm}$ design size is already on
+the rising branch ($\sigma_m=14.1$ and $14.0\,\mathrm{mm}$). The I1
+size grid is too coarse
 ($3$, $5$, $7$, $10$, $15$, $20$, $25\,\mathrm{mm}$) for a
-leave-one-out ratio invert at the $0.3\%$ injection level; a production
+leave-one-out invert at the $0.2\%$ injection level; a production
 table should be filled at $1\,\mathrm{mm}$ in $\sigma_0$, as Block~B
 already is at injection. Field-cage non-uniformity---J-PARC reported a
 factor-of-two shrink from the external map
@@ -801,8 +809,9 @@ Table~\ref{tab:eff} collects the efficiencies. Magnetic confinement at
 $300\,\mathrm{G}$ is the only mitigation that returns a faithful
 electron size. Cage voltage reduces the ion bias but does not bring an
 uncorrected $10\,\mathrm{mm}$, $100\,\mathrm{kW}$ profile to the
-$10\%$ level. The $\mathrm{H}_2^+/\mathrm{N}_2^+$ inversion does, at
-$100$--$300\,\mathrm{kW}$, provided the ions stay inside the cage.
+$10\%$ level. An identified $\mathrm{H}_2\mathrm{O}^+$ or
+$\mathrm{N}_2^+$ invert does, at $100$--$300\,\mathrm{kW}$, provided
+the ions stay inside the cage.
 
 \begin{table}[ht]
 \centering
@@ -830,9 +839,10 @@ Orbit $\lesssim 10\,\mathrm{mm}$
   & $\Delta x$: none; $\Delta y$: a few percent \\
 Invert $\sigma_m=\sigma_0\,h(\sigma_0,N,V)$
   & unnecessary at $\ge 300\,\mathrm{G}$
-  & single species is two-valued;
-    $\mathrm{H}_2^+/\mathrm{N}_2^+$ recovers $\sigma_0$ to
-    $0.3\%$ (inj.\ $100\,\mathrm{kW}$, $4$--$19\,\mathrm{mm}$);
+  & identify $\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$;
+    that peak recovers $\sigma_0$ to $0.2\%$
+    (inj.\ $100\,\mathrm{kW}$, $8$--$20\,\mathrm{mm}$);
+    $\mathrm{H}_2^+$ is poorly conditioned at $10\,\mathrm{mm}$;
     fails at the wall ($P\gtrsim 400\,\mathrm{kW}$) \\
 \hline\hline
 \end{tabular}
@@ -858,15 +868,17 @@ $\sigma_m>\sigma_0$. The inflation scales as $N/\sigma_0^2$
 (impulsive) and as approximately $1/V$, and matches the kick model to
 $1\%$. Raising the cage voltage cannot bring a $10\,\mathrm{mm}$,
 $100\,\mathrm{kW}$ ion profile to the $10\%$ level. A look-up
-inversion can, but a single ToF peak is two-valued near the design
-size; the $\mathrm{H}_2^+/\mathrm{N}_2^+$ ratio recovers $\sigma_0$
-to $0.3\%$ at $100\,\mathrm{kW}$ provided the profile has not reached
-the wall.
+inversion of one identified species ($\mathrm{H}_2\mathrm{O}^+$ or
+$\mathrm{N}_2^+$) recovers $\sigma_0$ to $0.2\%$ at
+$100\,\mathrm{kW}$ on $\sigma_0=8$--$20\,\mathrm{mm}$, provided the
+profile has not reached the wall. $\mathrm{H}_2^+$ is not used for
+the size.
 
 The recommended operating point is therefore electron collection at
-$B\gtrsim 300\,\mathrm{G}$. Ion time-of-flight should be used for
-species identification; ion-mode widths should be reported only after
-inversion. Once space charge is removed, the remaining electron-mode
+$B\gtrsim 300\,\mathrm{G}$. Ion time-of-flight identifies the residual
+gas; the beam profile is then taken from the
+$\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$ peak after inversion.
+Once space charge is removed, the remaining electron-mode
 systematic is hardware: microchannel-plate saturation after
 $\sim 200\,\mu\mathrm{s}$, electromagnetic interference, secondary
 electrons, and the real cage map~\cite{Rehman2024,Rehman2025,Xiao2026}.

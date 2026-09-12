@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Invert CSNS ion-mode widths using the Virtual-IPM look-up (I2 / Block B).
+"""Invert CSNS ion-mode widths from one identified residual-gas species.
 
-σ_m(σ_0) is not one-to-one: it has a minimum, so a single ToF peak has two
-roots. The H₂⁺/N₂⁺ ratio is monotonic and selects a unique σ_0. This script
-builds that correction from the existing summary CSVs (no Virtual-IPM runs).
+The ToF spectrum identifies the peak (H₂O⁺ or N₂⁺). That species' Block B /
+I2 table is then inverted on the physical branch σ₀ ≥ σ₀*(P) (the minimum
+of σ_m). H₂⁺ is shown only as the poorly conditioned alternative. No
+Virtual-IPM runs; summary CSVs only.
 """
 
 from __future__ import annotations
@@ -116,25 +117,31 @@ def invert_large_root(sigma_m: float, sigma0: np.ndarray, sigmam: np.ndarray) ->
     return max(large) if large else float("nan")
 
 
-def invert_ratio(
-    ratio: float, sigma0: np.ndarray, sm_a: np.ndarray, sm_b: np.ndarray
-) -> float:
-    """Invert a monotonic σ_m^A / σ_m^B versus σ_0 (leave-one-out safe)."""
-    r = sm_a / sm_b
-    # ratio falls with σ_0 for H2+/N2+
-    if r[0] < r[-1]:
-        sigma0, r = sigma0[::-1], r[::-1]
-    return float(_interp(r, sigma0)(ratio))
+def invert_identified(sigma_m: float, sigma0: np.ndarray, sigmam: np.ndarray) -> float:
+    """Invert an identified-species table on σ₀ ≥ σ₀* (minimum of σ_m).
+
+    σ_m increases with σ₀ on that branch, so the interpolant is unique.
+    A measured width that only exists on the small-σ₀ side returns NaN.
+    """
+    imin = int(np.argmin(sigmam))
+    smin = float(sigma0[imin])
+    m = sigma0 >= smin - 1e-9
+    x, y = np.asarray(sigmam[m], float), np.asarray(sigma0[m], float)
+    order = np.argsort(x)
+    x, y = x[order], y[order]
+    _, idx = np.unique(np.round(x, 6), return_index=True)
+    x, y = x[idx], y[idx]
+    if len(x) < 2 or sigma_m < x[0] - 1e-9 or sigma_m > x[-1] + 1e-9:
+        return float("nan")
+    return float(np.interp(sigma_m, x, y))
 
 
-def leave_one_out_ratio(sigma0: np.ndarray, sm_h2: np.ndarray, sm_n2: np.ndarray) -> np.ndarray:
+def leave_one_out_identified(sigma0: np.ndarray, sigmam: np.ndarray) -> np.ndarray:
     rec = np.full_like(sigma0, np.nan, dtype=float)
     for i in range(len(sigma0)):
         mask = np.ones(len(sigma0), bool)
         mask[i] = False
-        if mask.sum() < 3:
-            continue
-        rec[i] = invert_ratio(sm_h2[i] / sm_n2[i], sigma0[mask], sm_h2[mask], sm_n2[mask])
+        rec[i] = invert_identified(sigmam[i], sigma0[mask], sigmam[mask])
     return rec
 
 
@@ -150,16 +157,12 @@ def leave_one_out_large(sigma0: np.ndarray, sigmam: np.ndarray) -> np.ndarray:
 def plot_curves(inj: dict) -> Path:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
     tab = {slug: inj[(slug, 100)] for slug, _ in SPECIES}
-    s0 = tab["ions"]["sigma0"]
+    s0 = tab["n2_ions"]["sigma0"]
     for slug, lab in SPECIES:
         ax1.plot(tab[slug]["sigma0"], tab[slug]["sigmam"], "o-", color=COLORS[slug], lw=1.5, ms=5, label=lab)
-    ax1.axhline(
-        tab["ions"]["sigmam"][np.argmin(np.abs(s0 - 10))],
-        color="b",
-        ls=":",
-        lw=0.9,
-        label=r"$\sigma_m=19.16$\,mm ($10$\,mm $\mathrm{H}_2^+$)",
-    )
+    i10 = int(np.argmin(np.abs(s0 - 10)))
+    ax1.axhline(tab["h2o_ions"]["sigmam"][i10], color="r", ls=":", lw=0.9)
+    ax1.axhline(tab["n2_ions"]["sigmam"][i10], color="g", ls=":", lw=0.9)
     ax1.set_xlabel(r"true $\sigma_0$ [mm]")
     ax1.set_ylabel(r"collected $\sigma_m$ [mm]")
     ax1.set_xlim(2.5, 20.5)
@@ -167,12 +170,23 @@ def plot_curves(inj: dict) -> Path:
     ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
     ax1.legend(fontsize=11, loc="upper right")
 
-    ratio = tab["ions"]["sigmam"] / tab["n2_ions"]["sigmam"]
-    ax2.plot(s0, ratio, "ko-", lw=1.5, ms=5)
+    ax2.plot([2, 21], [2, 21], "k--", lw=0.8)
+    for slug, lab in (("h2o_ions", r"H$_2$O$^+$"), ("n2_ions", r"N$_2^+$")):
+        rec = leave_one_out_identified(tab[slug]["sigma0"], tab[slug]["sigmam"])
+        ax2.plot(
+            tab[slug]["sigma0"],
+            rec,
+            "o",
+            color=COLORS[slug],
+            ms=6,
+            label=lab,
+        )
     ax2.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax2.set_ylabel(r"$\sigma_m(\mathrm{H}_2^+)/\sigma_m(\mathrm{N}_2^+)$")
+    ax2.set_ylabel(r"recovered $\sigma_0$ [mm]")
     ax2.set_xlim(2.5, 20.5)
+    ax2.set_ylim(2.5, 21)
     ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
+    ax2.legend(fontsize=11, loc="upper left")
     fig.tight_layout()
     path = PLOTS / "csns_imode_inversion_curves.png"
     fig.savefig(path, dpi=200)
@@ -182,15 +196,15 @@ def plot_curves(inj: dict) -> Path:
 
 def plot_recover(inj: dict, ext: dict) -> Path:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
-    h2 = inj[("ions", 100)]
     n2 = inj[("n2_ions", 100)]
-    s0 = h2["sigma0"]
-    large = leave_one_out_large(s0, h2["sigmam"])
-    two = leave_one_out_ratio(s0, h2["sigmam"], n2["sigmam"])
+    h2o = inj[("h2o_ions", 100)]
+    s0 = n2["sigma0"]
+    rec_n2 = leave_one_out_identified(s0, n2["sigmam"])
+    rec_h2o = leave_one_out_identified(h2o["sigma0"], h2o["sigmam"])
     ax1.plot([2, 21], [2, 21], "k--", lw=0.8)
-    ax1.plot(s0, h2["sigmam"], "s", color="0.55", ms=6, label=r"uncorrected $\sigma_m$")
-    ax1.plot(s0, large, "o", color="b", ms=6, label=r"single-species, large root")
-    ax1.plot(s0, two, "^", color="r", ms=7, label=r"$\mathrm{H}_2^+/\mathrm{N}_2^+$ ratio")
+    ax1.plot(s0, n2["sigmam"], "s", color="0.55", ms=6, label=r"uncorrected $\mathrm{N}_2^+$")
+    ax1.plot(h2o["sigma0"], rec_h2o, "o", color="r", ms=6, label=r"identified $\mathrm{H}_2\mathrm{O}^+$")
+    ax1.plot(s0, rec_n2, "^", color="g", ms=7, label=r"identified $\mathrm{N}_2^+$")
     ax1.set_xlabel(r"true $\sigma_0$ [mm]")
     ax1.set_ylabel(r"recovered $\sigma_0$ [mm]")
     ax1.set_xlim(2.5, 20.5)
@@ -198,39 +212,44 @@ def plot_recover(inj: dict, ext: dict) -> Path:
     ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
     ax1.legend(fontsize=10, loc="upper left")
 
-    # residuals of the two-species invert vs power (injection)
-    for power, mk in ((100, "o"), (200, "s"), (300, "^")):
-        if ("ions", power) not in inj or ("n2_ions", power) not in inj:
-            continue
-        a, b = inj[("ions", power)], inj[("n2_ions", power)]
-        rec = leave_one_out_ratio(a["sigma0"], a["sigmam"], b["sigmam"])
-        wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
-        good = ~np.isnan(rec)
-        ax2.plot(
-            a["sigma0"][good & ~wall],
-            100 * (rec[good & ~wall] / a["sigma0"][good & ~wall] - 1),
-            mk,
-            color="b",
-            ms=6,
-            label=rf"{power}\,kW",
-        )
-        if wall.any():
+    for slug, color in (("h2o_ions", "r"), ("n2_ions", "g")):
+        for power, mk in ((100, "o"), (200, "s"), (300, "^")):
+            if (slug, power) not in inj:
+                continue
+            a = inj[(slug, power)]
+            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
+            wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
+            good = ~np.isnan(rec)
+            lab = None
+            if slug == "n2_ions":
+                lab = rf"{power}\,kW"
             ax2.plot(
-                a["sigma0"][good & wall],
-                100 * (rec[good & wall] / a["sigma0"][good & wall] - 1),
+                a["sigma0"][good & ~wall],
+                100 * (rec[good & ~wall] / a["sigma0"][good & ~wall] - 1),
                 mk,
-                color="0.6",
+                color=color,
                 ms=6,
-                fillstyle="none",
+                label=lab,
             )
+            if (good & wall).any():
+                ax2.plot(
+                    a["sigma0"][good & wall],
+                    100 * (rec[good & wall] / a["sigma0"][good & wall] - 1),
+                    mk,
+                    color="0.6",
+                    ms=6,
+                    fillstyle="none",
+                )
+    ax2.plot([], [], "o", color="r", ms=6, label=r"$\mathrm{H}_2\mathrm{O}^+$")
+    ax2.plot([], [], "o", color="g", ms=6, label=r"$\mathrm{N}_2^+$")
     ax2.axhline(0, color="k", lw=0.6)
     ax2.axhspan(-2, 2, color="0.90", zorder=0)
     ax2.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax2.set_ylabel(r"two-species residual [\%]")
+    ax2.set_ylabel(r"identified-species residual [\%]")
     ax2.set_xlim(2.5, 20.5)
     ax2.set_ylim(-15, 15)
     ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
-    ax2.legend(fontsize=10, loc="upper right", ncol=2)
+    ax2.legend(fontsize=9, loc="upper right", ncol=2)
     fig.tight_layout()
     path = PLOTS / "csns_imode_inversion_recover.png"
     fig.savefig(path, dpi=200)
@@ -244,44 +263,45 @@ def write_table(inj: dict, ext: dict) -> Path:
         "beam",
         "power_kw",
         "sigma0_mm",
-        "sigmam_h2_mm",
+        "sigmam_h2o_mm",
         "sigmam_n2_mm",
-        "ratio",
-        "rec_large_mm",
-        "rec_ratio_mm",
-        "residual_ratio_pct",
-        "frac_h2",
+        "rec_h2o_mm",
+        "rec_n2_mm",
+        "residual_h2o_pct",
+        "residual_n2_pct",
+        "frac_n2",
     ]
     rows = []
     for beam, table in (("injection", inj), ("extraction", ext)):
         for power in sorted({p for (_s, p) in table}):
-            if ("ions", power) not in table or ("n2_ions", power) not in table:
+            if ("h2o_ions", power) not in table or ("n2_ions", power) not in table:
                 continue
-            h2, n2 = table[("ions", power)], table[("n2_ions", power)]
-            # align on common σ_0
-            s0 = np.array(sorted(set(h2["sigma0"]) & set(n2["sigma0"])))
+            h2o, n2 = table[("h2o_ions", power)], table[("n2_ions", power)]
+            s0 = np.array(sorted(set(h2o["sigma0"]) & set(n2["sigma0"])))
             if len(s0) < 4:
                 continue
-            sm_h = _interp(h2["sigma0"], h2["sigmam"])(s0)
+            sm_w = _interp(h2o["sigma0"], h2o["sigmam"])(s0)
             sm_n = _interp(n2["sigma0"], n2["sigmam"])(s0)
-            fr = _interp(h2["sigma0"], h2["frac"])(s0)
-            large = leave_one_out_large(s0, sm_h)
-            two = leave_one_out_ratio(s0, sm_h, sm_n)
+            fr = _interp(n2["sigma0"], n2["frac"])(s0)
+            rec_w = leave_one_out_identified(s0, sm_w)
+            rec_n = leave_one_out_identified(s0, sm_n)
             for i, s in enumerate(s0):
                 rows.append(
                     dict(
                         beam=beam,
                         power_kw=power,
                         sigma0_mm=round(float(s), 2),
-                        sigmam_h2_mm=round(float(sm_h[i]), 3),
+                        sigmam_h2o_mm=round(float(sm_w[i]), 3),
                         sigmam_n2_mm=round(float(sm_n[i]), 3),
-                        ratio=round(float(sm_h[i] / sm_n[i]), 4),
-                        rec_large_mm="" if np.isnan(large[i]) else round(float(large[i]), 3),
-                        rec_ratio_mm="" if np.isnan(two[i]) else round(float(two[i]), 3),
-                        residual_ratio_pct=""
-                        if np.isnan(two[i])
-                        else round(100 * (float(two[i]) / float(s) - 1), 3),
-                        frac_h2=round(float(fr[i]), 3),
+                        rec_h2o_mm="" if np.isnan(rec_w[i]) else round(float(rec_w[i]), 3),
+                        rec_n2_mm="" if np.isnan(rec_n[i]) else round(float(rec_n[i]), 3),
+                        residual_h2o_pct=""
+                        if np.isnan(rec_w[i])
+                        else round(100 * (float(rec_w[i]) / float(s) - 1), 3),
+                        residual_n2_pct=""
+                        if np.isnan(rec_n[i])
+                        else round(100 * (float(rec_n[i]) / float(s) - 1), 3),
+                        frac_n2=round(float(fr[i]), 3),
                     )
                 )
     with path.open("w") as fh:
@@ -292,41 +312,45 @@ def write_table(inj: dict, ext: dict) -> Path:
 
 
 def report_stats(inj: dict, ext: dict) -> None:
-    h2, n2 = inj[("ions", 100)], inj[("n2_ions", 100)]
-    s0 = h2["sigma0"]
-    two = leave_one_out_ratio(s0, h2["sigmam"], n2["sigmam"])
-    large = leave_one_out_large(s0, h2["sigmam"])
-    err = 100 * (two / s0 - 1)
-    print("Injection 100 kW, 25 kV, B = 0:")
-    print(f"  H2+ σ_m minimum {h2['sigmam'].min():.2f} mm at σ0 = {s0[h2['sigmam'].argmin()]:.0f} mm")
-    print(f"  two-species |residual| : median {np.nanmedian(np.abs(err)):.2f} %  "
-          f"max {np.nanmax(np.abs(err)):.2f} %")
-    print(f"  large-root |error| for σ0<=8 mm : "
-          f"{np.nanmedian(np.abs(100*(large[s0<=8]/s0[s0<=8]-1))):.1f} % median")
-    i10 = int(np.argmin(np.abs(s0 - 10)))
-    print(
-        f"  worked example σ0=10 mm: σm(H2+)={h2['sigmam'][i10]:.2f}  "
-        f"σm(N2+)={n2['sigmam'][i10]:.2f}  ratio={h2['sigmam'][i10]/n2['sigmam'][i10]:.3f}  "
-        f"rec={two[i10]:.2f} mm  large={large[i10]:.2f} mm"
-    )
+    print("Injection 100 kW, 25 kV, B = 0, identified-species invert:")
+    for slug, lab in (("ions", "H2+"), ("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
+        t = inj[(slug, 100)]
+        s0, sm = t["sigma0"], t["sigmam"]
+        rec = leave_one_out_identified(s0, sm)
+        e = 100 * (rec / s0 - 1)
+        i10 = int(np.argmin(np.abs(s0 - 10)))
+        m = (s0 >= 8) & np.isfinite(e)
+        print(
+            f"  {lab}: min σm={sm.min():.2f} mm at σ0={s0[sm.argmin()]:.0f} mm; "
+            f"σ0=10 σm={sm[i10]:.2f} rec={rec[i10]:.2f} mm ({e[i10]:+.2f}%); "
+            f"σ0=8–20 med|e|={np.median(np.abs(e[m])):.2f}% max={np.max(np.abs(e[m])):.2f}%"
+        )
     for power in (200, 300, 400, 500):
-        a, b = inj[("ions", power)], inj[("n2_ions", power)]
-        rec = leave_one_out_ratio(a["sigma0"], a["sigmam"], b["sigmam"])
-        wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
-        good = ~np.isnan(rec) & ~wall
-        if good.any():
-            e = 100 * (rec[good] / a["sigma0"][good] - 1)
-            print(f"  {power} kW inside-cage two-species |res| median {np.median(np.abs(e)):.2f} %  "
-                  f"n={good.sum()}  wall={int(wall.sum())}")
-        else:
-            print(f"  {power} kW: no inside-cage two-species recovery (wall)")
-    if ("ions", 100) in ext and ("n2_ions", 100) in ext:
-        a, b = ext[("ions", 100)], ext[("n2_ions", 100)]
-        rec = leave_one_out_ratio(a["sigma0"], a["sigmam"], b["sigmam"])
-        e = 100 * (rec / a["sigma0"] - 1)
+        for slug, lab in (("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
+            a = inj[(slug, power)]
+            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
+            wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
+            good = ~np.isnan(rec) & ~wall
+            if good.any():
+                e = 100 * (rec[good] / a["sigma0"][good] - 1)
+                print(
+                    f"  {power} kW {lab} inside-cage |res| median {np.median(np.abs(e)):.2f}%  "
+                    f"n={int(good.sum())}  wall={int(wall.sum())}  "
+                    f"min@{a['sigma0'][a['sigmam'].argmin()]:.0f} mm"
+                )
+            else:
+                print(f"  {power} kW {lab}: no inside-cage recovery (wall)")
+    if ("h2o_ions", 100) in ext and ("n2_ions", 100) in ext:
         print("Aligned extraction 100 kW:")
-        print(f"  two-species |res| median {np.nanmedian(np.abs(e)):.2f} %  max {np.nanmax(np.abs(e)):.2f} %")
-        print(f"  H2+ σ_m: " + ", ".join(f"{s:.0f}→{m:.1f}" for s, m in zip(a["sigma0"], a["sigmam"])))
+        for slug, lab in (("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
+            a = ext[(slug, 100)]
+            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
+            e = 100 * (rec / a["sigma0"] - 1)
+            print(
+                f"  {lab} |res| median {np.nanmedian(np.abs(e)):.2f}%  "
+                f"max {np.nanmax(np.abs(e)):.2f}%  "
+                + ", ".join(f"{s:.0f}→{m:.1f}" for s, m in zip(a["sigma0"], a["sigmam"]))
+            )
 
 
 def main() -> None:

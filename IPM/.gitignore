@@ -26,6 +26,7 @@ output/imode/*.csv
 !output/csns_imode_voltage_summary.csv
 !output/csns_imode_offset_summary.csv
 !output/csns_imode_kick_model.csv
+!output/csns_imode_inversion.csv
 !output/csns_review_scaling_checks.csv
 !output/csns_scan_matrix_v2.csv
 plots/*.png
