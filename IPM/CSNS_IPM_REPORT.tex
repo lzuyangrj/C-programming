@@ -598,21 +598,73 @@ substitute for correction or for electron-mode operation.
 \subsection{Closed-orbit offset}
 \label{sec:off}
 
-Horizontal offsets of $+5$ or $+10\,\mathrm{mm}$ leave both electron
-and ion widths unchanged at $100\,\mathrm{kW}$: the kick is centred on
-the beam, in agreement with the ISIS statement that a linear scaling
-correction holds within about $10\,\mathrm{mm}$ of the
-axis~\cite{Pine2006}. A vertical offset of $\pm 5\,\mathrm{mm}$ changes
-the drift length and therefore $\tau$; the ion expansion moves by a few
-percent, in quantitative agreement with
-$\sigma_m^2-\sigma_0^2\propto d$ ($0.5\%$ absolute). Electron recovery
-at $300\,\mathrm{G}$ is preserved
-($\lvert\Delta\rvert\le 0.65\%$ out to $\pm 10\,\mathrm{mm}$). At
-$500\,\mathrm{kW}$ an uncorrected ion profile
-($\sigma_m\approx 52\,\mathrm{mm}$) is clipped by the cage, and a
-$10\,\mathrm{mm}$ horizontal offset then pulls the centroid by
-$4\,\mathrm{mm}$. That is an aperture effect, not a failure of the
-electron-mode operating point.
+A few millimetres of closed-orbit error are routine in the RCS. The
+space-charge kick is centred on the beam, so a horizontal offset
+$\Delta x$ is a translation of a uniform cage and must leave the
+measured width unchanged. A vertical offset $\Delta y$ changes the
+drift length $d=115.5\,\mathrm{mm}+\Delta y$ and therefore the flight
+time; that is the only first-order geometric lever.
+
+Figure~\ref{fig:eoff} is the electron check on the $10\,\mathrm{mm}$
+beams at $100\,\mathrm{kW}$. Panel~(a) is the Fine~D scan
+$\Delta y=\pm 10\,\mathrm{mm}$ in $1\,\mathrm{mm}$ steps. At $B=0$
+extraction expands from $+25\%$ ($\Delta y=-10\,\mathrm{mm}$) to
+$+42\%$ ($\Delta y=+10\,\mathrm{mm}$), $0.85\%$ per millimetre, because
+the electron stays longer in the bunch field when the beam is farther
+from the collector; injection at $B=0$ is compressed
+($\Delta\simeq -48\%$) and almost flat. At $300\,\mathrm{G}$ both
+beams lie inside the $\pm 1\%$ band over the whole $\pm 10\,\mathrm{mm}$
+range ($\lvert\Delta\rvert\le 0.65\%$). Panel~(b) is the horizontal
+scan at that operating field: $\Delta x=+5$ and $+10\,\mathrm{mm}$
+leave $\Delta$ unchanged to the line thickness
+(injection $+0.61\%$, extraction $-0.11\%$). The
+$\mathbf{E}\times\mathbf{B}$ centroid shift
+($0.24\,\mathrm{mm}$ on extraction at $300\,\mathrm{G}$) is independent
+of $\Delta x$ and is a fixed, correctable offset.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_orbit_offset_emode.png}
+\caption{Electron-mode closed-orbit offset, $10\,\mathrm{mm}$ beams,
+$100\,\mathrm{kW}$. (a)~$\Delta$ versus $\Delta y$ (Fine~D). Dashed:
+$B=0$. Solid: $300\,\mathrm{G}$. The grey band is $\pm 1\%$.
+(b)~$\Delta$ versus $\Delta x$ at $300\,\mathrm{G}$.}
+\label{fig:eoff}
+\end{figure}
+
+Figure~\ref{fig:ioff} is the ion check at $B=0$ (a guiding field is
+not an ion-mode lever). Panel~(a) plots $\Delta$ versus $\Delta y$ for
+the three species. Filled markers are injection; open markers are
+aligned extraction. Lines are
+$\sigma_m^2-\sigma_0^2\propto d$, anchored at the centred
+Virtual-IPM point, with no free parameter. Injection $\mathrm{H}_2^+$
+is $+89.2\%$, $+92.0\%$ and $+94.7\%$ at
+$\Delta y=-5$, $0$ and $+5\,\mathrm{mm}$; the prediction is
+$+88.9\%$ and $+95.0\%$. Aligned extraction $\mathrm{H}_2^+$ is
+$+101\%$, $+104\%$ and $+107\%$ on the same $\Delta y$ grid. Every
+species and both beams agree with the drift-length law to
+$0.5\%$ absolute. Panel~(b): $\Delta x=+5$ and $+10\,\mathrm{mm}$
+leave every width unchanged to $0.1\%$, as required by a kick centred
+on the beam and as stated for ISIS within about $10\,\mathrm{mm}$ of
+the axis~\cite{Pine2006}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_orbit_offset_imode.png}
+\caption{Ion-mode closed-orbit offset at $B=0$, $10\,\mathrm{mm}$,
+$100\,\mathrm{kW}$, $25\,\mathrm{kV}$. (a)~$\Delta$ versus $\Delta y$.
+Filled: injection. Open: aligned extraction. Lines:
+$\sigma_m^2-\sigma_0^2\propto d$. (b)~$\Delta$ versus $\Delta x$;
+the width is translation-invariant. Guiding $B$ is not scanned.}
+\label{fig:ioff}
+\end{figure}
+
+At $500\,\mathrm{kW}$ an uncorrected injection $\mathrm{H}_2^+$
+profile ($\sigma_m\approx 52\,\mathrm{mm}$) is clipped by the
+$110\,\mathrm{mm}$ half-cage. A $10\,\mathrm{mm}$ horizontal offset
+then pulls the centroid by $4\,\mathrm{mm}$. That is an aperture
+effect, not a failure of the electron-mode operating point and not a
+space-charge shift of the ion image.
 
 \subsection{Inversion of ion-mode widths}
 \label{sec:inv}

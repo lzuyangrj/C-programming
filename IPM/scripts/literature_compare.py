@@ -545,6 +545,153 @@ def write_checks_table(rows: list[dict]) -> Path:
     return path
 
 
+def _delta_from_drift(h0: float, dy_mm: float) -> float:
+    """σ_m² − σ₀² ∝ d: predicted Δ(%) after a vertical offset dy."""
+    d_ratio = (GAP_M / 2 + dy_mm * 1e-3) / (GAP_M / 2)
+    return 100.0 * (np.sqrt(1.0 + (h0**2 - 1.0) * d_ratio) - 1.0)
+
+
+def plot_orbit_offset_emode() -> Path:
+    """Electron-mode Δ versus Δy (Fine D) and Δx (Block D) at 100 kW."""
+    fine = load_summary(OUT / "csns_emode_offset_fine_summary.csv")
+    coarse = load_summary(OUT / "csns_emode_offset_summary.csv")
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
+    ax1.axhspan(-1.0, 1.0, color="0.90", zorder=0)
+    ax1.axhline(0, color="k", lw=0.6)
+    style = {
+        ("injection", 0): dict(color="b", ls="--", label=r"inj.\ $0\,\mathrm{G}$"),
+        ("injection", 300): dict(color="b", ls="-", label=r"inj.\ $300\,\mathrm{G}$"),
+        ("extraction", 0): dict(color="r", ls="--", label=r"ext.\ $0\,\mathrm{G}$"),
+        ("extraction", 300): dict(color="r", ls="-", label=r"ext.\ $300\,\mathrm{G}$"),
+    }
+    for beam, b_gs in (("injection", 0), ("injection", 300), ("extraction", 0), ("extraction", 300)):
+        pts = sorted(
+            (r["dy_mm"], r["expansion_vs_no_sc_pct"])
+            for r in fine
+            if r["beam"] == beam
+            and r["power_kw"] == 100
+            and r["b_gs"] == b_gs
+            and r["dx_mm"] == 0
+        )
+        ax1.plot([p[0] for p in pts], [p[1] for p in pts], lw=1.6, **style[(beam, b_gs)])
+    ax1.set_xlabel(r"$\Delta y$ [mm] (away from collector)")
+    ax1.set_ylabel(r"$\Delta$ [\%]")
+    ax1.set_xlim(-10.5, 10.5)
+    ax1.set_ylim(-55, 50)
+    ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
+    ax1.legend(fontsize=11, loc="lower right")
+
+    ax2.axhspan(-1.0, 1.0, color="0.90", zorder=0)
+    ax2.axhline(0, color="k", lw=0.6)
+    for beam, color, lab in (("injection", "b", r"inj.\ $300\,\mathrm{G}$"), ("extraction", "r", r"ext.\ $300\,\mathrm{G}$")):
+        pts = sorted(
+            (r["dx_mm"], r["expansion_vs_no_sc_pct"])
+            for r in coarse
+            if r["beam"] == beam
+            and r["power_kw"] == 100
+            and r["b_gs"] == 300
+            and r["dy_mm"] == 0
+        )
+        ax2.plot([p[0] for p in pts], [p[1] for p in pts], "o-", color=color, lw=1.6, ms=7, label=lab)
+    ax2.set_xlabel(r"$\Delta x$ [mm]")
+    ax2.set_ylabel(r"$\Delta$ [\%]")
+    ax2.set_xlim(-0.5, 10.5)
+    ax2.set_ylim(-1.5, 1.5)
+    ax2.set_xticks([0, 5, 10])
+    ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
+    ax2.legend(fontsize=11, loc="upper right")
+    fig.tight_layout()
+    path = PLOTS / "csns_orbit_offset_emode.png"
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+    return path
+
+
+def plot_orbit_offset_imode() -> Path:
+    """Ion-mode Δ versus Δy and Δx at B = 0, 100 kW (no B scan)."""
+    inj = load_summary(OUT / "csns_imode_offset_summary.csv")
+    v2 = load_summary(OUT / "csns_v2_summary.csv")
+    ext = [
+        r
+        for r in v2
+        if r.get("block") == "I1"
+        and r.get("beam") == "extraction"
+        and r.get("power_kw") == 100
+        and r.get("b_gs") == 0
+        and float(r.get("sigma_mm") or 0) == 10
+        and int(r.get("voltage_kv") or 0) == 25
+    ]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
+    colors = {"ions": "b", "h2o_ions": "r", "n2_ions": "g"}
+    markers = {"ions": "o", "h2o_ions": "s", "n2_ions": "^"}
+    dy_line = np.linspace(-5.5, 5.5, 80)
+    for slug, lab, _mass in SPECIES:
+        color, mk = colors[slug], markers[slug]
+        ipts = sorted(
+            (r["dy_mm"], r["expansion_vs_no_sc_pct"])
+            for r in inj
+            if r["species"] == slug
+            and r["beam"] == "injection"
+            and r["power_kw"] == 100
+            and r["b_gs"] == 0
+            and r["dx_mm"] == 0
+        )
+        epts = sorted(
+            (r["dy_mm"], r["expansion_vs_no_sc_pct"])
+            for r in ext
+            if r["species"] == slug and r["dx_mm"] == 0
+        )
+        ax1.plot([p[0] for p in ipts], [p[1] for p in ipts], mk, color=color, ms=7, label=lab)
+        if epts:
+            ax1.plot([p[0] for p in epts], [p[1] for p in epts], mk, color=color, ms=7, fillstyle="none")
+        if ipts:
+            h0 = 1.0 + next(p[1] for p in ipts if p[0] == 0) / 100.0
+            ax1.plot(dy_line, [_delta_from_drift(h0, y) for y in dy_line], "-", color=color, lw=1.3)
+        if epts:
+            h0e = 1.0 + next(p[1] for p in epts if p[0] == 0) / 100.0
+            ax1.plot(dy_line, [_delta_from_drift(h0e, y) for y in dy_line], "--", color=color, lw=1.1)
+    ax1.plot([], [], "k-", lw=1.2, label=r"$\sigma_m^2-\sigma_0^2\propto d$ (inj.)")
+    ax1.plot([], [], "k--", lw=1.1, label=r"aligned ext.")
+    ax1.set_xlabel(r"$\Delta y$ [mm] (away from collector)")
+    ax1.set_ylabel(r"$\Delta$ [\%]")
+    ax1.set_xlim(-6, 6)
+    ax1.set_xticks([-5, 0, 5])
+    ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
+    ax1.legend(fontsize=10, loc="lower right")
+
+    for slug, lab, _mass in SPECIES:
+        color, mk = colors[slug], markers[slug]
+        ipts = sorted(
+            (r["dx_mm"], r["expansion_vs_no_sc_pct"])
+            for r in inj
+            if r["species"] == slug
+            and r["beam"] == "injection"
+            and r["power_kw"] == 100
+            and r["b_gs"] == 0
+            and r["dy_mm"] == 0
+        )
+        epts = sorted(
+            (r["dx_mm"], r["expansion_vs_no_sc_pct"])
+            for r in ext
+            if r["species"] == slug and r["dy_mm"] == 0
+        )
+        ax2.plot([p[0] for p in ipts], [p[1] for p in ipts], mk + "-", color=color, ms=7, lw=1.4, label=lab)
+        if epts:
+            ax2.plot([p[0] for p in epts], [p[1] for p in epts], mk + "--", color=color, ms=7, lw=1.2, fillstyle="none")
+    ax2.set_xlabel(r"$\Delta x$ [mm]")
+    ax2.set_ylabel(r"$\Delta$ [\%]")
+    ax2.set_xlim(-0.5, 10.5)
+    ax2.set_xticks([0, 5, 10])
+    ax2.set_ylim(0, 120)
+    ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
+    ax2.legend(fontsize=11, loc="upper right")
+    fig.tight_layout()
+    path = PLOTS / "csns_orbit_offset_imode.png"
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+    return path
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--particles", type=int, default=30000, help="ions per reduced-model case")
@@ -554,9 +701,19 @@ def main() -> None:
         action="store_true",
         help="only evaluate the 1 kV ion-mode voltage scan (no Virtual-IPM runs)",
     )
+    ap.add_argument(
+        "--orbit-offset",
+        action="store_true",
+        help="only plot closed-orbit offset figures (summary CSVs, no Virtual-IPM runs)",
+    )
     args = ap.parse_args()
     plot_conf()
     PLOTS.mkdir(exist_ok=True)
+
+    if args.orbit_offset:
+        print("wrote", plot_orbit_offset_emode())
+        print("wrote", plot_orbit_offset_imode())
+        return
 
     if args.imode_voltage:
         print("Ion-mode Δ(V), 1 kV steps, 0 G, injection 10 mm, 100 kW:")
