@@ -1,14 +1,15 @@
 # CSNS RCS IPM — Ion-mode scan results
 
 **Code:** Virtual-IPM 2.3.1. **Reference:** NIMA **1092** (2026) 171809 (CSNS RCS IPM).  
-**Campaign:** round-beam ion-mode matrix, **2070 / 2070** runs complete.  
+**Campaign:** round-beam ion-mode matrix, **2070 / 2070** v1 runs complete, plus **v2 I1–I3** (aligned extraction).  
 **Species:** H₂⁺ (2 u), H₂O⁺ (18 u), N₂⁺ (28 u) — the three ToF peaks in the paper.  
 **Statistics:** 100000 secondaries per run; quoted \(\sigma\) is the RMS of **detected** \(x\).
 
 This report summarises the ion-mode parameter scan parallel to the e-mode replan
 (`REPORT.md` §8) and the fine C/D e-mode scan (§9). Combined e-mode + ion-mode
-write-up: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) / [`CSNS_IPM_REPORT.pdf`](CSNS_IPM_REPORT.pdf).
+write-up (includes v2 §4.5): [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) / [`CSNS_IPM_REPORT.pdf`](CSNS_IPM_REPORT.pdf).
 Literature comparison (2006–2026): [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) / [`LITERATURE_REVIEW.pdf`](LITERATURE_REVIEW.pdf).
+V2 plan and timing contract: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md).
 Unlike e-mode, **no dense \(B\)-scan** was run: every
 block uses only \(B_y \in \{0, 200, 1000\}\,\mathrm{G}\) (no guide / mid checkpoint /
 design 0.1 T), because closed ion scans already showed expansion **flat** vs \(B\).
@@ -42,19 +43,22 @@ Re-run: `./scripts/run_imode_replan.sh` · Evaluate: `python3 scripts/evaluate_i
    injection at \(\sigma=10\,\mathrm{mm}\) goes from +82% (100 kW) to +422% (500 kW);
    at \(\sigma=3\,\mathrm{mm}\), 500 kW gives obtained \(\sigma \sim 56\,\mathrm{mm}\)
    (+1700%+) for all three species.
-3. **Lighter ions expand more at injection; heavier ions can be worse at extraction**
-   (longer ToF). At 0.1 T / 100 kW / \(\sigma=10\,\mathrm{mm}\): inj. H₂⁺ +82%,
-   H₂O⁺ +64%, N₂⁺ +56%; ext. H₂⁺ +32%, H₂O⁺ +55%, N₂⁺ +50%.
+3. **Lighter ions expand more at injection.** At 0.1 T / 100 kW / \(\sigma=10\,\mathrm{mm}\):
+   inj. H₂⁺ +82%, H₂O⁺ +64%, N₂⁺ +56%. At **aligned** extraction the 20 ns bunch is
+   impulsive and H₂⁺ is the most distorted species (+104 % at 0 G, +89 % at 0.1 T);
+   the v1 as-run extraction ordering (H₂⁺ +32 %, heavy ions +50–55 %) was a timing artefact.
 4. **Cage voltage matters for ions (ToF / dwell time).** Expansion stays **positive**
    at every voltage — no e-mode-style sign flip. Higher \(V\) shortens drift and
    **reduces** the kick (H₂⁺ inj. 10 mm @ 1000 G: +198% at 5 kV → +70% at 30 kV).
 5. **Beam offset:** \(\Delta x\) is translation-invariant; \(\Delta y\) (toward/away
    from the detector) changes expansion by a few percent.
-6. **Extraction H₂⁺ numbers are a lower bound.** Ions are generated 125 ns before
-   the first field-carrying bunch (generation window centred at 80 ns, tracking
-   train at 204.6 ns). A line-charge model aligned to the bunch gives ≈ +100 %
-   for H₂⁺ at extraction (0 G, 100 kW) instead of the +33 % obtained. Injection
-   is correctly aligned. See [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) §3.5.
+6. **Extraction timing is aligned in v2 I1.** The v1 train arrived 125 ns late
+   (generation at 80 ns, tracking at 204.6 ns). Re-running with tracking
+   `LongitudinalOffset` = −80 ns gives H₂⁺ **+104.1 %**, H₂O⁺ +40.8 %, N₂⁺ +40.0 %
+   at 10 mm / 100 kW / 0 G — matching the kick model (+102 / +40 / +39 %). Use
+   those widths, not v1 as-run +33.5 %. Injection was already aligned. See
+   [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §4.5 and
+   [`LITERATURE_REVIEW.md`](LITERATURE_REVIEW.md) §3.5.
 
 ---
 
@@ -74,20 +78,27 @@ the profile.
 
 ### Table 1 — expansion at 100 kW [%]
 
-| Species | Inj. 25 mm 0 G | 200 G | 1000 G | Inj. 10 mm 0 G | 200 G | 1000 G | Ext. 10 mm 0 G | 200 G | 1000 G |
+| Species | Inj. 25 mm 0 G | 200 G | 1000 G | Inj. 10 mm 0 G | 200 G | 1000 G | Ext. 10 mm 0 G† | 200 G† | 1000 G† |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| H₂⁺ | +16.7 | +16.7 | +15.0 | +92.0 | +91.6 | +82.1 | +33.5 | +33.4 | +31.6 |
-| H₂O⁺ | +10.4 | +10.4 | +10.2 | +64.7 | +64.7 | +63.8 | +55.6 | +55.6 | +54.9 |
-| N₂⁺ | +8.9 | +8.9 | +8.9 | +56.3 | +56.2 | +55.7 | +49.9 | +49.9 | +49.5 |
+| H₂⁺ | +16.7 | +16.7 | +15.0 | +92.0 | +91.6 | +82.1 | +33.5† | +33.4† | +31.6† |
+| H₂O⁺ | +10.4 | +10.4 | +10.2 | +64.7 | +64.7 | +63.8 | +55.6† | +55.6† | +54.9† |
+| N₂⁺ | +8.9 | +8.9 | +8.9 | +56.3 | +56.2 | +55.7 | +49.9† | +49.9† | +49.5† |
 
-Painted injection (25 mm) matches the elliptical-beam §1 numbers (+16% H₂⁺). The
-10 mm injection family is the most distorted at every \(B\).
+† v1 as-run extraction (125 ns generation lag). **Superseded by v2 I1** (table below).
+Painted injection (25 mm) matches the elliptical-beam §1 numbers (+16% H₂⁺).
+Injection is correctly aligned in v1 (both centres at 480 ns).
 
-Extraction H₂⁺ (+33 % at 0 G) is **under-estimated**: the generation bunch leads
-the tracking train by 125 ns, so H₂⁺ has already drifted ≈ 40 mm when the kick
-arrives. H₂O⁺ / N₂⁺ barely move in that interval. A future extraction run should
-set the tracking `LongitudinalOffset` to −80 ns. Do not re-run the existing 100k
-CSVs.
+Aligned extraction, 10 mm, 100 kW, 25 kV (v2 I1; tracking offset −80 ns):
+
+| Species | 0 G aligned | 0.1 T aligned | v1 as-run 0 G | Kick model aligned |
+|---|---:|---:|---:|---:|
+| H₂⁺ | **+104.1 %** | +89.1 % | +33.5 % | +102 % |
+| H₂O⁺ | **+40.8 %** | +40.1 % | +55.6 % | +40 % |
+| N₂⁺ | **+40.0 %** | +39.6 % | +49.9 % | +39 % |
+
+H₂⁺ at extraction is the most distorted species once timing is correct. At 500 kW,
+0 G, aligned 10 mm: H₂⁺ +408 %, H₂O⁺ +243 %, N₂⁺ +235 %. Size / voltage / offset
+and the single-bunch check: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §4.5.
 
 ---
 
@@ -104,17 +115,20 @@ Dashed line: obtained = true. Every point lies **above** the diagonal at all thr
 ![Block B: expansion vs beam size at 0.1 T and power](plots/csns_imode_size_expansion.png)
 
 **Figure 3.** Expansion vs true \(\sigma_x\) at **0.1 T** for 100–500 kW. Smaller
-beams and higher power give dramatically larger expansion; injection is worse than
-extraction for H₂⁺, but H₂O⁺ and N₂⁺ can be worse at extraction (longer ToF).
+beams and higher power give dramatically larger expansion. On the v1 as-run
+extraction timing, injection looked worse than extraction for H₂⁺; after the v2
+alignment, extraction H₂⁺ is larger than the v1 table (see §3).
 
 ### Table 2 — obtained size at \(\sigma_x = 10\,\mathrm{mm}\), 0.1 T, 100 kW
 
-| Species | Injection | | Extraction | |
+| Species | Injection | | Extraction† | |
 |---|---:|---:|---:|---:|
 | | obtained [mm] | expansion | obtained [mm] | expansion |
 | H₂⁺ | 18.2 | +82% | 13.2 | +32% |
 | H₂O⁺ | 16.4 | +64% | 15.5 | +55% |
 | N₂⁺ | 15.5 | +56% | 15.0 | +50% |
+
+† v1 as-run. Aligned 0.1 T / 100 kW / 10 mm: H₂⁺ 19.0 mm (+89 %), H₂O⁺ / N₂⁺ 14.0 mm (+40 %).
 
 ### Table 3 — H₂⁺ injection, \(\sigma=10\,\mathrm{mm}\), 0.1 T vs power
 
@@ -180,11 +194,13 @@ Centroid shift vs no-SC is \(\lesssim 0.6\,\mathrm{mm}\) at extraction, 500 kW.
 | Effect of \(B\) | oscillatory recovery; 300 G fixes profile | **flat**; no recovery |
 | Cage voltage | sign flip at low \(B\) | always positive; \(V\) tunes magnitude |
 | Beam offset | \(\Delta x\) invariant; \(\Delta y\) matters | same |
-| Worst case | low \(B\), wrong polarity | small \(\sigma\), high \(P\), injection |
+| Worst case | low \(B\), wrong polarity | small \(\sigma\), high \(P\); aligned extraction H₂⁺ or injection |
+| Extraction ions | n/a | use v2 aligned widths (H₂⁺ +104 % at 0 G / 10 mm / 100 kW) |
 
 **Practical implication:** tune the IPM guiding field and cage voltage for **faithful
 electron profiles**; treat **ion-mode size measurements as space-charge biased** unless
-beam size and power are large enough (or a correction model is applied).
+a correction model is applied. Extraction ion widths must come from the aligned v2
+table, not from v1 as-run +33.5 %.
 
 ---
 
@@ -196,10 +212,12 @@ beam size and power are large enough (or a correction model is applied).
 | `output/csns_imode_size_summary.csv` | Block B (1620 rows) |
 | `output/csns_imode_voltage_summary.csv` | Block C (108 rows) |
 | `output/csns_imode_offset_summary.csv` | Block D (180 rows) |
+| `output/csns_v2_summary.csv` | v2 I1–I3 (aligned extraction, look-up, single bunch) |
 | `plots/csns_imode_*.png` | Figures 1–5 above |
-| `configs/csns_rcs_ipm/imode/README.md` | Matrix specification |
+| `plots/csns_v2_aligned_extraction.png` | Aligned vs as-run vs kick model |
+| `configs/csns_rcs_ipm/imode/README.md` | v1 matrix specification |
 
-CSV files under `output/imode/` (particle lists) are gitignored.
+CSV files under `output/imode/` and `output/v2/` (particle lists) are gitignored.
 
 ---
 
@@ -224,3 +242,9 @@ CSV files under `output/imode/` (particle lists) are gitignored.
 **Fig. I-5.** Block D — beam offset on 10×10 mm injection and extraction.
 
 ![Fig. I-5](plots/csns_imode_offset.png)
+
+**Fig. I-6.** v2 I1 — aligned extraction vs as-run vs kick model (10 mm, 100 kW, 0 G).
+
+![Fig. I-6](plots/csns_v2_aligned_extraction.png)
+
+Rebuild this PDF: `python3 scripts/md_to_pdf.py --md IMODE_REPORT.md --pdf IMODE_REPORT.pdf --footer "CSNS RCS IPM — ion mode"`.

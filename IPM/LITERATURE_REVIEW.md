@@ -1,6 +1,6 @@
 # CSNS RCS IPM simulations — review against IPM publications (2006–2026)
 
-**Scope.** This note checks the Virtual-IPM 2.3.1 results collected in [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) (electron mode, Blocks A–D + fine C/D; ion mode, Blocks A–D) against IPM design rules, measurements and simulation studies published in the last twenty years (2006–2026). Each comparison section states what the literature predicts for the CSNS parameters, what the simulations gave, and whether the two agree. A machine-by-machine survey of that period is in Section 4 and a block-by-block comparison matrix in Section 5. Reproduce the comparison figures with `python3 scripts/literature_compare.py` (summary CSVs only, no Virtual-IPM runs).
+**Scope.** This note checks the Virtual-IPM 2.3.1 results collected in [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) (electron mode, Blocks A–D + fine C/D; ion mode, Blocks A–D; scan matrix v2 I1–I3 / E1 / E3 / E4) against IPM design rules, measurements and simulation studies published in the last twenty years (2006–2026). Each comparison section states what the literature predicts for the CSNS parameters, what the simulations gave, and whether the two agree. A machine-by-machine survey of that period is in Section 4 and a block-by-block comparison matrix in Section 5. Reproduce the comparison figures with `python3 scripts/literature_compare.py` (summary CSVs only, no Virtual-IPM runs). V2 execution: [`SCAN_MATRIX_V2.md`](SCAN_MATRIX_V2.md) §7.
 
 **CSNS parameters used throughout.** Cage 220 × 231 mm, 25 kV so E ≈ 108 kV/m, design B = 0.1 T; 7.8 × 10¹² p/bunch at 100 kW (∝ power), two bunches per turn; injection 80 MeV (β = 0.39, σₜ = 120 ns, revolution 1.96 µs), extraction 1.6 GeV (β = 0.93, σₜ = 20 ns, revolution 0.82 µs). Round beams σ = 25 mm (painted injection) or 10 mm.
 
@@ -10,8 +10,8 @@
 
 1. **Electron mode agrees with the field-scaling literature in trend and order of magnitude.** The 1 % thresholds found here (105–155 G painted injection, 185–240 G extraction, 190–290 G 10 mm injection) are 1.1–4× above the Vilsmeier–Sapinski–Storey minimum-field fit (PRAB 22, 052801), which was fitted for β ≥ 0.99 and a monotonic distortion. The oscillation of the distortion with B that drives this gap is the cyclotron phase of the space-charge kick: the zeros of Δ(B) are spaced by π m_e/(e · ToF) ∝ √V to within 5 % at every cage voltage of Fine C (Section 2.3). For σ = 3 mm and for σ ≥ 4 mm at 300 G the fit and the simulation agree directly (Section 2.4). The recommended 300 G matches the SNS ring IPM design point (300 G, ≈7 % estimated error for 2 × 10¹⁴ p) and sits well below the CSNS design (0.1 T) and the 0.2 T available magnet — the same field used by the CERN PS BGI (< 2.5 % distortion for LHC-type bunches).
 2. **Ion mode agrees quantitatively with space-charge kick theory.** A reduced line-charge model of the type used by Shiltsev (NIM A 986 (2021) 164744) reproduces every 0 G / 100 kW Virtual-IPM expansion to within ±1 % absolute (Figure 2), the V⁻⁰·⁹ cage-voltage law matches the ISIS "broadening ∝ 1/drift field" result, and the flatness versus B follows from the cyclotron phase ω τ ≲ 1 rad accumulated during the ion flight. The size scaling (σ₀^−2, impulsive regime) and the ±5 mm vertical-offset dependence (σ_m² − σ₀² ∝ drift length) also follow the kick model to within 0.5 %. The ion-mode bias (+9 % to +92 % at 100 kW, up to +422 % at 500 kW) is of the size reported operationally at J-PARC RCS (IPM 20–30 % wider than the MWPM) and at the Fermilab Booster (correction ≈ 15 % to ≈ 2×).
-3. **Two caveats surfaced by the review.**
-   - The **extraction ion-mode configuration** generates ions 125 ns before the first field-carrying bunch (generation bunch centred at 4σₜ = 80 ns, tracking train centred at 204.6 ns). H₂⁺ therefore drifts ≈ 40 mm before the kick and the extraction H₂⁺ expansion (+33 %) is under-estimated; the reduced model gives ≈ +100 % for a time-aligned generation. H₂O⁺ and N₂⁺ barely move in 125 ns and instead see the whole bunch instead of half of it (≈ +40 % expected vs +50–56 % obtained). Injection is correctly aligned (both centred at 480 ns). Section 3.5 gives the fix for a future run; no existing run was repeated.
+3. **Two caveats surfaced by the review; the first is now closed.**
+   - The **v1 extraction ion-mode configuration** generated ions 125 ns before the first field-carrying bunch (generation at 80 ns, tracking train at 204.6 ns). H₂⁺ therefore drifted ≈ 40 mm before the kick and the as-run expansion (+33.5 %) was a lower bound. Scan matrix v2 I1 re-ran extraction with tracking `LongitudinalOffset` = −80 ns: H₂⁺ **+104.1 %**, H₂O⁺ +40.8 %, N₂⁺ +40.0 % at 10 mm / 100 kW / 0 G, matching the aligned kick model (+102 / +40 / +39 %). Injection was already aligned (both centres at 480 ns). Section 3.5.
    - The simulations use **uniform** guiding fields and stop at the collector: no MCP, no ion trap, no field-cage non-uniformity, no secondary electrons. J-PARC reported that its RCS IPM profile was shrunk to half by external-field distortion alone, and the CSNS IBIC 2024–2026 papers describe MCP saturation after 200 µs and secondary-electron suppression as the dominant hardware issues. These effects, not space charge, currently limit the CSNS e-mode measurement.
 4. **Recommendation unchanged, now literature-backed:** run the CSNS RCS IPM in electron mode with B ≳ 300 G (the design 0.1 T is conservative up to 500 kW and σ = 3 mm), and treat ion-mode sizes as space-charge biased. A species-resolved correction of the Shiltsev / ISIS type is feasible for CSNS because the ToF peaks (H₂⁺, H₂O⁺, N₂⁺) are resolved and the bunch charge is known turn by turn.
 
@@ -144,17 +144,17 @@ In `generate_csns_configs.py` the ions are generated by a single fields-off bunc
 - H₂⁺ has already moved ≈ 40 mm towards the collector when the bunch passes, so it receives a much weaker, mostly vertical kick. The reduced model with a time-aligned generation gives **≈ +100 %** for H₂⁺ at extraction (0 G, 100 kW) instead of the +33 % obtained.
 - H₂O⁺ and N₂⁺ move only 3–4 mm in 125 ns and instead see the **whole** bunch rather than half of it; aligned generation gives ≈ +40 % for both instead of +56 / +50 %.
 
-The qualitative conclusions (positive bias at every V, B, size and offset; no recovery by B) are unaffected, but the extraction ion table in the report should be read with this in mind, and the extraction H₂⁺ numbers are a lower bound. A future extraction ion run should set the tracking train's `LongitudinalOffset` to −80 ns (= −4σₜ) or give the generation bunch an explicit offset of −204.6 ns. In line with the campaign rules no existing 100k run was repeated for this review.
+The qualitative conclusions (positive bias at every V, B, size and offset; no recovery by B) are unaffected. Scan matrix v2 I1 executed the recommended fix (tracking `LongitudinalOffset` = −80 ns; generation left at −4σₜ). No v1 100k CSV was overwritten.
 
-Aligned vs as-run expansions at 0 G, 100 kW, 25 kV (reduced model; Virtual-IPM is the as-run column):
+Aligned vs as-run expansions at 0 G, 100 kW, 25 kV. Virtual-IPM as-run is v1; Virtual-IPM aligned is v2 I1:
 
-| Species | Inj. 25 mm model / VIPM | Inj. 10 mm | Ext. 10 mm as-run | Ext. 10 mm aligned |
+| Species | Inj. 25 mm model / VIPM | Inj. 10 mm | Ext. 10 mm as-run (v1) | Ext. aligned model / v2 I1 |
 |---|---:|---:|---:|---:|
-| H₂⁺ | +15.6 / +16.7 % | +91.2 / +92.0 % | +32.6 / +33.5 % | +102 % |
-| H₂O⁺ | +10.1 / +10.4 % | +64.4 / +64.7 % | +55.4 / +55.6 % | +40 % |
-| N₂⁺ | +8.8 / +8.9 % | +55.1 / +56.3 % | +50.2 / +49.9 % | +39 % |
+| H₂⁺ | +15.6 / +16.7 % | +91.2 / +92.0 % | +32.6 / +33.5 % | +102 / **+104.1 %** |
+| H₂O⁺ | +10.1 / +10.4 % | +64.4 / +64.7 % | +55.4 / +55.6 % | +40 / **+40.8 %** |
+| N₂⁺ | +8.8 / +8.9 % | +55.1 / +56.3 % | +50.2 / +49.9 % | +39 / **+40.0 %** |
 
-The as-run / aligned pair is written to `output/csns_imode_kick_model.csv` by `scripts/literature_compare.py`.
+The as-run / model-aligned pair is written to `output/csns_imode_kick_model.csv` by `scripts/literature_compare.py`. The v2 measurement is in `output/csns_v2_summary.csv` and [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §4.5. I3 shows why the heavy-ion as-run numbers were high: a single aligned bunch gives H₂O⁺ / N₂⁺ +35.7 / +28.5 % (they miss the second RF bucket); the 3-bunch aligned run restores +40.8 / +40.0 %.
 
 ### 3.6 Beam size and offset scaling (ion Blocks B and D)
 
@@ -166,7 +166,7 @@ The as-run / aligned pair is written to `output/csns_imode_kick_model.csv` by `s
 
 - **Analytic inversion (Fermilab Booster).** Shiltsev inverts σ_m = σ₀ h(σ₀, N, V₀, D, d) turn by turn using the DCCT intensity; the correction is ≈ 15 % early in the cycle and ≈ 2× at 8 GeV, and reaches 5–10 % accuracy on σ₀. CSNS has the same inputs (bunch charge, cage voltage, geometry) plus species-resolved ToF peaks, so a per-species inversion is possible. Because CSNS is in the mixed regime (Section 3.1), the inversion should use a numerically generated h(σ₀, N, V, species) table — the reduced model or Virtual-IPM itself — rather than the closed form.
 
-  **Practical recipe for CSNS ion-mode widths.** Identify the ToF peak (H₂⁺ / H₂O⁺ / N₂⁺). Read the measured RMS σ_m and the DCCT bunch charge N. Look up or interpolate h(σ₀, N, V, species) from `output/csns_imode_kick_model.csv` (or re-run `scripts/literature_compare.py`) and solve σ_m = σ₀ · (1 + h) by a few substitutions, starting from σ₀ = σ_m. Use the **aligned** extraction column, not the as-run Virtual-IPM extraction H₂⁺ number. Do not apply the e-mode 300 G knob to ions.
+  **Practical recipe for CSNS ion-mode widths.** Identify the ToF peak (H₂⁺ / H₂O⁺ / N₂⁺). Read the measured RMS σ_m and the DCCT bunch charge N. Look up or interpolate h(σ₀, N, V, species) from `output/csns_v2_summary.csv` (I1 / I2, aligned extraction) or `output/csns_imode_kick_model.csv` and solve σ_m = σ₀ · (1 + h) by a few substitutions, starting from σ₀ = σ_m. Use the **aligned** extraction column (v2 I1: H₂⁺ +104.1 % at 10 mm / 100 kW / 0 G), not the v1 as-run +33.5 %. Do not apply the e-mode 300 G knob to ions.
 - **Tracking-based correction (ISIS).** CST field maps plus in-house tracking give correction factors for the measured percentage widths; a linear scaling is enough for reasonably centred beams. The same approach with the real (non-uniform) CSNS cage field is the natural next step once the field map is available.
 - **Machine learning (PRAB 22, 052801; IBIC'17 WEPCC06; IPAC'18 WEPAK008; HB'18 THA2WE02).** Regressors trained on simulated distorted profiles reconstruct either the RMS width or the full shape. For CSNS this is optional: at ≥ 300 G the e-mode profile is already within 1 %, and the ion-mode bias is large but smooth in σ₀, N and V, so a look-up inversion suffices.
 
@@ -219,7 +219,7 @@ Every simulated block is listed against the published prediction it was checked 
 | Fine D: centroid shift (§2.5) | E × B / polarisation drift ∝ 1/B | −0.89 / −0.37 / −0.24 / −0.07 mm at 100 / 200 / 300 / 1000 G | consistent |
 | 300 G recommendation (§2.6) | SNS 300 G ≈ 7 % at 25× the charge; PS 200 mT < 2.5 % | ≲ 1 % all families | consistent |
 | Field non-uniformity, MCP, secondaries (§2.6) | J-PARC 2× shrink; CSNS IBIC'24–26 | not modelled | open — needs the CSNS field map |
-| Low-β benchmark (§2.1) | none published for β ≈ 0.4 | injection thresholds 105–290 G | open |
+| Low-β / ramp E1 (§2.1) | none published for β ≈ 0.4 | 300 G stays ±0.5 % from 80 MeV to 1.6 GeV at σₜ = 120 and 20 ns; 0 G compression/inflation shrinks with β | consistent — 300 G recommendation holds along the ramp |
 
 **Ion mode**
 
@@ -233,14 +233,15 @@ Every simulated block is listed against the published prediction it was checked 
 | Block B: size (§3.6) | impulsive ⇒ σ₀^−2; continuous ⇒ σ₀^−1.5 | σ₀^−1.84 … −2.01 (aligned cases) | agrees — impulsive regime |
 | Block D: Δy = ±5 mm (§3.6) | σ_m² − σ₀² ∝ d (τ₂ ∝ √d) | 6 cases within 0.5 % absolute | agrees |
 | Block D: Δx = 5, 10 mm (§3.6) | ISIS: linear correction within 10 mm of axis | width unchanged (0.1 %), centroid < 0.01 mm at 100 kW; −2 / −4 mm aperture pull at 500 kW | agrees at 100 kW; aperture effect at 500 kW |
-| Ext. H₂⁺ as-run (§3.5) | aligned model: ≈ +100 % | +33.5 % (125 ns generation lag) | partial — configuration artefact, lower bound |
+| Ext. H₂⁺ as-run v1 (§3.5) | aligned model: ≈ +100 % | +33.5 % (125 ns generation lag) | artefact — superseded |
+| Ext. aligned v2 I1 (§3.5) | kick model +102 / +40 / +39 % | VIPM +104.1 / +40.8 / +40.0 % (H₂⁺ / H₂O⁺ / N₂⁺) | agrees |
 | Ion-mode bias magnitude (§3.3) | J-PARC 20–30 % wider; Booster 15 % → 2× | +9 … +92 % (100 kW); up to +422 % (500 kW) | consistent |
 | ESS ion-mode choice (§3.3) | ions < 5 % at 300 kV/m, 1.5 × 10⁹ p | 10 % bias would need ≈ 380 kV at CSNS | consistent — opposite conclusion because N differs by 5000× |
 | Dissociation energy, MCP window (§6) | ≈ 1 mm quadrature (Shiltsev); 30 × 80 mm MCP | not modelled | open — negligible / detector-level |
 
 The numbers behind the Fine C, Block B and ion Block B/D rows are written to `output/csns_review_scaling_checks.csv` by `python3 scripts/literature_compare.py --checks-only` (summary CSVs only).
 
-**Reading the matrix.** Twelve of the twenty-six rows are quantitative agreements with a published or first-principles prediction, eight are consistent in sign and magnitude with operational reports, three are partial, and the three open rows all concern hardware that the tracking does not include (field map, detector) or the absence of a low-β benchmark. The two "partial" e-mode rows share one cause — the oscillatory Δ(B) that Section 2.3 now pins to the cyclotron phase — and the partial ion row is the extraction timing artefact of Section 3.5.
+**Reading the matrix.** Thirteen of the twenty-seven rows are quantitative agreements with a published or first-principles prediction, nine are consistent in sign and magnitude with operational reports, two are partial, one is a superseded configuration artefact, and the two open rows concern hardware that the tracking does not include (field map, detector). The two "partial" e-mode rows share one cause — the oscillatory Δ(B) that Section 2.3 now pins to the cyclotron phase. The extraction timing artefact of Section 3.5 is closed by v2 I1. The former open low-β row is now the E1 ramp (300 G holds).
 
 ---
 

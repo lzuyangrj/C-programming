@@ -146,6 +146,8 @@ All 1014 new runs finished (4 parallel Virtual-IPM jobs). `scripts/evaluate_v2.p
 | E4 80 kW at 300 G | inj. 25 mm +0.02 %, ext. 10 mm +0.18 %, inj. 10 mm +0.49 % |
 | E1 300 G / 100 kW / σₜ = 120 ns | +0.42 % (200 MeV) → +0.24 % (1.6 GeV); 80 MeV is the reused v1 point |
 
+Folded into the combined summary: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md) §4.5 / Figure 14.
+
 ## Appendix
 
 Rebuild the PDF: `python3 scripts/md_to_pdf.py --md SCAN_MATRIX_V2.md --pdf SCAN_MATRIX_V2.pdf --footer "CSNS RCS IPM — scan matrix v2 (plan)"`.
