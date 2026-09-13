@@ -32,7 +32,7 @@ run_group() {
       printf '%s\n' "${CASES[@]:0:${BATCH}}" | xargs -P "${JOBS}" -I{} bash -c '
         cfg="$1"
         csv="$(grep -oE "output/[^<]+" "$cfg" | head -1 || true)"
-        if [[ -n "${csv}" && -s "${csv}" ]]; then
+        if [[ -n "${csv}" ]] && { [[ -s "${csv}" ]] || [[ -s "${csv}.zip" ]] || [[ -s "${csv}.gz" ]]; }; then
           echo "SKIP (exists) $cfg"
           exit 0
         fi
@@ -51,7 +51,7 @@ run_group() {
   printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
     cfg="$1"
     csv="$(grep -oE "output/[^<]+" "$cfg" | head -1 || true)"
-    if [[ -n "${csv}" && -s "${csv}" ]]; then
+    if [[ -n "${csv}" ]] && { [[ -s "${csv}" ]] || [[ -s "${csv}.zip" ]] || [[ -s "${csv}.gz" ]]; }; then
       echo "SKIP (exists) $cfg"
       exit 0
     fi

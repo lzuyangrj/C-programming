@@ -4,7 +4,7 @@
 #   B  σ = 3–20 mm size scans at 0/100/200/300 G and 0.1 T
 #   C  cage voltage 5–30 kV on the 10×10 mm injection beam
 #   D  beam-offset check on the 10×10 mm beams
-# Points whose CSV already exists are skipped.
+# Points whose CSV or .csv.zip already exists are skipped.
 # Fine C/D is a separate campaign: ./scripts/run_emode_fine_cd.sh
 #
 #   ./scripts/run_emode_replan.sh --matrix   # show the matrix only, run nothing
@@ -44,7 +44,7 @@ echo "Running ${#CASES[@]} e-mode replan configs with ${JOBS} parallel jobs"
 printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
   cfg="$1"
   csv="$(grep -oE "output/[^<]+" "$cfg" | head -1 || true)"
-  if [[ -n "${csv}" && -s "${csv}" ]]; then
+  if [[ -n "${csv}" ]] && { [[ -s "${csv}" ]] || [[ -s "${csv}.zip" ]] || [[ -s "${csv}.gz" ]]; }; then
     echo "SKIP (exists) $cfg"
     exit 0
   fi

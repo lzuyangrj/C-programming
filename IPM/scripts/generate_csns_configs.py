@@ -1095,8 +1095,9 @@ def emode_matrix_report(emode_dir: Path | None = None) -> str:
     dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
 
     def done_file(name: str) -> bool:
-        f = dest_dir / name
-        return f.is_file() and f.stat().st_size > 0
+        from csv_archive import particle_csv_done
+
+        return particle_csv_done(dest_dir / name)
 
     def done(pt: EmodePoint) -> bool:
         return done_file(emode_csv_name(*pt))
@@ -1179,8 +1180,9 @@ def emode_fine_cd_matrix_report(emode_dir: Path | None = None) -> str:
     dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
 
     def done_file(name: str) -> bool:
-        f = dest_dir / name
-        return f.is_file() and f.stat().st_size > 0
+        from csv_archive import particle_csv_done
+
+        return particle_csv_done(dest_dir / name)
 
     def v_done(pt: VoltPoint) -> bool:
         return done_file(volt_csv_name(*pt))
@@ -1562,8 +1564,9 @@ def imode_matrix_report(imode_dir: Path | None = None) -> str:
     dest_dir = imode_dir if imode_dir is not None else (ROOT / "output" / "imode")
 
     def done_file(name: str) -> bool:
-        f = dest_dir / name
-        return f.is_file() and f.stat().st_size > 0
+        from csv_archive import particle_csv_done
+
+        return particle_csv_done(dest_dir / name)
 
     def done(pt: ImodePoint) -> bool:
         return done_file(imode_csv_name(*pt))

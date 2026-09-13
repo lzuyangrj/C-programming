@@ -59,7 +59,7 @@ I2_SIZES_MM = (5, 10, 15, 20, 25)
 I2_POWERS_KW = (20, 50, 80, 100, 150, 200, 250, 300, 400, 500)
 # 1 mm identified-species invert at aligned extraction (not in the coarse I1/I2 grids).
 I2_DENSE_SIZES_MM = tuple(range(3, 21))
-I2_DENSE_POWERS_KW = (100,)
+I2_DENSE_POWERS_KW = (100, 200, 300, 500)
 # I3 single-bunch vs 3-bunch train (review §3.1 mixed regime, Shiltsev 1 + 0.8 t_b/τ₀).
 I3_POWER_KW = 100
 

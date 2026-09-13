@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Aligned-extraction I2 1 mm fill-in. SKIP if the CSV already exists.
+# Aligned-extraction I2 1 mm fill-in. SKIP if the CSV or .csv.zip exists.
 # Does not relaunch existing 100 k v1/v2 CSVs. Default JOBS=1 so this
 # does not collide with a 4-core figure-dense VIPM campaign.
 #
@@ -30,7 +30,7 @@ echo "=== I2 dense ext start $(date -u +'%Y-%m-%dT%H:%M:%SZ') jobs=${JOBS} n=${#
 printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
   cfg="$1"
   csv="$(grep -oE "output/[^<]+" "$cfg" | head -1 || true)"
-  if [[ -n "${csv}" && -s "${csv}" ]]; then
+  if [[ -n "${csv}" ]] && { [[ -s "${csv}" ]] || [[ -s "${csv}.zip" ]] || [[ -s "${csv}.gz" ]]; }; then
     echo "SKIP (exists) $cfg"
     exit 0
   fi

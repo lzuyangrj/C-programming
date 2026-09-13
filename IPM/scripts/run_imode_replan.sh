@@ -5,7 +5,7 @@
 #   B  σ = 3–20 mm size scans × 3 species
 #   C  cage voltage 5–30 kV on the 10×10 mm injection beam × 3 species
 #   D  beam-offset check on the 10×10 mm beams × 3 species
-# All beams are ROUND (σ_y = σ_x). Points whose CSV already exists are skipped.
+# All beams are ROUND (σ_y = σ_x). Points whose CSV or .csv.zip exists are skipped.
 #
 #   ./scripts/run_imode_replan.sh --matrix   # show the matrix only, run nothing
 #   JOBS=4 ./scripts/run_imode_replan.sh     # run all missing points
@@ -38,7 +38,7 @@ echo "Running ${#CASES[@]} ion-mode replan configs with ${JOBS} parallel jobs"
 printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
   cfg="$1"
   csv="$(grep -oE "output/[^<]+" "$cfg" | head -1 || true)"
-  if [[ -n "${csv}" && -s "${csv}" ]]; then
+  if [[ -n "${csv}" ]] && { [[ -s "${csv}" ]] || [[ -s "${csv}.zip" ]] || [[ -s "${csv}.gz" ]]; }; then
     echo "SKIP (exists) $cfg"
     exit 0
   fi

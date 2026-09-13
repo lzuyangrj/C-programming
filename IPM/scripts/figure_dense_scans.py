@@ -33,6 +33,7 @@ from generate_csns_configs import (  # noqa: E402
     write_figure_dense_emode,
     write_figure_dense_imode,
 )
+from csv_archive import particle_csv_done  # noqa: E402
 from plot_conf import load_summary  # noqa: E402
 from write_v2_configs import csv_rel, write_ion, xml_path  # noqa: E402
 
@@ -49,7 +50,7 @@ EOFF_SUM = ROOT / "output" / "csns_emode_offset_summary.csv"
 
 
 def _done_csv(path: Path) -> bool:
-    return path.is_file() and path.stat().st_size > 0
+    return particle_csv_done(path)
 
 
 def _load(path: Path) -> list[dict]:

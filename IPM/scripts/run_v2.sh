@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Execute scan-matrix v2. SKIP if the CSV already exists. Writes no v1 files.
+# Execute scan-matrix v2. SKIP if the CSV or .csv.zip already exists. Writes no v1 files.
 #   ./scripts/run_v2.sh --matrix     # counts only
 #   ./scripts/run_v2.sh --write      # write XMLs, run nothing
 #   JOBS=4 ./scripts/run_v2.sh       # write + run missing points (I1→I2→E1→E3→E4→I3)
@@ -51,7 +51,7 @@ echo "=== v2 start $(date -u +'%Y-%m-%dT%H:%M:%SZ') block=${BLOCK:-all} jobs=${J
 printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
   cfg="$1"
   csv="$(grep -oE "output/[^<]+" "$cfg" | head -1 || true)"
-  if [[ -n "${csv}" && -s "${csv}" ]]; then
+  if [[ -n "${csv}" ]] && { [[ -s "${csv}" ]] || [[ -s "${csv}.zip" ]] || [[ -s "${csv}.gz" ]]; }; then
     echo "SKIP (exists) $cfg"
     exit 0
   fi
