@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
-"""Invert CSNS ion-mode widths from one identified residual-gas species.
+"""Two-root inversion of CSNS ion-mode widths from one identified species.
 
-The ToF spectrum identifies the peak (H₂O⁺ or N₂⁺). That species' Block B /
-I2 table is then inverted on the physical branch σ₀ ≥ σ₀*(P) (the minimum
-of σ_m). H₂⁺ is shown only as the poorly conditioned alternative. No
-Virtual-IPM runs; summary CSVs only.
+For a fixed bunch charge and cage voltage the collected width of an
+identified residual-gas ion (H₂O⁺ or N₂⁺) has a minimum at σ₀*(P). A
+measured width above that minimum therefore has two candidate sizes: a
+small root σ_S ≤ σ₀* (the core hypothesis) and a large root σ_L ≥ σ₀*
+(the painted-beam hypothesis). Both are returned. The electron-mode
+width at B ≥ 300 G (within one percent of σ₀, Sec. 4.1) selects the
+root; the second identified species is an independent consistency
+check, because a wrong root of H₂O⁺ and a wrong root of N₂⁺ do not
+agree while the right roots do.
+
+Summary CSVs only; no Virtual-IPM runs. Leave-one-out on the 1 mm
+Block B (injection) and aligned I2 (extraction) tables.
 """
 
 from __future__ import annotations
@@ -13,7 +21,7 @@ import csv
 from pathlib import Path
 
 import numpy as np
-from scipy.interpolate import interp1d
+from scipy.interpolate import PchipInterpolator
 
 from plot_conf import load_summary, plot_conf
 import matplotlib.pyplot as plt
@@ -23,11 +31,22 @@ OUT = ROOT / "output"
 PLOTS = ROOT / "plots"
 
 SPECIES = (("ions", r"H$_2^+$"), ("h2o_ions", r"H$_2$O$^+$"), ("n2_ions", r"N$_2^+$"))
+WORKING = (("h2o_ions", r"H$_2$O$^+$"), ("n2_ions", r"N$_2^+$"))
 COLORS = {"ions": "b", "h2o_ions": "r", "n2_ions": "g"}
+MARKERS = {"h2o_ions": "o", "n2_ions": "^"}
+POWERS = (100, 200, 300, 500)
+EMODE_B_GS = 300
+WALL_FRAC = 0.995
+WALL_SIGMA_MM = 40.0
 
 
 def _f(row: dict, key: str) -> float:
     return float(row[key])
+
+
+# ----------------------------------------------------------------------------
+# tables
+# ----------------------------------------------------------------------------
 
 
 def injection_size_table() -> dict[tuple[str, int], dict[str, np.ndarray]]:
@@ -93,476 +112,518 @@ def extraction_aligned_table() -> dict[tuple[str, int], dict[str, np.ndarray]]:
     return out
 
 
-def _interp(x: np.ndarray, y: np.ndarray) -> interp1d:
-    return interp1d(x, y, kind="linear", bounds_error=False, fill_value=np.nan)
+def emode_size_table(beam: str, power: int, b_gs: int = EMODE_B_GS) -> dict[str, np.ndarray] | None:
+    """Electron-mode σ_e(σ₀) at the guiding field used to select the root."""
+    rows = load_summary(OUT / "csns_emode_size_summary.csv")
+    pts = sorted(
+        (_f(r, "sigma_x_mm"), _f(r, "sigma_sc_on_mm"), _f(r, "expansion_vs_no_sc_pct"))
+        for r in rows
+        if r["beam"] == beam and r["b_gs"] == b_gs and r["power_kw"] == power
+    )
+    if len(pts) < 3:
+        return None
+    a = np.array(pts, float)
+    return dict(sigma0=a[:, 0], sigmam=a[:, 1], delta=a[:, 2])
 
 
-def single_species_roots(sigma_m: float, sigma0: np.ndarray, sigmam: np.ndarray) -> list[float]:
-    """Roots of σ_m(σ_0) = sigma_m on a tabulated curve."""
-    roots: list[float] = []
-    for i in range(len(sigma0) - 1):
-        y0, y1 = sigmam[i] - sigma_m, sigmam[i + 1] - sigma_m
-        if y0 == 0:
-            roots.append(float(sigma0[i]))
-        elif y0 * y1 < 0:
-            roots.append(float(sigma0[i] - y0 * (sigma0[i + 1] - sigma0[i]) / (y1 - y0)))
-    return roots
+# ----------------------------------------------------------------------------
+# two-root invert
+# ----------------------------------------------------------------------------
 
 
-def invert_large_root(sigma_m: float, sigma0: np.ndarray, sigmam: np.ndarray) -> float:
-    """Shiltsev-style start-from-σ_m: the root on the large-σ₀ branch."""
-    roots = single_species_roots(sigma_m, sigma0, sigmam)
-    imin = int(np.argmin(sigmam))
-    large = [r for r in roots if r >= float(sigma0[imin]) - 0.05]
-    return max(large) if large else float("nan")
-
-
-def invert_identified(sigma_m: float, sigma0: np.ndarray, sigmam: np.ndarray) -> float:
-    """Invert an identified-species table on σ₀ ≥ σ₀* (minimum of σ_m).
-
-    σ_m increases with σ₀ on that branch, so the interpolant is unique.
-    A measured width that only exists on the small-σ₀ side returns NaN.
-    """
-    imin = int(np.argmin(sigmam))
-    smin = float(sigma0[imin])
-    m = sigma0 >= smin - 1e-9
-    x, y = np.asarray(sigmam[m], float), np.asarray(sigma0[m], float)
-    order = np.argsort(x)
-    x, y = x[order], y[order]
-    _, idx = np.unique(np.round(x, 6), return_index=True)
+def _branch_root(x_sigmam: np.ndarray, y_sigma0: np.ndarray, sigma_m: float) -> float:
+    """Monotone-cubic invert of one branch; NaN outside the tabulated range."""
+    order = np.argsort(x_sigmam)
+    x, y = np.asarray(x_sigmam, float)[order], np.asarray(y_sigma0, float)[order]
+    _, idx = np.unique(np.round(x, 9), return_index=True)
     x, y = x[idx], y[idx]
     if len(x) < 2 or sigma_m < x[0] - 1e-9 or sigma_m > x[-1] + 1e-9:
         return float("nan")
-    return float(np.interp(sigma_m, x, y))
+    if len(x) == 2:
+        return float(np.interp(sigma_m, x, y))
+    return float(PchipInterpolator(x, y)(sigma_m))
 
 
-def leave_one_out_identified(sigma0: np.ndarray, sigmam: np.ndarray) -> np.ndarray:
-    rec = np.full_like(sigma0, np.nan, dtype=float)
-    for i in range(len(sigma0)):
-        mask = np.ones(len(sigma0), bool)
-        mask[i] = False
-        rec[i] = invert_identified(sigmam[i], sigma0[mask], sigmam[mask])
-    return rec
+def fold_of(sigma0: np.ndarray, sigmam: np.ndarray) -> tuple[float, float, float]:
+    """(σ₀*, σ_m,min) on the grid and the parabola-vertex σ₀ through the
+    three lowest points (used when a measured width lies below the grid
+    minimum, i.e. the beam is at the fold)."""
+    imin = int(np.argmin(sigmam))
+    lo, hi = max(imin - 1, 0), min(imin + 1, len(sigma0) - 1)
+    idx = list(range(lo, hi + 1))
+    vert = float(sigma0[imin])
+    if len(idx) == 3:
+        c = np.polyfit(sigma0[idx], sigmam[idx], 2)
+        if c[0] > 0:
+            vert = float(np.clip(-c[1] / (2 * c[0]), sigma0[lo], sigma0[hi]))
+    return float(sigma0[imin]), float(sigmam[imin]), vert
 
 
-def leave_one_out_large(sigma0: np.ndarray, sigmam: np.ndarray) -> np.ndarray:
-    rec = np.full_like(sigma0, np.nan, dtype=float)
-    for i in range(len(sigma0)):
-        mask = np.ones(len(sigma0), bool)
-        mask[i] = False
-        rec[i] = invert_large_root(sigmam[i], sigma0[mask], sigmam[mask])
-    return rec
+def two_roots(sigma_m: float, sigma0: np.ndarray, sigmam: np.ndarray) -> tuple[float, float, float]:
+    """Return (σ_S, σ_L, σ_fold) for a measured width on one species' table.
+
+    σ_S is the root on σ₀ ≤ σ₀* (σ_m falls with σ₀), σ_L the root on
+    σ₀ ≥ σ₀* (σ_m rises with σ₀). Either is NaN if the width is outside
+    that branch's tabulated range. σ_fold is the vertex estimate to use
+    when both are NaN because σ_m is below the tabulated minimum.
+    """
+    imin = int(np.argmin(sigmam))
+    small = _branch_root(sigmam[: imin + 1], sigma0[: imin + 1], sigma_m)
+    large = _branch_root(sigmam[imin:], sigma0[imin:], sigma_m)
+    _s0, _sm, vert = fold_of(sigma0, sigmam)
+    return small, large, vert
 
 
-def plot_curves(inj: dict) -> Path:
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
-    tab = {slug: inj[(slug, 100)] for slug, _ in SPECIES}
-    s0 = tab["n2_ions"]["sigma0"]
-    for slug, lab in SPECIES:
-        ax1.plot(tab[slug]["sigma0"], tab[slug]["sigmam"], "o-", color=COLORS[slug], lw=1.5, ms=5, label=lab)
+def select_root(small: float, large: float, fold: float, sigma_e: float) -> tuple[float, str]:
+    """Pick the root nearest the electron-mode width."""
+    if np.isnan(small) and np.isnan(large):
+        return fold, "fold"
+    if np.isnan(small):
+        return large, "large"
+    if np.isnan(large):
+        return small, "small"
+    if abs(small - sigma_e) <= abs(large - sigma_e):
+        return small, "small"
+    return large, "large"
+
+
+def leave_one_out_two_roots(sigma0: np.ndarray, sigmam: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    n = len(sigma0)
+    small = np.full(n, np.nan)
+    large = np.full(n, np.nan)
+    fold = np.full(n, np.nan)
+    for i in range(n):
+        m = np.ones(n, bool)
+        m[i] = False
+        small[i], large[i], fold[i] = two_roots(sigmam[i], sigma0[m], sigmam[m])
+    return small, large, fold
+
+
+def _slope_at(sigma0: np.ndarray, sigmam: np.ndarray, s: float) -> float:
+    """Central-difference dσ_m/dσ₀ at σ₀ = s (NaN if s is a grid end)."""
+    i = int(np.argmin(np.abs(sigma0 - s)))
+    if i == 0 or i == len(sigma0) - 1 or abs(sigma0[i] - s) > 1e-6:
+        return float("nan")
+    return float((sigmam[i + 1] - sigmam[i - 1]) / (sigma0[i + 1] - sigma0[i - 1]))
+
+
+def invert_case(beam: str, power: int, slug: str, a: dict, emode: dict | None) -> dict:
+    """Leave-one-out two-root invert of one (ring, power, species) table."""
+    s0, sm, fr = a["sigma0"], a["sigmam"], a["frac"]
+    # lost: ions hit the cage (not inverted). near-wall: everything is
+    # collected but the width is within ~2.75 sigma of the 110 mm half-cage.
+    lost = fr < WALL_FRAC
+    near_wall = (sm > WALL_SIGMA_MM) & ~lost
+    wall = lost
+    small, large, fold_loo = leave_one_out_two_roots(s0, sm)
+    fold_s0, fold_sm, fold_vertex = fold_of(s0, sm)
+    if emode is None:
+        se = s0.copy()
+    else:
+        se = np.interp(s0, emode["sigma0"], emode["sigmam"])
+    pick = np.full(len(s0), np.nan)
+    which = np.empty(len(s0), dtype=object)
+    for i in range(len(s0)):
+        pick[i], which[i] = select_root(small[i], large[i], fold_loo[i], se[i])
+    res = 100 * (pick / s0 - 1)
+    other = np.where(which == "small", large, np.where(which == "large", small, np.nan))
+    cost = 100 * np.abs(other / s0 - 1)
+    truth = np.where(s0 < fold_s0 - 0.5, "small", np.where(s0 > fold_s0 + 0.5, "large", "fold"))
+    correct = np.array(
+        [
+            (t == "fold") or (w == t) or (w == "fold")
+            for t, w in zip(truth, which)
+        ]
+    )
+    interior = (s0 >= s0.min() + 0.5) & (s0 <= (19.5 if beam == "injection" else 20.5))
+    ok = interior & ~wall
+    near_fold = np.abs(s0 - fold_s0) <= 1.01
+    return dict(
+        beam=beam,
+        power=power,
+        slug=slug,
+        sigma0=s0,
+        sigmam=sm,
+        frac=fr,
+        wall=wall,
+        lost=lost,
+        near_wall=near_wall,
+        sigma_e=se,
+        small=small,
+        large=large,
+        fold_loo=fold_loo,
+        pick=pick,
+        which=which,
+        res=res,
+        cost=cost,
+        correct=correct,
+        ok=ok,
+        interior=interior,
+        near_fold=near_fold,
+        fold_s0=fold_s0,
+        fold_sm=fold_sm,
+        fold_vertex=fold_vertex,
+        slope10=_slope_at(s0, sm, 10.0),
+        emode_delta10=(
+            float(np.interp(10.0, emode["sigma0"], emode["delta"])) if emode is not None else float("nan")
+        ),
+    )
+
+
+def build_cases(inj: dict, ext: dict) -> dict[tuple[str, int, str], dict]:
+    cases: dict[tuple[str, int, str], dict] = {}
+    for beam, table in (("injection", inj), ("extraction", ext)):
+        for power in POWERS:
+            em = emode_size_table(beam, power)
+            for slug, _lab in WORKING:
+                if (slug, power) not in table:
+                    continue
+                cases[(beam, power, slug)] = invert_case(beam, power, slug, table[(slug, power)], em)
+    return cases
+
+
+# ----------------------------------------------------------------------------
+# statistics
+# ----------------------------------------------------------------------------
+
+
+def _stat(values: np.ndarray, mask: np.ndarray) -> tuple[float, float, int]:
+    v = np.abs(values[mask & np.isfinite(values)])
+    if v.size == 0:
+        return float("nan"), float("nan"), 0
+    return float(np.median(v)), float(np.max(v)), int(v.size)
+
+
+def case_row(c: dict) -> dict:
+    s0 = c["sigma0"]
     i10 = int(np.argmin(np.abs(s0 - 10)))
-    ax1.axhline(tab["h2o_ions"]["sigmam"][i10], color="r", ls=":", lw=0.9)
-    ax1.axhline(tab["n2_ions"]["sigmam"][i10], color="g", ls=":", lw=0.9)
-    ax1.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax1.set_ylabel(r"collected $\sigma_m$ [mm]")
-    ax1.set_xlim(2.5, 20.5)
-    ax1.set_ylim(12, 30)
-    ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
-    ax1.legend(fontsize=11, loc="upper right")
+    ok = c["ok"]
+    small_b = ok & (s0 < c["fold_s0"] - 0.5)
+    large_b = ok & (s0 > c["fold_s0"] + 0.5)
+    away = ok & ~c["near_fold"]
+    med_all, max_all, n_all = _stat(c["res"], ok)
+    med_s, max_s, n_s = _stat(c["res"], small_b)
+    med_l, max_l, n_l = _stat(c["res"], large_b)
+    med_a, max_a, n_a = _stat(c["res"], away)
+    med_nf, max_nf, n_nf = _stat(c["res"], ok & c["near_fold"])
+    return dict(
+        beam=c["beam"],
+        power_kw=c["power"],
+        species=c["slug"],
+        fold_mm=c["fold_s0"],
+        fold_sm_mm=c["fold_sm"],
+        sm10_mm=float(c["sigmam"][i10]),
+        small10_mm=float(c["small"][i10]),
+        large10_mm=float(c["large"][i10]),
+        se10_mm=float(c["sigma_e"][i10]),
+        pick10_mm=float(c["pick"][i10]),
+        which10=str(c["which"][i10]),
+        res10_pct=float(c["res"][i10]),
+        wall10=bool(c["wall"][i10]),
+        near10=bool(c["near_wall"][i10]),
+        frac10=float(c["frac"][i10]),
+        slope10=c["slope10"],
+        emode_delta10_pct=c["emode_delta10"],
+        n_ok=n_all,
+        n_correct=int((c["correct"] & ok).sum()),
+        med_pct=med_all,
+        max_pct=max_all,
+        med_small_pct=med_s,
+        max_small_pct=max_s,
+        n_small=n_s,
+        med_large_pct=med_l,
+        max_large_pct=max_l,
+        n_large=n_l,
+        med_away_pct=med_a,
+        max_away_pct=max_a,
+        n_away=n_a,
+        med_fold_pct=med_nf,
+        max_fold_pct=max_nf,
+        n_fold=n_nf,
+        cost_min_pct=float(np.nanmin(c["cost"][ok])) if np.isfinite(c["cost"][ok]).any() else float("nan"),
+        n_wall=int(c["wall"].sum()),
+        n_near=int(c["near_wall"].sum()),
+        lost_sizes=[float(s) for s in s0[c["lost"]]],
+        near_sizes=[float(s) for s in s0[c["near_wall"]]],
+        n_grid=int(len(s0)),
+    )
 
-    ax2.plot([2, 21], [2, 21], "k--", lw=0.8)
-    for slug, lab in (("h2o_ions", r"H$_2$O$^+$"), ("n2_ions", r"N$_2^+$")):
-        rec = leave_one_out_identified(tab[slug]["sigma0"], tab[slug]["sigmam"])
-        ax2.plot(
-            tab[slug]["sigma0"],
-            rec,
-            "o",
-            color=COLORS[slug],
-            ms=6,
-            label=lab,
-        )
-    ax2.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax2.set_ylabel(r"recovered $\sigma_0$ [mm]")
-    ax2.set_xlim(2.5, 20.5)
-    ax2.set_ylim(2.5, 21)
-    ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
-    ax2.legend(fontsize=11, loc="upper left")
-    fig.tight_layout()
-    path = PLOTS / "csns_imode_inversion_curves.png"
-    fig.savefig(path, dpi=200)
-    plt.close(fig)
-    return path
+
+def species_cross_check(cases: dict, beam: str, power: int) -> dict | None:
+    """Agreement of the right roots and disagreement of the wrong roots
+    between H₂O⁺ and N₂⁺ (leave-one-out, inside the cage, grid interior)."""
+    kw, kn = (beam, power, "h2o_ions"), (beam, power, "n2_ions")
+    if kw not in cases or kn not in cases:
+        return None
+    w, n = cases[kw], cases[kn]
+    s0 = w["sigma0"]
+    if len(s0) != len(n["sigma0"]) or not np.allclose(s0, n["sigma0"]):
+        return None
+
+    def split(c: dict) -> tuple[np.ndarray, np.ndarray]:
+        right = np.where(s0 < c["fold_s0"], c["small"], c["large"])
+        wrong = np.where(s0 < c["fold_s0"], c["large"], c["small"])
+        return right, wrong
+
+    rw, ww = split(w)
+    rn, wn = split(n)
+    ok = w["ok"] & n["ok"] & ~w["near_fold"] & ~n["near_fold"]
+    dr = 100 * np.abs(rw / rn - 1)
+    dw = 100 * np.abs(ww / wn - 1)
+    m = ok & np.isfinite(dr) & np.isfinite(dw)
+    if not m.any():
+        return None
+    return dict(
+        beam=beam,
+        power_kw=power,
+        n=int(m.sum()),
+        right_med_pct=float(np.median(dr[m])),
+        right_max_pct=float(np.max(dr[m])),
+        wrong_med_pct=float(np.median(dw[m])),
+        wrong_min_pct=float(np.min(dw[m])),
+    )
 
 
-def plot_extraction(ext: dict) -> Path:
-    """Two-panel aligned-extraction invert: σ_m(σ₀) and leave-one-out recover."""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
-    tab100 = {slug: ext[(slug, 100)] for slug, _ in SPECIES if (slug, 100) in ext}
-    if "h2o_ions" not in tab100 or "n2_ions" not in tab100:
-        path = PLOTS / "csns_imode_inversion_extraction.png"
-        fig.savefig(path, dpi=200)
-        plt.close(fig)
-        return path
-    for slug, lab in SPECIES:
-        if slug not in tab100:
+# ----------------------------------------------------------------------------
+# plots
+# ----------------------------------------------------------------------------
+
+
+def _panel_curves(ax, beam: str, power: int, table: dict, cases: dict, show_legend: bool) -> None:
+    ax.plot([0, 30], [0, 30], "k--", lw=0.7)
+    if ("ions", power) in table:
+        h2 = table[("ions", power)]
+        ax.plot(h2["sigma0"], h2["sigmam"], "-", color="b", lw=0.8, alpha=0.6, label=r"H$_2^+$")
+    ymax = 0.0
+    for slug, lab in WORKING:
+        c = cases.get((beam, power, slug))
+        if c is None:
             continue
-        ax1.plot(
-            tab100[slug]["sigma0"],
-            tab100[slug]["sigmam"],
-            "o-",
-            color=COLORS[slug],
-            lw=1.5,
-            ms=5,
-            label=lab,
-        )
-    s0 = tab100["n2_ions"]["sigma0"]
-    i10 = int(np.argmin(np.abs(s0 - 10)))
-    ax1.axhline(tab100["h2o_ions"]["sigmam"][int(np.argmin(np.abs(tab100["h2o_ions"]["sigma0"] - 10)))],
-                color="r", ls=":", lw=0.9)
-    ax1.axhline(tab100["n2_ions"]["sigmam"][i10], color="g", ls=":", lw=0.9)
-    ax1.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax1.set_ylabel(r"collected $\sigma_m$ [mm]")
-    ax1.set_xlim(2.5, 20.5)
-    ax1.set_ylim(11, 29)
-    ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
-    ax1.legend(fontsize=11, loc="upper right")
+        s0, sm, lost, near = c["sigma0"], c["sigmam"], c["lost"], c["near_wall"]
+        full = ~lost & ~near
+        ax.plot(s0, sm, "-", color=COLORS[slug], lw=1.2)
+        ax.plot(s0[full], sm[full], MARKERS[slug], color=COLORS[slug], ms=4.5, label=lab)
+        if near.any():
+            ax.plot(s0[near], sm[near], MARKERS[slug], color=COLORS[slug], ms=4.5, fillstyle="none")
+        if lost.any():
+            ax.plot(s0[lost], sm[lost], MARKERS[slug], color="0.6", ms=4.5, fillstyle="none")
+        ymax = max(ymax, float(sm.max()))
+    c = cases.get((beam, power, "n2_ions"))
+    if c is not None:
+        em_s0, em_se = c["sigma0"], c["sigma_e"]
+        ax.plot(em_s0, em_se, "+", color="k", ms=5, mew=1.0, label=rf"e-mode {EMODE_B_GS}\,G")
+        i10 = int(np.argmin(np.abs(c["sigma0"] - 10)))
+        sm10 = float(c["sigmam"][i10])
+        if not c["lost"][i10]:
+            ax.axhline(sm10, color="g", ls=":", lw=0.9)
+            sS, sL, _ = two_roots(sm10, c["sigma0"], c["sigmam"])
+            if np.isfinite(sS):
+                ax.plot([sS], [sm10], "s", color="k", ms=6, fillstyle="none", mew=1.2)
+                ax.annotate(r"$\sigma_S$", (sS, sm10), xytext=(-14, 6), textcoords="offset points", fontsize=9)
+            if np.isfinite(sL):
+                ax.plot([sL], [sm10], "s", color="k", ms=6, mew=1.2)
+                ax.annotate(r"$\sigma_L$", (sL, sm10), xytext=(4, 6), textcoords="offset points", fontsize=9)
+    ax.set_xlim(2.5, 20.5)
+    top = min(65.0, max(22.0, 1.08 * ymax))
+    ax.set_ylim(0, top)
+    ax.set_title(rf"{power}\,\mathrm{{kW}}", fontsize=12)
+    if show_legend:
+        ax.legend(fontsize=8, loc="upper left", ncol=1)
 
-    ax2.plot([2, 21], [2, 21], "k--", lw=0.8)
-    n2 = tab100["n2_ions"]
-    h2o = tab100["h2o_ions"]
-    rec_n2 = leave_one_out_identified(n2["sigma0"], n2["sigmam"])
-    rec_h2o = leave_one_out_identified(h2o["sigma0"], h2o["sigmam"])
-    ax2.plot(n2["sigma0"], n2["sigmam"], "s", color="0.55", ms=6, label=r"uncorrected $\mathrm{N}_2^+$")
-    ax2.plot(h2o["sigma0"], rec_h2o, "o", color="r", ms=6, label=r"identified $\mathrm{H}_2\mathrm{O}^+$")
-    ax2.plot(n2["sigma0"], rec_n2, "^", color="g", ms=7, label=r"identified $\mathrm{N}_2^+$")
-    ax2.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax2.set_ylabel(r"recovered $\sigma_0$ [mm]")
-    ax2.set_xlim(2.5, 20.5)
-    ax2.set_ylim(2.5, 28)
-    ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
-    ax2.legend(fontsize=10, loc="lower right")
-    fig.tight_layout()
-    path = PLOTS / "csns_imode_inversion_extraction.png"
+
+def _panel_roots(ax, beam: str, power: int, cases: dict, show_legend: bool) -> None:
+    ax.plot([0, 30], [0, 30], "k--", lw=0.7)
+    for slug, lab in WORKING:
+        c = cases.get((beam, power, slug))
+        if c is None:
+            continue
+        s0, wall = c["sigma0"], c["wall"]
+        col, mk = COLORS[slug], MARKERS[slug]
+        # grid ends are extrapolations under leave-one-out and are not drawn
+        inner = c["interior"]
+        g = ~wall & inner
+        w = wall & inner
+        ax.plot(s0[g], c["small"][g], mk, color=col, ms=5, fillstyle="none", label=rf"{lab} $\sigma_S$")
+        ax.plot(s0[g], c["large"][g], mk, color=col, ms=5, label=rf"{lab} $\sigma_L$")
+        if w.any():
+            ax.plot(s0[w], c["small"][w], mk, color="0.6", ms=5, fillstyle="none")
+            ax.plot(s0[w], c["large"][w], mk, color="0.6", ms=5)
+        sel = g & np.isfinite(c["pick"])
+        near = sel & c["near_wall"]
+        ax.plot(s0[sel & ~near], c["pick"][sel & ~near], "o", color="k", ms=9, fillstyle="none", mew=0.9,
+                label="selected" if slug == "n2_ions" else None)
+        if near.any():
+            ax.plot(s0[near], c["pick"][near], "o", color="k", ms=9, fillstyle="none", mew=0.9, ls="", alpha=0.45)
+    c = cases.get((beam, power, "n2_ions"))
+    if c is not None:
+        ax.plot(c["sigma0"], c["sigma_e"], "+", color="k", ms=5, mew=1.0, label=rf"e-mode {EMODE_B_GS}\,G")
+        ax.axvline(c["fold_s0"], color="0.5", ls=":", lw=0.8)
+    ax.set_xlim(2.5, 20.5)
+    ax.set_ylim(0, 30)
+    if show_legend:
+        ax.legend(fontsize=7, loc="upper left", ncol=2, columnspacing=0.6, handletextpad=0.3)
+
+
+def plot_cases(beam: str, table: dict, cases: dict) -> Path:
+    """2 x 4 per-power case figure: σ_m(σ₀) with both roots of the 10 mm
+    width (top) and leave-one-out σ_S / σ_L with the e-mode-selected root
+    (bottom)."""
+    fig, axes = plt.subplots(2, 4, figsize=(13.4, 7.0), sharex=True)
+    for j, power in enumerate(POWERS):
+        _panel_curves(axes[0, j], beam, power, table, cases, show_legend=(j == 0))
+        _panel_roots(axes[1, j], beam, power, cases, show_legend=(j == 0))
+        axes[1, j].set_xlabel(r"true $\sigma_0$ [mm]")
+        for row in (0, 1):
+            axes[row, j].text(
+                0.97, 0.05, f"({'abcdefgh'[row * 4 + j]})", transform=axes[row, j].transAxes,
+                ha="right", va="bottom", fontsize=11,
+            )
+    axes[0, 0].set_ylabel(r"collected $\sigma_m$ [mm]")
+    axes[1, 0].set_ylabel(r"root $\sigma_S$, $\sigma_L$ [mm]")
+    for ax in axes.ravel():
+        ax.tick_params(labelsize=11)
+    fig.tight_layout(w_pad=0.6, h_pad=0.4)
+    path = PLOTS / f"csns_imode_inversion_{beam}_cases.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
     return path
 
 
-def plot_injection_power(inj: dict) -> Path:
-    """σ_m(σ₀) at injection 200/300/500 kW (fig. companion to 100 kW invc)."""
-    fig, axes = plt.subplots(1, 3, figsize=(12.2, 4.2), sharey=True)
-    for ax, power in zip(axes, (200, 300, 500)):
-        ax.plot([2, 22], [2, 22], "k--", lw=0.7)
-        for slug, lab in SPECIES:
-            if (slug, power) not in inj:
-                continue
-            a = inj[(slug, power)]
-            ax.plot(
-                a["sigma0"],
-                a["sigmam"],
-                "o-",
-                color=COLORS[slug],
-                lw=1.4,
-                ms=4,
-                label=lab,
-            )
+def plot_selected(cases: dict) -> Path:
+    """Residual of the e-mode-selected root versus σ₀ at both rings."""
+    fig, axes = plt.subplots(1, 2, figsize=(12.2, 4.6), sharey=True)
+    pmk = {100: "o", 200: "s", 300: "^", 500: "D"}
+    for ax, beam, tag in zip(axes, ("injection", "extraction"), ("a", "b")):
+        for slug, _lab in WORKING:
+            for power in POWERS:
+                c = cases.get((beam, power, slug))
+                if c is None:
+                    continue
+                s0, res = c["sigma0"], c["res"]
+                inner = c["interior"] & np.isfinite(res) & ~c["lost"]
+                g = inner & ~c["near_wall"]
+                w = inner & c["near_wall"]
+                lab = rf"{power}\,kW" if slug == "n2_ions" else None
+                ax.plot(s0[g], res[g], pmk[power], color=COLORS[slug], ms=5.5, label=lab)
+                if w.any():
+                    ax.plot(s0[w], res[w], pmk[power], color=COLORS[slug], ms=5.5, fillstyle="none")
+        ax.plot([], [], "o", color="r", ms=5.5, label=r"H$_2$O$^+$")
+        ax.plot([], [], "o", color="g", ms=5.5, label=r"N$_2^+$")
+        ax.axhline(0, color="k", lw=0.6)
+        ax.axhspan(-2, 2, color="0.90", zorder=0)
         ax.set_xlabel(r"true $\sigma_0$ [mm]")
         ax.set_xlim(2.5, 20.5)
-        ax.set_ylim(10, 58)
-        ax.set_title(rf"{power}\,\mathrm{{kW}}")
-        ax.text(0.04, 0.96, rf"({chr(ord('a') + (200, 300, 500).index(power))})",
-                transform=ax.transAxes, va="top")
-    axes[0].set_ylabel(r"collected $\sigma_m$ [mm]")
-    axes[0].legend(fontsize=9, loc="upper right")
+        ax.set_ylim(-15, 15)
+        ax.text(0.03, 0.96, f"({tag})", transform=ax.transAxes, va="top")
+        ax.legend(fontsize=8, loc="upper right", ncol=2)
+    axes[0].set_ylabel(r"selected-root residual [\%]")
     fig.tight_layout()
-    path = PLOTS / "csns_imode_inversion_injection_power.png"
+    path = PLOTS / "csns_imode_inversion_selected.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
     return path
 
 
-def plot_extraction_power(ext: dict) -> Path | None:
-    """Identified-species residual versus σ₀ at extraction powers that have a table."""
-    powers = sorted({p for (slug, p) in ext if slug in ("h2o_ions", "n2_ions")})
-    # Only quote tables with a 1 mm-class grid; the coarse I2 5 mm
-    # powers are kept in the CSV but are not a 0.2% invert.
-    usable = [
-        p
-        for p in powers
-        if ("h2o_ions", p) in ext
-        and ("n2_ions", p) in ext
-        and len(ext[("n2_ions", p)]["sigma0"]) >= 10
-    ]
-    if not usable:
-        return None
-    fig, ax = plt.subplots(figsize=(6.4, 4.8))
-    for slug, color in (("h2o_ions", "r"), ("n2_ions", "g")):
-        for power, mk in zip(usable, ("o", "s", "^", "D", "v", "P", "X")):
-            a = ext[(slug, power)]
-            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
-            wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
-            good = ~np.isnan(rec)
-            lab = rf"{power}\,kW" if slug == "n2_ions" else None
-            ax.plot(
-                a["sigma0"][good & ~wall],
-                100 * (rec[good & ~wall] / a["sigma0"][good & ~wall] - 1),
-                mk,
-                color=color,
-                ms=6,
-                label=lab,
-            )
-            if (good & wall).any():
-                ax.plot(
-                    a["sigma0"][good & wall],
-                    100 * (rec[good & wall] / a["sigma0"][good & wall] - 1),
-                    mk,
-                    color="0.6",
-                    ms=6,
-                    fillstyle="none",
-                )
-    ax.plot([], [], "o", color="r", ms=6, label=r"$\mathrm{H}_2\mathrm{O}^+$")
-    ax.plot([], [], "o", color="g", ms=6, label=r"$\mathrm{N}_2^+$")
-    ax.axhline(0, color="k", lw=0.6)
-    ax.axhspan(-2, 2, color="0.90", zorder=0)
-    ax.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax.set_ylabel(r"identified-species residual [\%]")
-    ax.set_xlim(2.5, 20.5)
-    ax.set_ylim(-15, 15)
-    ax.legend(fontsize=8, loc="upper right", ncol=2)
-    fig.tight_layout()
-    path = PLOTS / "csns_imode_inversion_extraction_power.png"
-    fig.savefig(path, dpi=200)
-    plt.close(fig)
-    return path
+# ----------------------------------------------------------------------------
+# outputs
+# ----------------------------------------------------------------------------
 
 
-def plot_recover(inj: dict, ext: dict) -> Path:
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.8))
-    n2 = inj[("n2_ions", 100)]
-    h2o = inj[("h2o_ions", 100)]
-    s0 = n2["sigma0"]
-    rec_n2 = leave_one_out_identified(s0, n2["sigmam"])
-    rec_h2o = leave_one_out_identified(h2o["sigma0"], h2o["sigmam"])
-    ax1.plot([2, 21], [2, 21], "k--", lw=0.8)
-    ax1.plot(s0, n2["sigmam"], "s", color="0.55", ms=6, label=r"uncorrected $\mathrm{N}_2^+$")
-    ax1.plot(h2o["sigma0"], rec_h2o, "o", color="r", ms=6, label=r"identified $\mathrm{H}_2\mathrm{O}^+$")
-    ax1.plot(s0, rec_n2, "^", color="g", ms=7, label=r"identified $\mathrm{N}_2^+$")
-    ax1.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax1.set_ylabel(r"recovered $\sigma_0$ [mm]")
-    ax1.set_xlim(2.5, 20.5)
-    ax1.set_ylim(2.5, 30)
-    ax1.text(0.03, 0.96, r"(a)", transform=ax1.transAxes, va="top")
-    ax1.legend(fontsize=10, loc="upper left")
-
-    for slug, color in (("h2o_ions", "r"), ("n2_ions", "g")):
-        for power, mk in ((100, "o"), (200, "s"), (300, "^"), (500, "D")):
-            if (slug, power) not in inj:
-                continue
-            a = inj[(slug, power)]
-            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
-            wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
-            good = ~np.isnan(rec)
-            lab = None
-            if slug == "n2_ions":
-                lab = rf"{power}\,kW"
-            ax2.plot(
-                a["sigma0"][good & ~wall],
-                100 * (rec[good & ~wall] / a["sigma0"][good & ~wall] - 1),
-                mk,
-                color=color,
-                ms=6,
-                label=lab,
-            )
-            if (good & wall).any():
-                ax2.plot(
-                    a["sigma0"][good & wall],
-                    100 * (rec[good & wall] / a["sigma0"][good & wall] - 1),
-                    mk,
-                    color="0.6",
-                    ms=6,
-                    fillstyle="none",
-                )
-    ax2.plot([], [], "o", color="r", ms=6, label=r"$\mathrm{H}_2\mathrm{O}^+$")
-    ax2.plot([], [], "o", color="g", ms=6, label=r"$\mathrm{N}_2^+$")
-    ax2.axhline(0, color="k", lw=0.6)
-    ax2.axhspan(-2, 2, color="0.90", zorder=0)
-    ax2.set_xlabel(r"true $\sigma_0$ [mm]")
-    ax2.set_ylabel(r"identified-species residual [\%]")
-    ax2.set_xlim(2.5, 20.5)
-    ax2.set_ylim(-15, 15)
-    ax2.text(0.03, 0.96, r"(b)", transform=ax2.transAxes, va="top")
-    ax2.legend(fontsize=9, loc="upper right", ncol=2)
-    fig.tight_layout()
-    path = PLOTS / "csns_imode_inversion_recover.png"
-    fig.savefig(path, dpi=200)
-    plt.close(fig)
-    return path
-
-
-def write_table(inj: dict, ext: dict) -> Path:
+def write_table(cases: dict) -> Path:
     path = OUT / "csns_imode_inversion.csv"
     keys = [
         "beam",
         "power_kw",
+        "species",
         "sigma0_mm",
-        "sigmam_h2o_mm",
-        "sigmam_n2_mm",
-        "rec_h2o_mm",
-        "rec_n2_mm",
-        "residual_h2o_pct",
-        "residual_n2_pct",
-        "frac_n2",
+        "sigmam_mm",
+        "detected_frac",
+        "lost",
+        "near_wall",
+        "sigma_e_mm",
+        "root_small_mm",
+        "root_large_mm",
+        "selected_mm",
+        "selected_branch",
+        "residual_pct",
+        "pick_correct",
     ]
-    rows = []
-    for beam, table in (("injection", inj), ("extraction", ext)):
-        for power in sorted({p for (_s, p) in table}):
-            if ("h2o_ions", power) not in table or ("n2_ions", power) not in table:
-                continue
-            h2o, n2 = table[("h2o_ions", power)], table[("n2_ions", power)]
-            s0 = np.array(sorted(set(h2o["sigma0"]) & set(n2["sigma0"])))
-            if len(s0) < 4:
-                continue
-            sm_w = _interp(h2o["sigma0"], h2o["sigmam"])(s0)
-            sm_n = _interp(n2["sigma0"], n2["sigmam"])(s0)
-            fr = _interp(n2["sigma0"], n2["frac"])(s0)
-            rec_w = leave_one_out_identified(s0, sm_w)
-            rec_n = leave_one_out_identified(s0, sm_n)
-            for i, s in enumerate(s0):
-                rows.append(
-                    dict(
-                        beam=beam,
-                        power_kw=power,
-                        sigma0_mm=round(float(s), 2),
-                        sigmam_h2o_mm=round(float(sm_w[i]), 3),
-                        sigmam_n2_mm=round(float(sm_n[i]), 3),
-                        rec_h2o_mm="" if np.isnan(rec_w[i]) else round(float(rec_w[i]), 3),
-                        rec_n2_mm="" if np.isnan(rec_n[i]) else round(float(rec_n[i]), 3),
-                        residual_h2o_pct=""
-                        if np.isnan(rec_w[i])
-                        else round(100 * (float(rec_w[i]) / float(s) - 1), 3),
-                        residual_n2_pct=""
-                        if np.isnan(rec_n[i])
-                        else round(100 * (float(rec_n[i]) / float(s) - 1), 3),
-                        frac_n2=round(float(fr[i]), 3),
-                    )
-                )
+
+    def fmt(v) -> str:
+        if isinstance(v, (bool, np.bool_)):
+            return "1" if v else "0"
+        if isinstance(v, str):
+            return v
+        if v is None or (isinstance(v, float) and not np.isfinite(v)):
+            return ""
+        return f"{float(v):.4g}" if abs(float(v)) < 1e-2 else f"{float(v):.3f}"
+
     with path.open("w") as fh:
         fh.write(",".join(keys) + "\n")
-        for r in rows:
-            fh.write(",".join(str(r[k]) for k in keys) + "\n")
+        for (beam, power, slug), c in sorted(cases.items(), key=lambda kv: (kv[0][0], kv[0][1], kv[0][2])):
+            for i, s in enumerate(c["sigma0"]):
+                row = dict(
+                    beam=beam,
+                    power_kw=power,
+                    species=slug,
+                    sigma0_mm=float(s),
+                    sigmam_mm=float(c["sigmam"][i]),
+                    detected_frac=float(c["frac"][i]),
+                    lost=bool(c["lost"][i]),
+                    near_wall=bool(c["near_wall"][i]),
+                    sigma_e_mm=float(c["sigma_e"][i]),
+                    root_small_mm=float(c["small"][i]),
+                    root_large_mm=float(c["large"][i]),
+                    selected_mm=float(c["pick"][i]),
+                    selected_branch=str(c["which"][i]),
+                    residual_pct=float(c["res"][i]),
+                    pick_correct=bool(c["correct"][i]),
+                )
+                fh.write(",".join(fmt(row[k]) for k in keys) + "\n")
     return path
 
 
-def report_stats(inj: dict, ext: dict) -> None:
-    print("Injection 100 kW, 25 kV, B = 0, identified-species invert:")
-    for slug, lab in (("ions", "H2+"), ("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
-        t = inj[(slug, 100)]
-        s0, sm = t["sigma0"], t["sigmam"]
-        rec = leave_one_out_identified(s0, sm)
-        e = 100 * (rec / s0 - 1)
-        i10 = int(np.argmin(np.abs(s0 - 10)))
-        m = (s0 >= 8) & np.isfinite(e)
-        print(
-            f"  {lab}: min σm={sm.min():.2f} mm at σ0={s0[sm.argmin()]:.0f} mm; "
-            f"σ0=10 σm={sm[i10]:.2f} rec={rec[i10]:.2f} mm ({e[i10]:+.2f}%); "
-            f"σ0=8–20 med|e|={np.median(np.abs(e[m])):.2f}% max={np.max(np.abs(e[m])):.2f}%"
-        )
-    for power in (200, 300, 400, 500):
-        for slug, lab in (("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
-            a = inj[(slug, power)]
-            rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
-            wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
-            good = ~np.isnan(rec) & ~wall
-            if good.any():
-                e = 100 * (rec[good] / a["sigma0"][good] - 1)
-                print(
-                    f"  {power} kW {lab} inside-cage |res| median {np.median(np.abs(e)):.2f}%  "
-                    f"n={int(good.sum())}  wall={int(wall.sum())}  "
-                    f"min@{a['sigma0'][a['sigmam'].argmin()]:.0f} mm"
-                )
-            else:
-                print(f"  {power} kW {lab}: no inside-cage recovery (wall)")
-    if ("h2o_ions", 100) in ext and ("n2_ions", 100) in ext:
-        print("Aligned extraction 100 kW, 25 kV, B = 0, identified-species invert:")
-        for slug, lab in (("ions", "H2+"), ("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
-            if (slug, 100) not in ext:
-                continue
-            t = ext[(slug, 100)]
-            s0, sm = t["sigma0"], t["sigmam"]
-            rec = leave_one_out_identified(s0, sm)
-            e = 100 * (rec / s0 - 1)
-            i10 = int(np.argmin(np.abs(s0 - 10)))
-            imin = int(np.argmin(sm))
-            m = (s0 >= float(s0[imin])) & np.isfinite(e) & (s0 >= 8) & (s0 <= 20)
-            print(
-                f"  {lab}: min σm={sm[imin]:.2f} mm at σ0={s0[imin]:.0f} mm; "
-                f"σ0=10 σm={sm[i10]:.2f} rec={rec[i10]:.2f} mm ({e[i10]:+.2f}%); "
-                f"σ0=8–20 on branch med|e|="
-                f"{np.median(np.abs(e[m])) if m.any() else float('nan'):.2f}% "
-                f"max={np.max(np.abs(e[m])) if m.any() else float('nan'):.2f}% "
-                f"n={int(m.sum())}  grid={','.join(f'{s:.0f}' for s in s0)}"
-            )
-        for power in sorted({p for (s, p) in ext if s == "n2_ions" and p != 100}):
-            for slug, lab in (("h2o_ions", "H2O+"), ("n2_ions", "N2+")):
-                if (slug, power) not in ext:
-                    continue
-                a = ext[(slug, power)]
-                rec = leave_one_out_identified(a["sigma0"], a["sigmam"])
-                wall = (a["frac"] < 0.995) | (a["sigmam"] > 40.0)
-                good = ~np.isnan(rec) & ~wall
-                if good.any():
-                    e = 100 * (rec[good] / a["sigma0"][good] - 1)
-                    print(
-                        f"  {power} kW {lab} inside-cage |res| median {np.median(np.abs(e)):.2f}%  "
-                        f"n={int(good.sum())}  wall={int(wall.sum())}  "
-                        f"min@{a['sigma0'][a['sigmam'].argmin()]:.0f} mm"
-                    )
-                else:
-                    print(f"  {power} kW {lab}: no inside-cage recovery (wall)")
+def _p(v: float, nd: int = 2) -> str:
+    return "—" if not np.isfinite(v) else f"{v:.{nd}f}"
 
 
-def _invp_row(beam: str, power: int, slug: str, a: dict) -> dict:
-    s0, sm, fr = a["sigma0"], a["sigmam"], a["frac"]
-    rec = leave_one_out_identified(s0, sm)
-    e = 100 * (rec / s0 - 1)
-    imin = int(np.argmin(sm))
-    i10 = int(np.argmin(np.abs(s0 - 10)))
-    wall = (fr < 0.995) | (sm > 40.0)
-    branch = (s0 >= float(s0[imin]) - 1e-9) & (s0 >= 8) & (s0 <= 20) & np.isfinite(e)
-    usable = branch & ~wall
-    return dict(
-        beam=beam,
-        power_kw=power,
-        species=slug,
-        fold_mm=round(float(s0[imin]), 1),
-        fold_sm_mm=round(float(sm[imin]), 2),
-        rec10_mm="" if not np.isfinite(rec[i10]) else round(float(rec[i10]), 2),
-        res10_pct="" if not np.isfinite(e[i10]) else round(float(e[i10]), 2),
-        med_pct="" if not usable.any() else round(float(np.median(np.abs(e[usable]))), 2),
-        max_pct="" if not usable.any() else round(float(np.max(np.abs(e[usable]))), 2),
-        n_branch=int(usable.sum()),
-        n_wall=int(wall.sum()),
-        n_grid=int(len(s0)),
-        wall10=bool(wall[i10]),
+def print_report(cases: dict) -> None:
+    print("Two-root invert (identified H2O+ / N2+), leave-one-out, e-mode 300 G selects the root.")
+    print("lost = frac<0.995 (excluded); near-wall = σm>40 mm (kept, flagged); interior = grid interior; near-fold = |σ0-σ0*| ≤ 1 mm")
+    print(
+        "beam power species | fold σ0* σm,min | 10 mm: σm σS σL σe → pick (res) slope | "
+        "n_ok correct | med/max all | med/max small | med/max large | away-from-fold med/max | fold±1 med/max | wrong-pick min cost | lost | near"
     )
-
-
-def print_invp(inj: dict, ext: dict) -> None:
-    print("tab:invp  (identified H2O+ / N2+; branch σ0≥σ0* and 8–20 mm; wall = frac<0.995 or σm>40)")
-    print("beam power species fold_mm fold_sm rec10 res10% med% max% n_br n_wall n_grid wall10")
-    for beam, table in (("injection", inj), ("extraction", ext)):
-        for power in (100, 200, 300, 500):
-            for slug in ("h2o_ions", "n2_ions"):
-                if (slug, power) not in table:
-                    continue
-                r = _invp_row(beam, power, slug, table[(slug, power)])
-                print(
-                    f"  {r['beam']:10s} {r['power_kw']:3d} {slug:9s} "
-                    f"fold={r['fold_mm']:.1f} sm*={r['fold_sm_mm']:.2f} "
-                    f"rec10={r['rec10_mm']} ({r['res10_pct']}%) "
-                    f"med={r['med_pct']} max={r['max_pct']} "
-                    f"n={r['n_branch']}/{r['n_grid']} wall={r['n_wall']} wall10={r['wall10']}"
-                )
+    for key in sorted(cases, key=lambda k: (k[0] != "injection", k[1], k[2])):
+        r = case_row(cases[key])
+        print(
+            f"  {r['beam']:10s} {r['power_kw']:3d} {r['species']:8s} | "
+            f"{r['fold_mm']:4.1f} {r['fold_sm_mm']:6.2f} | "
+            f"{r['sm10_mm']:6.2f} {_p(r['small10_mm'])} {_p(r['large10_mm'])} {r['se10_mm']:.2f} → "
+            f"{_p(r['pick10_mm'])} ({r['which10']}, {r['res10_pct']:+.2f}%)"
+            f"{' LOST' if r['wall10'] else (' near-wall' if r['near10'] else '')} frac={r['frac10']:.4f} slope={_p(r['slope10'])} | "
+            f"{r['n_ok']:2d} {r['n_correct']:2d} | {_p(r['med_pct'])}/{_p(r['max_pct'])} | "
+            f"{_p(r['med_small_pct'])}/{_p(r['max_small_pct'])} (n={r['n_small']}) | "
+            f"{_p(r['med_large_pct'])}/{_p(r['max_large_pct'])} (n={r['n_large']}) | "
+            f"{_p(r['med_away_pct'])}/{_p(r['max_away_pct'])} (n={r['n_away']}) | "
+            f"{_p(r['med_fold_pct'])}/{_p(r['max_fold_pct'])} (n={r['n_fold']}) | "
+            f"{_p(r['cost_min_pct'], 1)}% | lost {r['n_wall']} {r['lost_sizes']} | near {r['n_near']} {r['near_sizes']}"
+        )
+    print("Species cross-check (right roots agree / wrong roots disagree), away from fold, inside cage:")
+    for beam in ("injection", "extraction"):
+        for power in POWERS:
+            x = species_cross_check(cases, beam, power)
+            if x is None:
+                continue
+            print(
+                f"  {beam:10s} {power:3d} kW: right med {x['right_med_pct']:.2f}% max {x['right_max_pct']:.2f}% ; "
+                f"wrong med {x['wrong_med_pct']:.1f}% min {x['wrong_min_pct']:.1f}%  (n={x['n']})"
+            )
+    print("e-mode 300 G at 10 mm (Δ vs no-SC, %):")
+    for beam in ("injection", "extraction"):
+        print("  " + beam + ": " + ", ".join(
+            f"{p} kW {cases[(beam, p, 'n2_ions')]['emode_delta10']:+.2f}" for p in POWERS if (beam, p, "n2_ions") in cases
+        ))
 
 
 def main() -> None:
@@ -570,16 +631,12 @@ def main() -> None:
     PLOTS.mkdir(exist_ok=True)
     inj = injection_size_table()
     ext = extraction_aligned_table()
-    report_stats(inj, ext)
-    print("wrote", write_table(inj, ext))
-    print("wrote", plot_curves(inj))
-    print("wrote", plot_injection_power(inj))
-    print("wrote", plot_recover(inj, ext))
-    print("wrote", plot_extraction(ext))
-    pwr = plot_extraction_power(ext)
-    if pwr is not None:
-        print("wrote", pwr)
-    print_invp(inj, ext)
+    cases = build_cases(inj, ext)
+    print("wrote", write_table(cases))
+    print("wrote", plot_cases("injection", inj, cases))
+    print("wrote", plot_cases("extraction", ext, cases))
+    print("wrote", plot_selected(cases))
+    print_report(cases)
 
 
 if __name__ == "__main__":
