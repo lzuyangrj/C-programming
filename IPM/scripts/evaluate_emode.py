@@ -448,8 +448,11 @@ def threshold_1pct(series: list[dict]) -> int | None:
 
 
 def plot_bscan(rows: list[dict], plot_dir: Path) -> None:
-    fig, axes = plt.subplots(1, 3, figsize=(15.0, 4.6), sharey=True)
-    for ax, (beam, sigma_mm) in zip(axes, EMODE_REF_BEAMS):
+    """One row per reference beam: full 0-300 G range (left) and the
+    150-300 G tail on a ±3 % scale (right)."""
+    fig, axes = plt.subplots(3, 2, figsize=(10.0, 10.5))
+    for row_i, (beam, sigma_mm) in enumerate(EMODE_REF_BEAMS):
+        ax_full, ax_tail = axes[row_i]
         for power_kw in POWERS_KW:
             series = sorted(
                 (
@@ -463,62 +466,43 @@ def plot_bscan(rows: list[dict], plot_dir: Path) -> None:
             )
             if not series:
                 continue
-            ax.plot(
+            ax_full.plot(
                 [r["b_gs"] for r in series],
                 [r["expansion_vs_no_sc_pct"] for r in series],
                 "-",
                 lw=1.3,
                 label=f"{power_kw} kW",
             )
-        ax.axhline(0.0, color="0.5", lw=0.8)
-        ax.axhspan(-1.0, 1.0, color="0.85", alpha=0.5, lw=0)
-        ax.set_title(ref_title(beam, sigma_mm))
-        ax.set_xlabel("B [G]")
-        ax.set_xlim(EMODE_BSCAN_GS[0], EMODE_BSCAN_GS[-1])
-        ax.grid(True, alpha=0.3)
-        ax.legend(fontsize=8)
-    axes[0].set_ylabel("profile expansion vs no SC [%]")
-    fig.tight_layout()
-    fig.savefig(plot_dir / "csns_emode_bscan300.png", dpi=150)
-    print(f"Wrote {plot_dir / 'csns_emode_bscan300.png'}")
-
-    # Zoom on the ±3% band to show the tail 150–300 G.
-    fig, axes = plt.subplots(1, 3, figsize=(15.0, 4.6), sharey=True)
-    for ax, (beam, sigma_mm) in zip(axes, EMODE_REF_BEAMS):
-        for power_kw in POWERS_KW:
-            series = sorted(
-                (
-                    r
-                    for r in rows
-                    if r["beam"] == beam
-                    and r["sigma_x_mm"] == sigma_mm
-                    and r["power_kw"] == power_kw
-                    and r["b_gs"] >= 150
-                ),
-                key=lambda r: r["b_gs"],
-            )
-            if not series:
-                continue
-            ax.plot(
-                [r["b_gs"] for r in series],
-                [r["expansion_vs_no_sc_pct"] for r in series],
+            tail = [r for r in series if r["b_gs"] >= 150]
+            ax_tail.plot(
+                [r["b_gs"] for r in tail],
+                [r["expansion_vs_no_sc_pct"] for r in tail],
                 "o-",
                 ms=3,
                 lw=1.2,
                 label=f"{power_kw} kW",
             )
-        ax.axhline(0.0, color="0.5", lw=0.8)
-        ax.axhline(-1.0, color="0.6", ls="--", lw=0.8)
-        ax.axhline(1.0, color="0.6", ls="--", lw=0.8)
-        ax.set_ylim(-3.0, 3.0)
-        ax.set_title(ref_title(beam, sigma_mm))
+        ax_full.axhline(0.0, color="0.5", lw=0.8)
+        ax_full.axhspan(-1.0, 1.0, color="0.85", alpha=0.5, lw=0)
+        ax_full.set_xlim(EMODE_BSCAN_GS[0], EMODE_BSCAN_GS[-1])
+        ax_full.set_ylim(-65, 90)
+        ax_tail.axhline(0.0, color="0.5", lw=0.8)
+        ax_tail.axhline(-1.0, color="0.6", ls="--", lw=0.8)
+        ax_tail.axhline(1.0, color="0.6", ls="--", lw=0.8)
+        ax_tail.set_ylim(-3.0, 3.0)
+        ax_tail.set_xlim(150, 300)
+        for ax in (ax_full, ax_tail):
+            ax.set_title(ref_title(beam, sigma_mm), fontsize=11)
+            ax.grid(True, alpha=0.3)
+            ax.set_ylabel("profile expansion vs no SC [%]")
+        ax_full.legend(fontsize=8)
+        ax_full.text(0.03, 0.95, f"({'ace'[row_i]})", transform=ax_full.transAxes, va="top")
+        ax_tail.text(0.03, 0.95, f"({'bdf'[row_i]})", transform=ax_tail.transAxes, va="top")
+    for ax in axes[2]:
         ax.set_xlabel("B [G]")
-        ax.grid(True, alpha=0.3)
-        ax.legend(fontsize=8)
-    axes[0].set_ylabel("profile expansion vs no SC [%]")
     fig.tight_layout()
-    fig.savefig(plot_dir / "csns_emode_bscan300_tail.png", dpi=150)
-    print(f"Wrote {plot_dir / 'csns_emode_bscan300_tail.png'}")
+    fig.savefig(plot_dir / "csns_emode_bscan300.png", dpi=150)
+    print(f"Wrote {plot_dir / 'csns_emode_bscan300.png'}")
 
 
 def plot_size_grid(
@@ -531,11 +515,11 @@ def plot_size_grid(
     b_fields: tuple[int, ...] | None = None,
 ) -> None:
     fields = EMODE_SIZE_B_GS if b_fields is None else b_fields
-    ncol = len(fields)
-    fig, axes = plt.subplots(2, ncol, figsize=(3.4 * ncol + 1.0, 8.0), sharex=True, sharey=True)
+    nrow = len(fields)
+    fig, axes = plt.subplots(nrow, 2, figsize=(9.0, 3.1 * nrow + 0.6), sharex=True, sharey=True)
     lims = np.array(SIZE_MM, dtype=float)
-    for row_i, beam in enumerate(("injection", "extraction")):
-        for col_i, b_gs in enumerate(fields):
+    for row_i, b_gs in enumerate(fields):
+        for col_i, beam in enumerate(("injection", "extraction")):
             ax = axes[row_i, col_i]
             for power_kw in POWERS_KW:
                 series = sorted(
@@ -562,9 +546,9 @@ def plot_size_grid(
                 ax.plot(lims, lims, "k--", lw=0.9, label="obtained = true")
             else:
                 ax.axhline(0.0, color="0.5", lw=0.8)
-            ax.set_title(f"{BEAM_TITLES[beam]}, {b_label(b_gs)}", fontsize=9)
+            ax.set_title(f"{BEAM_TITLES[beam]}, {b_label(b_gs)}", fontsize=10)
             ax.grid(True, alpha=0.3)
-            if row_i == 1:
+            if row_i == nrow - 1:
                 ax.set_xlabel("True beam size [mm]")
             if col_i == 0:
                 ax.set_ylabel(ylabel)

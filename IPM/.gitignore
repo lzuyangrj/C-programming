@@ -43,7 +43,6 @@ plots/*.png
 !plots/csns_ionsize_sigma.png
 !plots/csns_ionsize_obtained.png
 !plots/csns_emode_bscan300.png
-!plots/csns_emode_bscan300_tail.png
 !plots/csns_emode_size_expansion.png
 !plots/csns_emode_size_obtained.png
 !plots/csns_emode_voltage.png
@@ -53,12 +52,12 @@ plots/*.png
 !plots/csns_imode_bscan.png
 !plots/csns_imode_size_obtained.png
 !plots/csns_imode_size_expansion.png
+!plots/csns_imode_size_expansion_ext.png
 !plots/csns_imode_voltage.png
 !plots/csns_imode_offset.png
 !plots/csns_review_emode_bmin.png
 !plots/csns_review_imode_model.png
 !plots/csns_review_emode_cyclotron.png
-!plots/csns_v2_aligned_extraction.png
 !plots/csns_orbit_offset_emode.png
 !plots/csns_orbit_offset_imode.png
 !plots/csns_imode_inversion_injection_cases.png

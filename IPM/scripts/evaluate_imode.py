@@ -186,11 +186,11 @@ def plot_ref_b(rows: list[dict], plot_dir: Path) -> None:
 
 
 def plot_size_obtained(rows: list[dict], plot_dir: Path) -> None:
-    ncol = len(IMODE_B_GS)
-    fig, axes = plt.subplots(3, ncol, figsize=(3.6 * ncol + 1.0, 10.0), sharex=True, sharey=True)
+    fields = (0, 1000)
+    fig, axes = plt.subplots(3, 2, figsize=(9.0, 10.0), sharex=True, sharey=True)
     lims = np.array(SIZE_MM, dtype=float)
     for row_i, species in enumerate(SPECIES_SLUGS):
-        for col_i, b_gs in enumerate(IMODE_B_GS):
+        for col_i, b_gs in enumerate(fields):
             ax = axes[row_i, col_i]
             for beam, ls in zip(("injection", "extraction"), ("-", "--")):
                 series = sorted(
@@ -286,63 +286,49 @@ def _size_series(
 
 
 def plot_size_expansion(rows: list[dict], plot_dir: Path) -> None:
-    """Fig. 3: (a) expansion vs true σ; (b) observed vs true σ, at 0.1 T.
-
-    Injection uses the Block B size summary. Extraction uses aligned I1/I2
-    (v1 as-run H₂⁺ extraction is not plotted).
-    """
+    """One figure per ring: rows are the three species, left column the
+    expansion Δ(σ₀), right column the observed width σ_m(σ₀), at 0.1 T.
+    Extraction ions are generated in time with the bunch."""
     aligned = aligned_extraction_size_rows()
-    fig, axes = plt.subplots(4, 3, figsize=(14.0, 13.2), sharex=True)
-    for ax in axes[1]:
-        ax.sharey(axes[0, 0])
-    for ax in (*axes[2], *axes[3]):
-        ax.sharey(axes[2, 0])
     lims = np.array([0.0, 22.0])
-    for col_i, species in enumerate(SPECIES_SLUGS):
-        for row_i, beam in enumerate(("injection", "extraction")):
-            src = aligned if beam == "extraction" and aligned else rows
-            ax_exp = axes[row_i, col_i]
-            ax_obs = axes[row_i + 2, col_i]
+    for beam, suffix in (("injection", ""), ("extraction", "_ext")):
+        src = aligned if beam == "extraction" and aligned else rows
+        fig, axes = plt.subplots(3, 2, figsize=(9.0, 10.5), sharex=True)
+        for ax in axes[1:, 0]:
+            ax.sharey(axes[0, 0])
+        for ax in axes[1:, 1]:
+            ax.sharey(axes[0, 1])
+        for row_i, species in enumerate(SPECIES_SLUGS):
+            ax_exp, ax_obs = axes[row_i]
             for power_kw in POWERS_KW:
                 series = _size_series(src, species, beam, power_kw)
                 if not series:
                     continue
                 xs = [r["sigma_x_mm"] for r in series]
-                ax_exp.plot(
-                    xs,
-                    [r["expansion_vs_no_sc_pct"] for r in series],
-                    "o-",
-                    ms=3,
-                    lw=1.1,
-                    label=f"{power_kw} kW",
-                )
-                ax_obs.plot(
-                    xs,
-                    [r["sigma_sc_on_mm"] for r in series],
-                    "o-",
-                    ms=3,
-                    lw=1.1,
-                    label=f"{power_kw} kW",
-                )
+                ax_exp.plot(xs, [r["expansion_vs_no_sc_pct"] for r in series],
+                            "o-", ms=3, lw=1.1, label=f"{power_kw} kW")
+                ax_obs.plot(xs, [r["sigma_sc_on_mm"] for r in series],
+                            "o-", ms=3, lw=1.1, label=f"{power_kw} kW")
             ax_exp.axhline(0.0, color="0.5", lw=0.8)
             ax_obs.plot(lims, lims, "k--", lw=0.9, label="obtained = true")
             title = f"{SPECIES_LABELS[species]}, {BEAM_TITLES[beam]}"
-            ax_exp.set_title(title, fontsize=9)
-            ax_obs.set_title(title, fontsize=9)
+            ax_exp.set_title(title, fontsize=10)
+            ax_obs.set_title(title, fontsize=10)
             ax_exp.grid(True, alpha=0.3)
             ax_obs.grid(True, alpha=0.3)
-            if col_i == 0:
-                ax_exp.set_ylabel(r"$\Delta$ [\%]")
-                ax_obs.set_ylabel("Observed beam size [mm]")
-            if row_i == 1:
-                ax_obs.set_xlabel("True beam size [mm]")
-            if row_i == 0 and col_i == 0:
-                ax_exp.legend(fontsize=7, loc="upper right")
-    axes[0, 0].text(0.03, 0.96, r"(a)", transform=axes[0, 0].transAxes, va="top")
-    axes[2, 0].text(0.03, 0.08, r"(b)", transform=axes[2, 0].transAxes, va="bottom")
-    fig.tight_layout()
-    fig.savefig(plot_dir / "csns_imode_size_expansion.png", dpi=150)
-    print(f"Wrote {plot_dir / 'csns_imode_size_expansion.png'}")
+            ax_exp.set_ylabel(r"$\Delta$ [\%]")
+            ax_obs.set_ylabel("Observed beam size [mm]")
+            ax_exp.text(0.97, 0.95, f"({'ace'[row_i]})", transform=ax_exp.transAxes, ha="right", va="top")
+            ax_obs.text(0.03, 0.95, f"({'bdf'[row_i]})", transform=ax_obs.transAxes, va="top")
+            if row_i == 0:
+                ax_exp.legend(fontsize=7, loc="upper right", bbox_to_anchor=(0.86, 1.0))
+        for ax in axes[2]:
+            ax.set_xlabel("True beam size [mm]")
+        fig.tight_layout()
+        path = plot_dir / f"csns_imode_size_expansion{suffix}.png"
+        fig.savefig(path, dpi=150)
+        plt.close(fig)
+        print(f"Wrote {path}")
 
 
 def plot_voltage(rows: list[dict], plot_dir: Path) -> None:

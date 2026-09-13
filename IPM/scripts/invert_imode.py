@@ -519,7 +519,7 @@ def _panel_curves(ax, beam: str, power: int, table: dict, cases: dict, show_lege
     ax.set_xlim(2.5, 20.5)
     top = min(65.0, max(22.0, 1.08 * ymax))
     ax.set_ylim(0, top)
-    ax.set_title(rf"{power}\,\mathrm{{kW}}", fontsize=12)
+    ax.set_title(f"{power} kW, collected width", fontsize=12)
     if show_legend:
         ax.legend(fontsize=8, loc="upper left", ncol=1)
 
@@ -552,29 +552,31 @@ def _panel_roots(ax, beam: str, power: int, cases: dict, show_legend: bool) -> N
         ax.axvline(c["fold_s0"], color="0.5", ls=":", lw=0.8)
     ax.set_xlim(2.5, 20.5)
     ax.set_ylim(0, 30)
+    ax.set_title(f"{power} kW, leave-one-out roots", fontsize=12)
     if show_legend:
         ax.legend(fontsize=7, loc="upper left", ncol=2, columnspacing=0.6, handletextpad=0.3)
 
 
 def plot_cases(beam: str, table: dict, cases: dict) -> Path:
-    """2 x 4 per-power case figure: σ_m(σ₀) with both roots of the 10 mm
+    """4 x 2 per-power case figure (one row per power): σ_m(σ₀) with both roots of the 10 mm
     width and the B = 0 electron curve (top); leave-one-out σ_S / σ_L with
     the root confirmed by the electron width (bottom)."""
-    fig, axes = plt.subplots(2, 4, figsize=(13.4, 7.0), sharex=True)
-    for j, power in enumerate(POWERS):
-        _panel_curves(axes[0, j], beam, power, table, cases, show_legend=(j == 0))
-        _panel_roots(axes[1, j], beam, power, cases, show_legend=(j == 0))
-        axes[1, j].set_xlabel(r"true $\sigma_0$ [mm]")
-        for row in (0, 1):
-            axes[row, j].text(
-                0.97, 0.05, f"({'abcdefgh'[row * 4 + j]})", transform=axes[row, j].transAxes,
+    fig, axes = plt.subplots(4, 2, figsize=(9.6, 14.0), sharex=True)
+    for i, power in enumerate(POWERS):
+        _panel_curves(axes[i, 0], beam, power, table, cases, show_legend=(i == 0))
+        _panel_roots(axes[i, 1], beam, power, cases, show_legend=(i == 0))
+        axes[i, 0].set_ylabel(r"collected $\sigma_m$ [mm]")
+        axes[i, 1].set_ylabel(r"root $\sigma_S$, $\sigma_L$ [mm]")
+        for col in (0, 1):
+            axes[i, col].text(
+                0.97, 0.05, f"({'abcdefgh'[2 * i + col]})", transform=axes[i, col].transAxes,
                 ha="right", va="bottom", fontsize=11,
             )
-    axes[0, 0].set_ylabel(r"collected $\sigma_m$ [mm]")
-    axes[1, 0].set_ylabel(r"root $\sigma_S$, $\sigma_L$ [mm]")
+    for ax in axes[3]:
+        ax.set_xlabel(r"true $\sigma_0$ [mm]")
     for ax in axes.ravel():
         ax.tick_params(labelsize=11)
-    fig.tight_layout(w_pad=0.6, h_pad=0.4)
+    fig.tight_layout(w_pad=0.8, h_pad=0.5)
     path = PLOTS / f"csns_imode_inversion_{beam}_cases.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
@@ -586,9 +588,9 @@ def plot_selected_power(cases: dict, power: int) -> Path:
     electron width (a: injection, b: extraction) and the electron margin
     |T_e(σ_S) − T_e(σ_L)| / σ_e that separated the two hypotheses
     (c: injection, d: extraction)."""
-    fig, axes = plt.subplots(1, 4, figsize=(13.4, 3.7))
+    fig, axes = plt.subplots(2, 2, figsize=(9.0, 7.2))
     for j, beam in enumerate(("injection", "extraction")):
-        ax, axm = axes[j], axes[2 + j]
+        ax, axm = axes[0, j], axes[1, j]
         for slug, lab in WORKING:
             c = cases.get((beam, power, slug))
             if c is None:
@@ -622,13 +624,13 @@ def plot_selected_power(cases: dict, power: int) -> Path:
         axm.set_xlabel(r"true $\sigma_0$ [mm]")
         axm.set_title("injection" if beam == "injection" else "extraction", fontsize=12)
         axm.text(0.04, 0.95, f"({'cd'[j]})", transform=axm.transAxes, va="top", fontsize=11)
-    axes[0].set_ylabel(r"confirmed-root residual [\%]")
-    axes[2].set_ylabel(r"e-mode margin [\%]")
-    axes[0].legend(fontsize=9, loc="lower right")
-    for ax in axes:
+    axes[0, 0].set_ylabel(r"confirmed-root residual [\%]")
+    axes[1, 0].set_ylabel(r"e-mode margin [\%]")
+    axes[0, 0].legend(fontsize=9, loc="lower right")
+    for ax in axes.ravel():
         ax.tick_params(labelsize=11)
-    fig.suptitle(rf"{power}\,\mathrm{{kW}}", fontsize=13, y=1.0)
-    fig.tight_layout(w_pad=0.8)
+    fig.suptitle(f"{power} kW", fontsize=13)
+    fig.tight_layout(w_pad=0.8, h_pad=0.6)
     path = PLOTS / f"csns_imode_inversion_selected_{power}kw.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
