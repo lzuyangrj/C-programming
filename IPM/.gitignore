@@ -76,6 +76,7 @@ configs/csns_rcs_ipm/v2/*.xml
 output/v2/*.csv
 output/**/*.csv.zip
 output/*.csv.zip
+output/**/*.csv.zip.partial
 !output/csns_v2_summary.csv
 *.log
 *.aux
