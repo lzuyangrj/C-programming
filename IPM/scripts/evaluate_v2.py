@@ -90,7 +90,8 @@ def merge_dense_extraction() -> int:
         if not r["sc_on"]:
             continue
         on_p = ROOT / csv_rel(r)
-        off_p = ROOT / csv_rel(dict(r, species="ions", sc_on=False))
+        # H₂⁺ SC-off is shared across power (no bunch field).
+        off_p = ROOT / csv_rel(dict(r, species="ions", sc_on=False, power_kw=100))
         if not on_p.is_file() or not off_p.is_file():
             continue
         row = summarize_pair(on_p, off_p, f"{r['block']}_{v_family(r)}", r["b_gs"])
