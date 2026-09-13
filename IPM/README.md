@@ -2,7 +2,11 @@
 
 CSNS RCS Ionization Profile Monitor simulations using [Virtual-IPM](https://ipmsim.gitlab.io/Virtual-IPM/index.html) 2.3.1.
 
-**Results note:** [REPORT.md](REPORT.md) — write-up and **all figures** (appendix).
+**Physics note (CERN Yellow Report class):** [CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf) / [CSNS_IPM_REPORT.tex](CSNS_IPM_REPORT.tex) — space-charge distortion, size growth, and mitigation (PRAB/NIMA style).  
+**Literature review (2006–2026):** [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) / [LITERATURE_REVIEW.pdf](LITERATURE_REVIEW.pdf) — comparison of the simulated expansions with published IPM scaling, machines and correction methods.  
+**Revised scan matrix v2 (complete):** [SCAN_MATRIX_V2.md](SCAN_MATRIX_V2.md) / [SCAN_MATRIX_V2.pdf](SCAN_MATRIX_V2.pdf) — 1014 new 100k runs; aligned extraction H₂⁺ +104 % (was +33.5 % as-run). `JOBS=4 ./scripts/run_v2.sh` (SKIP-if-exists).  
+**Lab notebook:** [REPORT.md](REPORT.md) — chronological e-mode and early ion results.  
+**Ion-mode only:** [IMODE_REPORT.md](IMODE_REPORT.md) / [IMODE_REPORT.pdf](IMODE_REPORT.pdf).
 
 Docs: [Introduction](https://ipmsim.gitlab.io/Virtual-IPM/introduction.html) · [Install](https://ipmsim.gitlab.io/Virtual-IPM/installation.html) · [Usage](https://ipmsim.gitlab.io/Virtual-IPM/usage.html) · [Examples](https://ipmsim.gitlab.io/Virtual-IPM/examples.html)
 
@@ -70,13 +74,23 @@ Ion-mode beam-size scan (\(\sigma_x=3\)–\(20\,\mathrm{mm}\), 1 mm step) at inj
 python scripts/evaluate_extended.py
 ```
 
-Replanned e-mode scans, all with **round beams** (\(\sigma_y=\sigma_x\)) — \(B\) 0–300 G / 5 G for 25×25 mm injection, 10×10 mm extraction, and 10×10 mm injection at 100–500 kW; \(\sigma=3\)–20 mm size scans at 0/100/200/300 G and 0.1 T; a cage-voltage scan (5–30 kV) and a beam-offset check on the 10×10 mm beams (plan only, see `configs/csns_rcs_ipm/emode/README.md`):
+Replanned e-mode scans, all with **round beams** (\(\sigma_y=\sigma_x\)) — \(B\) 0–300 G / 5 G for 25×25 mm injection, 10×10 mm extraction, and 10×10 mm injection at 100–500 kW; \(\sigma=3\)–20 mm size scans at 0/100/200/300 G and 0.1 T; a cage-voltage scan (5–30 kV) and a beam-offset check on the 10×10 mm beams (see `configs/csns_rcs_ipm/emode/README.md`):
 
 ```bash
 ./scripts/run_emode_replan.sh --matrix   # show run counts only
 ./scripts/run_emode_replan.sh
 python scripts/evaluate_emode.py
 ```
+
+Ion-mode matrix (round beams; H₂⁺ / H₂O⁺ / N₂⁺; \(B\) at **0 / 200 / 1000 G** only):
+
+```bash
+./scripts/run_imode_replan.sh --matrix   # show run counts
+JOBS=4 ./scripts/run_imode_replan.sh
+python3 scripts/evaluate_imode.py
+```
+
+**Status: complete** (2070 / 2070). Write-up: `REPORT.md` §10.
 
 ```bash
 ./scripts/run_fine_bscan_study.sh
@@ -147,7 +161,11 @@ Useful CLI flags:
 
 | Path | Purpose |
 |------|---------|
-| `REPORT.md` | Brief results note |
+| `CSNS_IPM_REPORT.tex` / `.pdf` | CERN Yellow Report class; PRAB/NIMA-style physics note |
+| `LITERATURE_REVIEW.md` / `.pdf` | Review of the results against IPM papers 2006–2026 |
+| `SCAN_MATRIX_V2.md` / `.pdf` | Revised scan matrix v2 (executed; `scripts/run_v2.sh`, `output/csns_v2_summary.csv`) |
+| `IMODE_REPORT.md` / `.pdf` | Ion-mode A–D write-up |
+| `REPORT.md` | Lab notebook (chronological) |
 | `configs/` | XML simulation configurations |
 | `scripts/run_sim.sh` | Wrapper around `virtual-ipm` |
 | `scripts/analyze_output.py` | Plot initial vs final x profiles |

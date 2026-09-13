@@ -1,0 +1,1125 @@
+mode,block,beam,energy_mev,sigma_t_ns,sigma_mm,dx_mm,dy_mm,voltage_kv,power_kw,b_gs,species,train,sc_on,reuse
+e,E1,ramp,80,120.0,10,0,0,25,100,0,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,500,0,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,100,0,,3-bunch,False,True
+e,E1,ramp,80,120.0,10,0,0,25,100,100,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,500,100,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,100,100,,3-bunch,False,True
+e,E1,ramp,80,120.0,10,0,0,25,100,200,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,500,200,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,100,200,,3-bunch,False,True
+e,E1,ramp,80,120.0,10,0,0,25,100,300,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,500,300,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,100,300,,3-bunch,False,True
+e,E1,ramp,80,120.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,80,120.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,80,120.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,80,120.0,10,0,0,25,100,1000,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,500,1000,,3-bunch,True,True
+e,E1,ramp,80,120.0,10,0,0,25,100,1000,,3-bunch,False,True
+e,E1,ramp,80,20.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,80,20.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,80,20.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,80,20.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,80,20.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,80,20.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,80,20.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,200,120.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,200,120.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,200,120.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,200,120.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,200,120.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,200,120.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,200,120.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,200,20.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,200,20.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,200,20.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,200,20.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,200,20.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,200,20.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,200,20.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,400,120.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,400,120.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,400,120.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,400,120.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,400,120.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,400,120.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,400,120.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,400,20.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,400,20.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,400,20.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,400,20.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,400,20.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,400,20.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,400,20.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,800,120.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,800,120.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,800,120.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,800,120.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,800,120.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,800,120.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,800,120.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,800,20.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,800,20.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,800,20.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,800,20.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,800,20.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,800,20.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,800,20.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,1200,120.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,1200,20.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,0,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,500,0,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,0,,3-bunch,False,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,100,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,500,100,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,100,,3-bunch,False,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,200,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,500,200,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,200,,3-bunch,False,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,300,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,500,300,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,300,,3-bunch,False,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,1000,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,500,1000,,3-bunch,True,False
+e,E1,ramp,1600,120.0,10,0,0,25,100,1000,,3-bunch,False,False
+e,E1,ramp,1600,20.0,10,0,0,25,100,0,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,500,0,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,0,,3-bunch,False,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,100,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,500,100,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,100,,3-bunch,False,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,200,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,500,200,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,200,,3-bunch,False,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,300,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,500,300,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,300,,3-bunch,False,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,500,,3-bunch,True,False
+e,E1,ramp,1600,20.0,10,0,0,25,500,500,,3-bunch,True,False
+e,E1,ramp,1600,20.0,10,0,0,25,100,500,,3-bunch,False,False
+e,E1,ramp,1600,20.0,10,0,0,25,100,1000,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,500,1000,,3-bunch,True,True
+e,E1,ramp,1600,20.0,10,0,0,25,100,1000,,3-bunch,False,True
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,0,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,15,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,15,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,15,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,30,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,30,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,30,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,50,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,50,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,50,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,65,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,65,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,65,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,80,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,80,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,80,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,95,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,95,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,95,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,115,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,115,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,115,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,130,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,130,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,130,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,145,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,145,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,145,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,160,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,160,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,160,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,180,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,180,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,180,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,195,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,195,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,195,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,500,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,10,100,1000,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,0,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,20,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,20,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,20,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,40,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,40,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,40,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,60,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,60,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,60,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,80,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,80,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,80,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,100,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,100,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,100,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,120,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,120,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,120,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,140,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,140,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,140,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,160,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,160,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,160,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,180,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,180,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,180,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,200,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,200,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,200,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,220,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,220,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,220,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,240,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,240,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,240,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,500,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,15,100,1000,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,0,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,25,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,25,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,25,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,45,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,45,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,45,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,70,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,70,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,70,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,90,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,90,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,90,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,115,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,115,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,115,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,140,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,140,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,140,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,160,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,160,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,160,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,185,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,185,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,185,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,205,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,205,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,205,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,230,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,230,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,230,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,250,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,250,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,250,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,275,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,275,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,275,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,500,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,20,100,1000,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,0,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,0,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,30,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,30,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,30,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,55,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,55,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,55,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,85,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,85,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,85,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,110,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,110,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,110,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,140,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,140,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,140,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,170,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,170,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,170,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,195,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,195,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,195,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,225,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,225,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,225,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,255,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,255,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,255,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,280,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,280,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,280,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,310,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,310,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,310,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,335,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,335,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,335,,3-bunch,False,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,500,1000,,3-bunch,True,False
+e,E3,extraction,1600.0,20.0,10,0,0,30,100,1000,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,0,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,15,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,15,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,15,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,30,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,30,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,30,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,50,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,50,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,50,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,65,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,65,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,65,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,80,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,80,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,80,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,95,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,95,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,95,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,115,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,115,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,115,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,130,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,130,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,130,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,145,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,145,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,145,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,160,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,160,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,160,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,180,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,180,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,180,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,195,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,195,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,195,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,500,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,10,100,1000,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,0,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,20,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,20,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,20,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,40,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,40,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,40,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,60,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,60,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,60,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,80,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,80,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,80,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,100,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,100,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,100,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,120,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,120,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,120,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,140,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,140,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,140,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,160,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,160,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,160,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,180,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,180,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,180,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,200,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,200,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,200,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,220,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,220,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,220,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,240,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,240,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,240,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,500,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,15,100,1000,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,0,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,25,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,25,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,25,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,45,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,45,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,45,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,70,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,70,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,70,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,90,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,90,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,90,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,115,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,115,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,115,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,140,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,140,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,140,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,160,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,160,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,160,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,185,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,185,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,185,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,205,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,205,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,205,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,230,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,230,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,230,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,250,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,250,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,250,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,275,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,275,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,275,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,500,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,20,100,1000,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,0,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,0,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,30,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,30,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,30,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,55,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,55,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,55,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,85,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,85,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,85,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,110,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,110,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,110,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,140,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,140,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,140,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,170,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,170,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,170,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,195,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,195,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,195,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,225,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,225,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,225,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,255,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,255,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,255,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,280,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,280,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,280,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,310,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,310,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,310,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,335,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,335,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,335,,3-bunch,False,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,500,1000,,3-bunch,True,False
+e,E3,injection,80.0,120.0,25,0,0,30,100,1000,,3-bunch,False,False
+e,E4,injection,80.0,120.0,25,0,0,25,20,0,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,20,100,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,20,200,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,20,300,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,20,1000,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,50,0,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,50,100,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,50,200,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,50,300,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,50,1000,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,80,0,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,80,100,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,80,200,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,80,300,,3-bunch,True,False
+e,E4,injection,80.0,120.0,25,0,0,25,80,1000,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,20,0,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,20,100,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,20,200,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,20,300,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,20,1000,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,50,0,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,50,100,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,50,200,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,50,300,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,50,1000,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,80,0,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,80,100,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,80,200,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,80,300,,3-bunch,True,False
+e,E4,extraction,1600.0,20.0,10,0,0,25,80,1000,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,20,0,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,20,100,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,20,200,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,20,300,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,20,1000,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,50,0,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,50,100,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,50,200,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,50,300,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,50,1000,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,80,0,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,80,100,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,80,200,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,80,300,,3-bunch,True,False
+e,E4,injection,80.0,120.0,10,0,0,25,80,1000,,3-bunch,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,200,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,300,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,400,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,200,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,300,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,400,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,200,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,300,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,400,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,200,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,300,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,400,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,200,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,300,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,400,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,200,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,300,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,400,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,3,0,0,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,200,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,300,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,400,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,200,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,300,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,400,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,200,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,300,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,400,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,200,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,300,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,400,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,200,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,300,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,400,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,200,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,300,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,400,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,5,0,0,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,200,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,300,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,400,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,200,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,300,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,400,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,200,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,300,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,400,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,200,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,300,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,400,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,200,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,300,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,400,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,200,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,300,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,400,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,7,0,0,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,200,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,300,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,400,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,200,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,300,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,400,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,200,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,300,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,400,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,200,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,300,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,400,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,200,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,300,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,400,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,200,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,300,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,400,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,200,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,300,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,400,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,200,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,300,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,400,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,200,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,300,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,400,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,200,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,300,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,400,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,200,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,300,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,400,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,200,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,300,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,400,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,15,0,0,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,200,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,300,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,400,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,200,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,300,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,400,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,200,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,300,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,400,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,200,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,300,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,400,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,200,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,300,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,400,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,200,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,300,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,400,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,20,0,0,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,0,5,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,5,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,5,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,5,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,5,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,5,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,5,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,0,10,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,10,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,10,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,10,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,10,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,10,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,10,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,0,15,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,15,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,15,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,15,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,15,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,15,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,15,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,0,20,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,20,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,20,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,20,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,20,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,20,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,20,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,0,30,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,30,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,30,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,30,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,30,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,30,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,0,30,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,10,0,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,5,25,100,1000,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,500,0,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,0,ions,3-bunch aligned,False,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,500,1000,ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,500,1000,h2o_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,500,1000,n2_ions,3-bunch aligned,True,False
+i,I1,extraction,1600.0,20.0,10,0,-5,25,100,1000,ions,3-bunch aligned,False,False
+i,I2,injection,80.0,120.0,5,0,0,25,20,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,50,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,80,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,100,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,150,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,200,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,250,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,300,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,400,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,500,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,20,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,50,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,80,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,100,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,150,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,200,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,250,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,300,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,400,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,500,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,20,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,50,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,80,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,100,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,150,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,200,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,250,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,5,0,0,25,300,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,400,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,500,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,5,0,0,25,100,0,ions,3-bunch,False,True
+i,I2,injection,80.0,120.0,10,0,0,25,20,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,50,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,80,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,100,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,150,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,200,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,250,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,300,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,400,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,500,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,20,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,50,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,80,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,100,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,150,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,200,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,250,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,300,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,400,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,500,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,20,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,50,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,80,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,100,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,150,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,200,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,250,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,10,0,0,25,300,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,400,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,500,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,10,0,0,25,100,0,ions,3-bunch,False,True
+i,I2,injection,80.0,120.0,15,0,0,25,20,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,50,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,80,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,100,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,150,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,200,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,250,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,300,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,400,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,500,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,20,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,50,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,80,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,100,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,150,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,200,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,250,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,300,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,400,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,500,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,20,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,50,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,80,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,100,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,150,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,200,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,250,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,15,0,0,25,300,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,400,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,500,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,15,0,0,25,100,0,ions,3-bunch,False,True
+i,I2,injection,80.0,120.0,20,0,0,25,20,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,50,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,80,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,100,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,150,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,200,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,250,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,300,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,400,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,500,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,20,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,50,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,80,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,100,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,150,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,200,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,250,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,300,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,400,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,500,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,20,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,50,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,80,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,100,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,150,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,200,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,250,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,20,0,0,25,300,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,400,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,500,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,20,0,0,25,100,0,ions,3-bunch,False,True
+i,I2,injection,80.0,120.0,25,0,0,25,20,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,50,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,80,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,100,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,150,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,200,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,250,0,ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,300,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,400,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,500,0,ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,20,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,50,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,80,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,100,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,150,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,200,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,250,0,h2o_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,300,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,400,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,500,0,h2o_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,20,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,50,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,80,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,100,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,150,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,200,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,250,0,n2_ions,3-bunch,True,False
+i,I2,injection,80.0,120.0,25,0,0,25,300,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,400,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,500,0,n2_ions,3-bunch,True,True
+i,I2,injection,80.0,120.0,25,0,0,25,100,0,ions,3-bunch,False,True
+i,I2,extraction,1600.0,20.0,5,0,0,25,20,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,50,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,80,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,150,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,250,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,20,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,50,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,80,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,150,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,250,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,20,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,50,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,80,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,150,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,5,0,0,25,250,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,20,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,50,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,80,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,150,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,250,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,20,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,50,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,80,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,150,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,250,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,20,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,50,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,80,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,150,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,10,0,0,25,250,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,20,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,50,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,80,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,150,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,250,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,20,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,50,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,80,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,150,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,250,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,20,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,50,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,80,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,150,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,15,0,0,25,250,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,20,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,50,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,80,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,150,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,250,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,20,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,50,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,80,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,150,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,250,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,20,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,50,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,80,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,150,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,20,0,0,25,250,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,20,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,50,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,80,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,100,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,150,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,200,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,250,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,300,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,400,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,500,0,ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,20,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,50,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,80,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,100,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,150,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,200,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,250,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,300,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,400,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,500,0,h2o_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,20,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,50,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,80,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,100,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,150,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,200,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,250,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,300,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,400,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,500,0,n2_ions,3-bunch aligned,True,False
+i,I2,extraction,1600.0,20.0,25,0,0,25,100,0,ions,3-bunch aligned,False,False
+i,I3,injection,80.0,120.0,25,0,0,25,100,0,ions,single,True,False
+i,I3,injection,80.0,120.0,25,0,0,25,100,0,h2o_ions,single,True,False
+i,I3,injection,80.0,120.0,25,0,0,25,100,0,n2_ions,single,True,False
+i,I3,injection,80.0,120.0,25,0,0,25,100,0,ions,single,False,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,ions,single aligned,True,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,h2o_ions,single aligned,True,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,n2_ions,single aligned,True,False
+i,I3,extraction,1600.0,20.0,10,0,0,25,100,0,ions,single aligned,False,False
+i,I3,injection,80.0,120.0,10,0,0,25,100,0,ions,single,True,False
+i,I3,injection,80.0,120.0,10,0,0,25,100,0,h2o_ions,single,True,False
+i,I3,injection,80.0,120.0,10,0,0,25,100,0,n2_ions,single,True,False
+i,I3,injection,80.0,120.0,10,0,0,25,100,0,ions,single,False,False

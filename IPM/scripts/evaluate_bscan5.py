@@ -13,6 +13,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evaluate_bscan import load_xy, stats, summarize_pair  # noqa: E402
+from plot_conf import load_summary, plot_conf  # noqa: E402
 
 B_SCAN5_GS = tuple(range(0, 251, 5))
 PROFILE_GS = (0, 50, 100, 150, 200, 250)
@@ -30,25 +31,38 @@ def main() -> None:
     parser.add_argument("--ion-dir", default="output/bscan", type=Path)
     parser.add_argument("--plot-dir", default="plots", type=Path)
     parser.add_argument("--summary", default="output/csns_bscan5_summary.csv")
+    parser.add_argument(
+        "--from-summary",
+        action="store_true",
+        help="Replot expansion from the summary CSV; still draw profiles if CSVs exist.",
+    )
     args = parser.parse_args()
+    plot_conf()
     plot_dir = args.plot_dir
     plot_dir.mkdir(parents=True, exist_ok=True)
 
-    rows: list[dict] = []
     missing = 0
-    for key, _title in FAMILIES:
-        for b_gs in B_SCAN5_GS:
-            stem = f"csns_{key}_b{b_gs}G"
-            row = summarize_pair(
-                args.output_dir / f"{stem}_sc_on.csv",
-                args.output_dir / f"{stem}_sc_off.csv",
-                key,
-                b_gs,
-            )
-            if row is None:
-                missing += 1
-                continue
-            rows.append(row)
+    if args.from_summary:
+        loaded = load_summary(args.summary)
+        rows = [r for r in loaded if r.get("family") != ION_SIG10]
+        ion_rows = [r for r in loaded if r.get("family") == ION_SIG10]
+    else:
+        rows = []
+        missing = 0
+        for key, _title in FAMILIES:
+            for b_gs in B_SCAN5_GS:
+                stem = f"csns_{key}_b{b_gs}G"
+                row = summarize_pair(
+                    args.output_dir / f"{stem}_sc_on.csv",
+                    args.output_dir / f"{stem}_sc_off.csv",
+                    key,
+                    b_gs,
+                )
+                if row is None:
+                    missing += 1
+                    continue
+                rows.append(row)
+        ion_rows = []
 
     if not rows:
         raise SystemExit(f"No completed fine B-scan pairs in {args.output_dir}")
@@ -125,26 +139,27 @@ def main() -> None:
     fig.savefig(plot_dir / "csns_bscan5_electron_profiles.png", dpi=150)
     print(f"Wrote {plot_dir / 'csns_bscan5_electron_profiles.png'}")
 
-    ion_rows = []
-    for b_gs in (0, 50, 100, 200, 250):
-        stem = f"csns_{ION_SIG10}_b{b_gs}G"
-        row = summarize_pair(
-            args.ion_dir / f"{stem}_sc_on.csv",
-            args.ion_dir / f"{stem}_sc_off.csv",
-            ION_SIG10,
-            b_gs,
-        )
-        if row is not None:
-            ion_rows.append(row)
-            rows.append(row)
+    if not args.from_summary:
+        ion_rows = []
+        for b_gs in (0, 50, 100, 200, 250):
+            stem = f"csns_{ION_SIG10}_b{b_gs}G"
+            row = summarize_pair(
+                args.ion_dir / f"{stem}_sc_on.csv",
+                args.ion_dir / f"{stem}_sc_off.csv",
+                ION_SIG10,
+                b_gs,
+            )
+            if row is not None:
+                ion_rows.append(row)
+                rows.append(row)
 
-    summary_path = Path(args.summary)
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    with summary_path.open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Wrote {summary_path}")
+        summary_path = Path(args.summary)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        with summary_path.open("w", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(rows)
+        print(f"Wrote {summary_path}")
     print()
     print(
         f"{'family':<28} {'B[G]':>6} {'σ_off':>8} {'σ_on':>8} "

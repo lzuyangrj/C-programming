@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from plot_conf import plot_conf
+
 CASES_NOMINAL = [
     ("injection_electrons", "Injection 80 MeV, e− (25×20 mm)"),
     ("extraction_electrons", "Extraction 1.6 GeV, e− (10×8 mm)"),
@@ -70,6 +72,7 @@ def main() -> None:
         help="nominal 25×20 mm injection, or sig10 10×8 mm injection",
     )
     args = parser.parse_args()
+    plot_conf()
     cases = CASES_SIG10 if args.case_set == "sig10" else CASES_NOMINAL
     if args.case_set == "sig10" and args.plot == "plots/csns_space_charge_impact.png":
         args.plot = "plots/csns_space_charge_impact_sig10.png"

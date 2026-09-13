@@ -55,6 +55,37 @@ EMODE_FINE_VOLT_BFINE_KV = (10, 12, 15, 18, 20)
 EMODE_FINE_B_GS = tuple(range(0, 301, 5)) + (1000,)
 EMODE_FINE_DY_MM = tuple(range(-10, 11, 1))
 EMODE_FINE_OFFSET_BFINE_DY = (-5, 5)
+# Figure-dense add-on (Figs. 7b / 10b). 10 G fills voltages that never got a
+# 5 G C2 scan; Δx = 1–10 mm at the 300 G operating point. 100 kW only.
+EMODE_FINE_C3_VOLTAGES_KV = tuple(
+    v for v in EMODE_FINE_VOLTAGES_KV if v not in EMODE_FINE_VOLT_BFINE_KV and v != 25
+)
+EMODE_FINE_C3_B_GS = tuple(range(0, 301, 10))
+EMODE_FINE_DX_MM = tuple(range(1, 11, 1))
+# Ion-mode 1 kV / 1 mm figure grid (Figs. 4, 9, 11). B = 0, 100 kW only.
+# Existing Block C 5 kV and Block D 5 mm points are skipped at run time.
+IMODE_FINE_VOLTAGES_KV = tuple(range(5, 31, 1))
+IMODE_FINE_DY_MM = tuple(range(-5, 6, 1))
+IMODE_FINE_DX_MM = tuple(range(0, 11, 1))
+# Ion-mode parameter-scan matrix (parallel to e-mode A–D). Round beams;
+# elliptical ionsize / bscan runs are not reused. No B-scan grid: only
+# B ∈ {0, 200, 1000} G (no guide / mid checkpoint / design 0.1 T) in every
+# block — closed ion scans are flat vs B. Species = H₂⁺, H₂O⁺, N₂⁺. SC-off
+# is mass-independent without bunch fields → only H₂⁺ SC-off at 100 kW is
+# written and shared.
+IMODE_OUT = OUT / "imode"
+# Single B set for every ion-mode block: no guide, mid checkpoint, design field.
+# A dense / sparse B-scan is not useful — closed ion scans are flat vs B.
+IMODE_B_GS = (0, 200, 1000)
+IMODE_BSCAN_GS = IMODE_B_GS  # Block A
+IMODE_SIZE_B_GS = IMODE_B_GS  # Block B
+IMODE_REF_BEAMS = EMODE_REF_BEAMS  # 25×25 inj., 10×10 ext., 10×10 inj.
+IMODE_VOLTAGES_KV = EMODE_VOLTAGES_KV  # Block C: 5–30 kV / 5 kV
+IMODE_VOLT_B_GS = IMODE_B_GS
+IMODE_OFFSETS_MM = EMODE_OFFSETS_MM
+IMODE_OFFSET_B_GS = IMODE_B_GS
+IMODE_OFFSET_BEAMS = EMODE_OFFSET_BEAMS
+IMODE_CHECK_POWERS_KW = EMODE_CHECK_POWERS_KW
 # Injection σ_x = 10 mm; σ_y = 8 mm keeps the 25:20 painted-beam aspect ratio.
 INJ_SIG10_XY = "[ 10000, 8000 ]"
 
@@ -333,10 +364,14 @@ def ion_case(
     csv_dir: str = "output",
     sigma_xy_um: str | None = None,
     n_bunch: float | None = None,
+    e_y: float | None = None,
+    offset_mm: tuple[float, float] | None = None,
 ) -> Path:
     spec = BEAMS[beam_key]
     sigma = sigma_xy_um if sigma_xy_um is not None else spec["sigma_xy_um"]
     pop = N_PER_BUNCH_100KW if n_bunch is None else n_bunch
+    # Ions are collected at the lower y-boundary, so E_y is reversed vs electron mode.
+    cage_e_y = -E_Y if e_y is None else e_y
     stem = _stem(slug, sc_on, b_tag)
     csv = f"{csv_dir}/csns_{stem}.csv"
     # Generation-only bunch (fields off) so ions are created from a single passage.
@@ -349,6 +384,7 @@ def ion_case(
         e_off=True,
         b_off=True,
         train=single_bunch_train(),
+        offset_mm=offset_mm,
     )
     # Tracking bunch train: ions see several subsequent bunches.
     track = beam_xml(
@@ -360,6 +396,7 @@ def ion_case(
         e_off=not sc_on,
         b_off=not sc_on,
         train=circular_train(3, spec["spacing_ns"], spec["offset_ns"]),
+        offset_mm=offset_mm,
     )
     xml = wrap(
         "    <Beams>\n"
@@ -367,8 +404,7 @@ def ion_case(
         + "\n"
         + track
         + "\n    </Beams>\n"
-        # Ions are collected at the lower y-boundary, so E_y is reversed vs electron mode.
-        + device_and_fields(e_y=-E_Y, b_y=b_y)
+        + device_and_fields(e_y=cage_e_y, b_y=b_y)
         + "\n"
         + ion_generation()
         + "\n"
@@ -519,6 +555,7 @@ def _electron_from_beam(
     n_bunch: float | None = None,
     e_y: float = E_Y,
     offset_mm: tuple[float, float] | None = None,
+    n_particles: int = 100000,
 ) -> Path:
     spec = BEAMS[beam_key]
     return electron_case(
@@ -538,6 +575,7 @@ def _electron_from_beam(
         n_bunch=n_bunch,
         e_y=e_y,
         offset_mm=offset_mm,
+        n_particles=n_particles,
     )
 
 
@@ -757,10 +795,31 @@ def emode_fine_c2_voltage_points() -> list[VoltPoint]:
     return pts
 
 
+def emode_fine_c3_voltage_points() -> list[VoltPoint]:
+    """C3: 10 G B-scan at 1 kV voltages that lack a 5 G C2/Block-A scan.
+
+    Diagnostic-B files from C1 already exist at 100 k particles and are
+    omitted so those CSVs are never rewritten.
+    """
+    keep_b = set(EMODE_FINE_DIAG_B_GS)
+    pts: list[VoltPoint] = []
+    for v_kv in EMODE_FINE_C3_VOLTAGES_KV:
+        for b_gs in EMODE_FINE_C3_B_GS:
+            if b_gs in keep_b:
+                continue
+            pts.append((v_kv, 100, b_gs, True))
+            pts.append((v_kv, 100, b_gs, False))
+    return pts
+
+
 def emode_fine_voltage_points() -> list[VoltPoint]:
-    """Union of C1 and C2, first-seen order. 25 kV / 5 G stays Block A."""
+    """Union of C1, C2 and C3, first-seen order. 25 kV / 5 G stays Block A."""
     seen: dict[VoltPoint, None] = {}
-    for pt in emode_fine_c1_voltage_points() + emode_fine_c2_voltage_points():
+    for pt in (
+        emode_fine_c1_voltage_points()
+        + emode_fine_c2_voltage_points()
+        + emode_fine_c3_voltage_points()
+    ):
         seen.setdefault(pt, None)
     return list(seen)
 
@@ -789,10 +848,24 @@ def emode_fine_d2_offset_points() -> list[OffsetPoint]:
     return pts
 
 
+def emode_fine_d3_offset_points() -> list[OffsetPoint]:
+    """D3: 1 mm Δx scan at 300 G, 100 kW, both 10 mm beams (Fig. 10b)."""
+    pts: list[OffsetPoint] = []
+    for beam, _sigma in EMODE_OFFSET_BEAMS:
+        for dx in EMODE_FINE_DX_MM:
+            pts.append((beam, dx, 0, 100, 300, True))
+            pts.append((beam, dx, 0, 100, 300, False))
+    return pts
+
+
 def emode_fine_offset_points() -> list[OffsetPoint]:
-    """Union of D1 and D2. No Δx scan."""
+    """Union of D1, D2 and D3."""
     seen: dict[OffsetPoint, None] = {}
-    for pt in emode_fine_d1_offset_points() + emode_fine_d2_offset_points():
+    for pt in (
+        emode_fine_d1_offset_points()
+        + emode_fine_d2_offset_points()
+        + emode_fine_d3_offset_points()
+    ):
         seen.setdefault(pt, None)
     return list(seen)
 
@@ -939,6 +1012,61 @@ def write_emode_fine_cd() -> list[Path]:
     return paths
 
 
+def write_figure_dense_emode() -> list[Path]:
+    """Write C3 (1 kV / 10 G) and D3 (Δx / 1 mm at 300 G) XMLs only."""
+    EMODE_OUT.mkdir(parents=True, exist_ok=True)
+    seen: set[Path] = set()
+    paths: list[Path] = []
+
+    def add_volt(v_kv: int, power_kw: int, b_gs: int, sc_on: bool) -> None:
+        dest = volt_xml_path(v_kv, power_kw, b_gs, sc_on)
+        if dest in seen:
+            return
+        seen.add(dest)
+        paths.append(
+            _electron_from_beam(
+                volt_slug(v_kv, power_kw),
+                "injection",
+                sc_on=sc_on,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=EMODE_OUT,
+                csv_dir="output/emode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                e_y=v_kv * 1e3 / GAP_M,
+            )
+        )
+
+    def add_offset(
+        beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on: bool
+    ) -> None:
+        dest = offset_xml_path(beam, dx, dy, power_kw, b_gs, sc_on)
+        if dest in seen:
+            return
+        seen.add(dest)
+        paths.append(
+            _electron_from_beam(
+                offset_slug(beam, dx, dy, power_kw),
+                beam,
+                sc_on=sc_on,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=EMODE_OUT,
+                csv_dir="output/emode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                offset_mm=(dx, dy),
+            )
+        )
+
+    for pt in emode_fine_c3_voltage_points():
+        add_volt(*pt)
+    for pt in emode_fine_d3_offset_points():
+        add_offset(*pt)
+    return paths
+
+
 def emode_fine_cd_xml_relpaths() -> list[str]:
     """Relative XML paths in run order C1, C2, D1, D2 (duplicates skipped)."""
     seen: set[str] = set()
@@ -967,8 +1095,9 @@ def emode_matrix_report(emode_dir: Path | None = None) -> str:
     dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
 
     def done_file(name: str) -> bool:
-        f = dest_dir / name
-        return f.is_file() and f.stat().st_size > 0
+        from csv_archive import particle_csv_done
+
+        return particle_csv_done(dest_dir / name)
 
     def done(pt: EmodePoint) -> bool:
         return done_file(emode_csv_name(*pt))
@@ -1051,8 +1180,9 @@ def emode_fine_cd_matrix_report(emode_dir: Path | None = None) -> str:
     dest_dir = emode_dir if emode_dir is not None else (ROOT / "output" / "emode")
 
     def done_file(name: str) -> bool:
-        f = dest_dir / name
-        return f.is_file() and f.stat().st_size > 0
+        from csv_archive import particle_csv_done
+
+        return particle_csv_done(dest_dir / name)
 
     def v_done(pt: VoltPoint) -> bool:
         return done_file(volt_csv_name(*pt))
@@ -1152,6 +1282,391 @@ def emode_fine_cd_matrix_report(emode_dir: Path | None = None) -> str:
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------------------
+# Ion-mode parameter-scan matrix (Blocks A–D), parallel to e-mode replan.
+# ---------------------------------------------------------------------------
+
+# (species_slug, beam, σ_mm, power_kW, B_G, SC_on)
+ImodePoint = tuple[str, str, int, int, int, bool]
+# (species_slug, V_kV, power_kW, B_G, SC_on)
+ImodeVoltPoint = tuple[str, int, int, int, bool]
+# (species_slug, beam, dx, dy, power_kW, B_G, SC_on)
+ImodeOffsetPoint = tuple[str, str, int, int, int, int, bool]
+
+_SPECIES_REST = {slug: rest for slug, rest, _label in ION_SPECIES}
+
+
+def _imode_sc_flags(species_slug: str, power_kw: int) -> tuple[bool, ...]:
+    """SC-off is mass-independent; only H₂⁺ writes it, at 100 kW."""
+    if species_slug == "ions":
+        return (True, False) if power_kw == 100 else (True,)
+    return (True,)
+
+
+def imode_slug(species: str, beam_key: str, sigma_mm: int, power_kw: int) -> str:
+    return f"{beam_key}_{species}_s{sigma_mm}x{sigma_mm}mm_p{power_kw}kw"
+
+
+def imode_csv_name(
+    species: str, beam_key: str, sigma_mm: int, power_kw: int, b_gs: int, sc_on: bool
+) -> str:
+    tag = "sc_on" if sc_on else "sc_off"
+    return f"csns_{imode_slug(species, beam_key, sigma_mm, power_kw)}_{b_tag(b_gs)}_{tag}.csv"
+
+
+def imode_volt_slug(species: str, v_kv: int, power_kw: int) -> str:
+    return f"injection_{species}_s10x10mm_v{v_kv}kv_p{power_kw}kw"
+
+
+def imode_volt_csv_name(
+    species: str, v_kv: int, power_kw: int, b_gs: int, sc_on: bool
+) -> str:
+    tag = "sc_on" if sc_on else "sc_off"
+    return f"csns_{imode_volt_slug(species, v_kv, power_kw)}_{b_tag(b_gs)}_{tag}.csv"
+
+
+def imode_offset_slug(
+    species: str, beam: str, dx: int, dy: int, power_kw: int
+) -> str:
+    return (
+        f"{beam}_{species}_s10x10mm_dx{_signed(dx)}mm_dy{_signed(dy)}mm_p{power_kw}kw"
+    )
+
+
+def imode_offset_csv_name(
+    species: str, beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on: bool
+) -> str:
+    tag = "sc_on" if sc_on else "sc_off"
+    return (
+        f"csns_{imode_offset_slug(species, beam, dx, dy, power_kw)}"
+        f"_{b_tag(b_gs)}_{tag}.csv"
+    )
+
+
+def imode_volt_xml_path(
+    species: str, v_kv: int, power_kw: int, b_gs: int, sc_on: bool
+) -> Path:
+    return IMODE_OUT / f"{_stem(imode_volt_slug(species, v_kv, power_kw), sc_on, b_tag(b_gs))}.xml"
+
+
+def imode_offset_xml_path(
+    species: str, beam: str, dx: int, dy: int, power_kw: int, b_gs: int, sc_on: bool
+) -> Path:
+    return IMODE_OUT / (
+        f"{_stem(imode_offset_slug(species, beam, dx, dy, power_kw), sc_on, b_tag(b_gs))}.xml"
+    )
+
+
+def imode_points() -> list[ImodePoint]:
+    """Every (species, beam, σ, P, B, SC) point of Blocks A+B, deduplicated."""
+    pts: dict[ImodePoint, None] = {}
+
+    def add(species: str, beam: str, sigma_mm: int, b_gs: int) -> None:
+        for power_kw in POWERS_KW:
+            for sc_on in _imode_sc_flags(species, power_kw):
+                pts[(species, beam, sigma_mm, power_kw, b_gs, sc_on)] = None
+
+    # Block A: sparse B grid for the three reference beams × three species.
+    for beam, sigma_mm in IMODE_REF_BEAMS:
+        for b_gs in IMODE_BSCAN_GS:
+            for species, _rest, _label in ION_SPECIES:
+                add(species, beam, sigma_mm, b_gs)
+    # Block B: σ = 3–20 mm at checkpoint fields, both stages × three species.
+    for sigma_mm in SIZE_MM:
+        for b_gs in IMODE_SIZE_B_GS:
+            for beam in ("injection", "extraction"):
+                for species, _rest, _label in ION_SPECIES:
+                    add(species, beam, sigma_mm, b_gs)
+    return list(pts)
+
+
+def imode_voltage_points() -> list[ImodeVoltPoint]:
+    """Block C: cage voltage × B × {100, 500 kW} × species on inj. 10×10 mm."""
+    pts: list[ImodeVoltPoint] = []
+    for species, _rest, _label in ION_SPECIES:
+        for v_kv in IMODE_VOLTAGES_KV:
+            for b_gs in IMODE_VOLT_B_GS:
+                for power_kw in IMODE_CHECK_POWERS_KW:
+                    for sc_on in _imode_sc_flags(species, power_kw):
+                        pts.append((species, v_kv, power_kw, b_gs, sc_on))
+    return pts
+
+
+def imode_offset_points() -> list[ImodeOffsetPoint]:
+    """Block D: beam offset × B × {100, 500 kW} × species, 10×10 mm inj./ext."""
+    pts: list[ImodeOffsetPoint] = []
+    for species, _rest, _label in ION_SPECIES:
+        for beam, _sigma in IMODE_OFFSET_BEAMS:
+            for dx, dy in IMODE_OFFSETS_MM:
+                for b_gs in IMODE_OFFSET_B_GS:
+                    for power_kw in IMODE_CHECK_POWERS_KW:
+                        for sc_on in _imode_sc_flags(species, power_kw):
+                            pts.append((species, beam, dx, dy, power_kw, b_gs, sc_on))
+    return pts
+
+
+def imode_fine_voltage_points() -> list[ImodeVoltPoint]:
+    """Fig. 9: 1 kV cage-voltage grid at B = 0, 100 kW, injection 10 mm."""
+    pts: list[ImodeVoltPoint] = []
+    for species, _rest, _label in ION_SPECIES:
+        for v_kv in IMODE_FINE_VOLTAGES_KV:
+            for sc_on in _imode_sc_flags(species, 100):
+                pts.append((species, v_kv, 100, 0, sc_on))
+    return pts
+
+
+def imode_fine_offset_points() -> list[ImodeOffsetPoint]:
+    """Fig. 11: 1 mm Δy (−5…+5) and Δx (0…10) at B = 0, 100 kW, 25 kV."""
+    pts: list[ImodeOffsetPoint] = []
+    for species, _rest, _label in ION_SPECIES:
+        for beam, _sigma in IMODE_OFFSET_BEAMS:
+            seen: set[tuple[int, int]] = set()
+            for dy in IMODE_FINE_DY_MM:
+                seen.add((0, dy))
+            for dx in IMODE_FINE_DX_MM:
+                seen.add((dx, 0))
+            for dx, dy in sorted(seen):
+                if (dx, dy) == (0, 0):
+                    continue
+                for sc_on in _imode_sc_flags(species, 100):
+                    pts.append((species, beam, dx, dy, 100, 0, sc_on))
+    return pts
+
+
+def write_figure_dense_imode() -> list[Path]:
+    """Write ion-mode 1 kV / 1 mm figure XMLs (injection; extraction is v2)."""
+    IMODE_OUT.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for species, v_kv, power_kw, b_gs, sc_on in imode_fine_voltage_points():
+        paths.append(
+            ion_case(
+                imode_volt_slug(species, v_kv, power_kw),
+                rest_energy=_SPECIES_REST[species],
+                sc_on=sc_on,
+                beam_key="injection",
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=IMODE_OUT,
+                csv_dir="output/imode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                e_y=-(v_kv * 1e3 / GAP_M),
+            )
+        )
+    for species, beam, dx, dy, power_kw, b_gs, sc_on in imode_fine_offset_points():
+        if beam != "injection":
+            continue
+        paths.append(
+            ion_case(
+                imode_offset_slug(species, beam, dx, dy, power_kw),
+                rest_energy=_SPECIES_REST[species],
+                sc_on=sc_on,
+                beam_key=beam,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=IMODE_OUT,
+                csv_dir="output/imode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                offset_mm=(float(dx), float(dy)),
+            )
+        )
+    return paths
+
+
+def write_imode_replan() -> list[Path]:
+    """Write the ion-mode matrix (Blocks A–D). Round beams; three ToF species."""
+    IMODE_OUT.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for species, beam, sigma_mm, power_kw, b_gs, sc_on in imode_points():
+        paths.append(
+            ion_case(
+                imode_slug(species, beam, sigma_mm, power_kw),
+                rest_energy=_SPECIES_REST[species],
+                sc_on=sc_on,
+                beam_key=beam,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=IMODE_OUT,
+                csv_dir="output/imode",
+                sigma_xy_um=round_sigma_xy_um(sigma_mm),
+                n_bunch=n_bunch_at_power(power_kw),
+            )
+        )
+    for species, v_kv, power_kw, b_gs, sc_on in imode_voltage_points():
+        paths.append(
+            ion_case(
+                imode_volt_slug(species, v_kv, power_kw),
+                rest_energy=_SPECIES_REST[species],
+                sc_on=sc_on,
+                beam_key="injection",
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=IMODE_OUT,
+                csv_dir="output/imode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                e_y=-(v_kv * 1e3 / GAP_M),
+            )
+        )
+    for species, beam, dx, dy, power_kw, b_gs, sc_on in imode_offset_points():
+        paths.append(
+            ion_case(
+                imode_offset_slug(species, beam, dx, dy, power_kw),
+                rest_energy=_SPECIES_REST[species],
+                sc_on=sc_on,
+                beam_key=beam,
+                b_y=b_gs * GS_TO_T,
+                b_tag=b_tag(b_gs),
+                config_dir=IMODE_OUT,
+                csv_dir="output/imode",
+                sigma_xy_um=round_sigma_xy_um(10),
+                n_bunch=n_bunch_at_power(power_kw),
+                offset_mm=(float(dx), float(dy)),
+            )
+        )
+    return paths
+
+
+def imode_replan_xml_relpaths() -> list[str]:
+    """XML paths in run order: C, D, A reference beams, then B sizes."""
+    rels: list[str] = []
+    seen: set[str] = set()
+
+    def add(path: Path) -> None:
+        rel = str(path.relative_to(ROOT))
+        if rel not in seen:
+            seen.add(rel)
+            rels.append(rel)
+
+    for pt in imode_voltage_points():
+        add(imode_volt_xml_path(*pt))
+    for pt in imode_offset_points():
+        add(imode_offset_xml_path(*pt))
+    # Block A reference beams before the rest of A∪B.
+    a_keys = {(beam, sigma) for beam, sigma in IMODE_REF_BEAMS}
+    for species, beam, sigma_mm, power_kw, b_gs, sc_on in imode_points():
+        if (beam, sigma_mm) in a_keys and b_gs in IMODE_BSCAN_GS:
+            dest = IMODE_OUT / (
+                f"{_stem(imode_slug(species, beam, sigma_mm, power_kw), sc_on, b_tag(b_gs))}.xml"
+            )
+            add(dest)
+    for species, beam, sigma_mm, power_kw, b_gs, sc_on in imode_points():
+        dest = IMODE_OUT / (
+            f"{_stem(imode_slug(species, beam, sigma_mm, power_kw), sc_on, b_tag(b_gs))}.xml"
+        )
+        add(dest)
+    return rels
+
+
+def imode_matrix_report(imode_dir: Path | None = None) -> str:
+    """Human-readable ion-mode matrix with done / to-run counts. Plan-ready."""
+    dest_dir = imode_dir if imode_dir is not None else (ROOT / "output" / "imode")
+
+    def done_file(name: str) -> bool:
+        from csv_archive import particle_csv_done
+
+        return particle_csv_done(dest_dir / name)
+
+    def done(pt: ImodePoint) -> bool:
+        return done_file(imode_csv_name(*pt))
+
+    pts = imode_points()
+    lines: list[str] = []
+    lines.append(
+        "Ion-mode matrix — ROUND beams, σ_y = σ_x; three ToF species "
+        "(H₂⁺, H₂O⁺, N₂⁺). No reuse of elliptical ionsize / bscan runs."
+    )
+    lines.append(
+        "SC-off: H₂⁺ at 100 kW only (mass-independent without bunch fields); "
+        "shared across species and powers."
+    )
+    lines.append(
+        f"All blocks share B = {', '.join(str(b) for b in IMODE_B_GS)} G "
+        f"(no guide / mid checkpoint / design 0.1 T). No ion B-scan grid — "
+        f"expansion is flat vs B. Ref. beams 25×25 inj., 10×10 ext., 10×10 inj.; "
+        f"powers {', '.join(str(p) for p in POWERS_KW)} kW"
+    )
+    lines.append(
+        f"B    size scan: {SIZE_MM[0]}–{SIZE_MM[-1]} mm step 1 mm; same B; inj. + ext."
+    )
+    lines.append(
+        f"C    cage voltage: {IMODE_VOLTAGES_KV[0]}–{IMODE_VOLTAGES_KV[-1]} kV step "
+        f"{IMODE_VOLTAGES_KV[1] - IMODE_VOLTAGES_KV[0]} kV; same B; inj. 10×10 mm; "
+        f"{', '.join(str(p) for p in IMODE_CHECK_POWERS_KW)} kW"
+    )
+    lines.append(
+        "D    beam offset (dx, dy) mm: "
+        + ", ".join(f"({dx:+d}, {dy:+d})" for dx, dy in IMODE_OFFSETS_MM)
+        + f"; same B; inj. and ext. 10×10 mm; "
+        f"{', '.join(str(p) for p in IMODE_CHECK_POWERS_KW)} kW"
+    )
+    lines.append(
+        "vs e-mode: same round beams / V / offset axes; B only at 0/200/1000 G "
+        "(e-mode used dense B grids); ×3 species. Plan only until --imode-replan is run."
+    )
+    lines.append("")
+    header = f"{'Block / family':<56}{'runs':>6}{'done':>6}{'to run':>8}"
+    lines.append(header)
+    lines.append("-" * len(header))
+    total = total_done = 0
+
+    def row_counts(label: str, n: int, d: int) -> None:
+        nonlocal total, total_done
+        total += n
+        total_done += d
+        lines.append(f"{label:<56}{n:>6}{d:>6}{n - d:>8}")
+
+    def row(label: str, subset: list[ImodePoint]) -> None:
+        row_counts(label, len(subset), sum(done(p) for p in subset))
+
+    seen: set[ImodePoint] = set()
+    for beam, sigma_mm in IMODE_REF_BEAMS:
+        subset = [
+            p
+            for p in pts
+            if p[1] == beam and p[2] == sigma_mm and p[4] in IMODE_BSCAN_GS
+        ]
+        seen.update(subset)
+        stage = "inj." if beam == "injection" else "ext."
+        row(
+            f"A  ref. beams {stage} σ={sigma_mm} mm × 3 spp, 100–500 kW",
+            subset,
+        )
+    for beam in ("injection", "extraction"):
+        subset = [
+            p
+            for p in pts
+            if p[1] == beam and p[4] in IMODE_SIZE_B_GS and p not in seen
+        ]
+        seen.update(subset)
+        stage = "inj." if beam == "injection" else "ext."
+        row(f"B  size scan {stage} 3–20 mm × 3 spp (new points)", subset)
+    vpts = imode_voltage_points()
+    row_counts(
+        "C  cage voltage 5–30 kV, inj. 10×10 mm × 3 spp",
+        len(vpts),
+        sum(done_file(imode_volt_csv_name(*p)) for p in vpts),
+    )
+    for beam, _sigma in IMODE_OFFSET_BEAMS:
+        opts = [p for p in imode_offset_points() if p[1] == beam]
+        stage = "inj." if beam == "injection" else "ext."
+        row_counts(
+            f"D  beam offset {stage} 10 mm, 4 offsets × 3 spp",
+            len(opts),
+            sum(done_file(imode_offset_csv_name(*p)) for p in opts),
+        )
+    lines.append("-" * len(header))
+    lines.append(f"{'Total':<56}{total:>6}{total_done:>6}{total - total_done:>8}")
+    lines.append("")
+    # Sanity breakdown by species for A∪B.
+    for species, _rest, label in ION_SPECIES:
+        n_sp = sum(1 for p in pts if p[0] == species)
+        lines.append(f"  A∪B files for {label}: {n_sp}")
+    lines.append(f"  C files: {len(vpts)}; D files: {len(imode_offset_points())}")
+    return "\n".join(lines)
+
+
 def write_sig10_ion_bscan() -> list[Path]:
     """Repeat the 0/50/100/200 G ion-mode scan at injection σ = 10×8 mm."""
     BSCAN_OUT.mkdir(parents=True, exist_ok=True)
@@ -1213,6 +1728,26 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Print fine C/D XML paths in run order and exit.",
     )
+    parser.add_argument(
+        "--imode-matrix",
+        action="store_true",
+        help="Print the ion-mode A–D matrix with done / to-run counts and exit.",
+    )
+    parser.add_argument(
+        "--imode-replan",
+        action="store_true",
+        help="Write the ion-mode matrix XMLs (Blocks A–D). Round beams; three species.",
+    )
+    parser.add_argument(
+        "--imode-list",
+        action="store_true",
+        help="Print ion-mode XML paths in run order (C, D, A, B) and exit.",
+    )
+    parser.add_argument(
+        "--figure-dense",
+        action="store_true",
+        help="Write 1 kV / 1 mm figure-dense XMLs (e-mode C3+D3, ion injection).",
+    )
     args = parser.parse_args(argv)
     if args.emode_matrix:
         print(emode_matrix_report())
@@ -1222,6 +1757,12 @@ def main(argv: list[str] | None = None) -> None:
         return
     if args.emode_fine_cd_list:
         print("\n".join(emode_fine_cd_xml_relpaths()))
+        return
+    if args.imode_matrix:
+        print(imode_matrix_report())
+        return
+    if args.imode_list:
+        print("\n".join(imode_replan_xml_relpaths()))
         return
     write_design_b_configs()
     write_bscan_configs()
@@ -1236,6 +1777,11 @@ def main(argv: list[str] | None = None) -> None:
         write_emode_replan()
     if args.emode_fine_cd:
         write_emode_fine_cd()
+    if args.imode_replan:
+        write_imode_replan()
+    if args.figure_dense:
+        write_figure_dense_emode()
+        write_figure_dense_imode()
 
 
 if __name__ == "__main__":

@@ -172,7 +172,7 @@ Grand total = A + B-new + C + D = \(1098+1032+252+120=2502\) (A∩B is already i
 
 ### Not in this plan
 
-- Ion mode
+- Dense ion \(B\) grids (see the separate ion-mode matrix under `imode/`)
 - Elliptical beams (\(\sigma_y=0.8\sigma_x\)); those remain the closed §1–6 results
 - Bunch-length \(\sigma_t\) scan; mid-ramp energy
 - Circular bunch train / second-bunch check

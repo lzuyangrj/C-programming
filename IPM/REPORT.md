@@ -1,5 +1,7 @@
 # CSNS RCS IPM — Virtual-IPM results (brief)
 
+Physics note (distortion, size growth, mitigation): **[CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md)** · PDF: **[CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf)**. Literature comparison (2006–2026): **[LITERATURE_REVIEW.md](LITERATURE_REVIEW.md)** · **[LITERATURE_REVIEW.pdf](LITERATURE_REVIEW.pdf)**.
+
 **Code:** Virtual-IPM 2.3.1. **Beam / cage:** NIMA **1092** (2026) 171809, 100 kW CSNS RCS; ideal uniform \(E_y = 25\,\mathrm{kV}/231\,\mathrm{mm} \approx 108\,\mathrm{kV/m}\). **Space charge:** Gaussian bunch \(E\) plus Lorentz-boosted bunch \(B\), compared with those fields off. Guiding \(E\) and \(B\) stay uniform. **Statistics:** 100000 secondaries per run; quoted \(\sigma\) is the RMS of **detected** \(x\).
 
 Injection: 80 MeV, \(\sigma_t=120\,\mathrm{ns}\), \(\sigma_{x,y}=25\times 20\,\mathrm{mm}\), \(7.8\times10^{12}\) p/bunch. Extraction: 1.6 GeV, \(\sigma_t=20\,\mathrm{ns}\), \(\sigma_{x,y}=10\times 8\,\mathrm{mm}\). Residual-gas ions follow the paper ToF peaks (H₂, H₂O, N₂). Electron ionization uses Voitkiv DDCS on **hydrogen** (Virtual-IPM has no N₂/H₂O electron DDCS).
@@ -252,9 +254,55 @@ Diagnostic \(B\): 0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 1000 G. Not run: 
 
 ### Not in this plan
 
-- Ion mode, elliptical beams, extra powers (200/300/400 kW), bunch-length or mid-ramp energy
+- Extra powers (200/300/400 kW), bunch-length or mid-ramp energy
 - Fine \(\Delta x\), combined \((\Delta x,\Delta y)\) orbits, voltages outside 5–30 kV
 - Changing particle count, gas species, or cage geometry
+
+Ion-mode A–D is section 10 / [`IMODE_REPORT.md`](IMODE_REPORT.md). Combined e-mode + ion-mode report: [`CSNS_IPM_REPORT.md`](CSNS_IPM_REPORT.md).
+
+---
+
+## 10. Ion-mode parameter-scan matrix (round beams)
+
+Full write-up with all figures: **[IMODE_REPORT.md](IMODE_REPORT.md)** · PDF: **[IMODE_REPORT.pdf](IMODE_REPORT.pdf)**. Combined e-mode + ion-mode: **[CSNS_IPM_REPORT.md](CSNS_IPM_REPORT.md)** · **[CSNS_IPM_REPORT.pdf](CSNS_IPM_REPORT.pdf)**.
+
+Parallel to the e-mode replan (section 8), but **without an ion \(B\)-scan** — only \(B_y\in\{0,200,1000\}\,\mathrm{G}\). Round beams (\(\sigma_y=\sigma_x\)); H₂⁺ / H₂O⁺ / N₂⁺; 100000 secondaries.
+
+**Status: complete.** 2070 / 2070 runs.
+
+### Block A — reference beams at 0 / 200 / 1000 G
+
+![Ion-mode reference beams vs B](plots/csns_imode_bscan.png)
+
+Expansion vs no-SC is **essentially independent of \(B\)** in this range (cyclotron radii are metres). Example — injection 10×10 mm, 100 kW:
+
+| Species | 0 G | 200 G | 1000 G |
+|---|---:|---:|---:|
+| H₂⁺ | +92.0% | +91.6% | +82.1% |
+| H₂O⁺ | +69.8% | +69.4% | +63.8% |
+| N₂⁺ | +61.4% | +61.0% | +55.7% |
+
+Guiding \(B\) does **not** restore ion profiles. The small drop at 0.1 T vs 0 G is not a recovery mechanism.
+
+### Block B — size scan 3–20 mm
+
+![Ion-mode true vs obtained size](plots/csns_imode_size_obtained.png)
+
+At **0.1 T / 100 kW**, obtained \(\sigma_x\) at true 10 mm (round beam): H₂⁺ 18.2 mm (+82%), H₂O⁺ 16.3 mm (+64%), N₂⁺ 15.5 mm (+56%) — close to the elliptical-beam §6 numbers. Points lie above the diagonal at every \(B\); smaller \(\sigma_x\) and higher power inflate more (same trend as §6).
+
+### Block C — cage voltage 5–30 kV (inj. 10×10 mm)
+
+![Ion-mode cage voltage](plots/csns_imode_voltage.png)
+
+Unlike e-mode Block C, ion expansion **does not flip sign** with cage voltage: it stays positive at all \(V\) and \(B\). Higher \(V\) shortens ToF and can **reduce** the integrated kick (e.g. H₂⁺ @ 100 kW, 1000 G: +82% at 25 kV vs +68% at 5 kV).
+
+### Block D — beam offset (10×10 mm)
+
+![Ion-mode beam offset](plots/csns_imode_offset.png)
+
+\(\Delta x=\pm5,+10\,\mathrm{mm}\) shifts the centroid but leaves expansion unchanged (translation invariance, as in e-mode). \(\Delta y=\pm5\,\mathrm{mm}\) changes expansion by a few % (detector-gap direction).
+
+CSV: `output/csns_imode_{bscan,size,voltage,offset}_summary.csv`. Re-run: `./scripts/run_imode_replan.sh`.
 
 ---
 
@@ -331,4 +379,24 @@ Diagnostic \(B\): 0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 1000 G. Not run: 
 **Fig. 18.** Fine D: expansion vs \(\Delta y\) at diagnostic \(B\), and 5 G \(B\)-scans at \(\Delta y=\pm 5\,\mathrm{mm}\).
 
 ![Fig. 18](plots/csns_emode_offset_fine.png)
+
+**Fig. 19.** Ion-mode Block A: reference beams vs \(B\) (0, 200, 1000 G).
+
+![Fig. 19](plots/csns_imode_bscan.png)
+
+**Fig. 20.** Ion-mode Block B: true vs obtained \(\sigma\) (100 kW).
+
+![Fig. 20](plots/csns_imode_size_obtained.png)
+
+**Fig. 21.** Ion-mode Block B: expansion vs \(\sigma\) at 0.1 T and 100–500 kW.
+
+![Fig. 21](plots/csns_imode_size_expansion.png)
+
+**Fig. 22.** Ion-mode Block C: cage voltage 5–30 kV.
+
+![Fig. 22](plots/csns_imode_voltage.png)
+
+**Fig. 23.** Ion-mode Block D: beam offset.
+
+![Fig. 23](plots/csns_imode_offset.png)
 

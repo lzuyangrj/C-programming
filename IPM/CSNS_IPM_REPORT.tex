@@ -1,0 +1,1337 @@
+\documentclass[hyperref]{cernrep}
+
+\graphicspath{{plots/}}
+
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+
+% Single-contribution note: do not ship a blank page before \maketitle
+% (cernall.sty inserts \newpage in one-column mode).
+\makeatletter
+\renewcommand{\maketitle}{%
+  \par\begingroup
+  \def\thefootnote{\fnsymbol{footnote}}%
+  \global\@topnum\z@
+  \@maketitle\@thanks
+  \endgroup
+  \setcounter{footnote}{0}%
+  \let\maketitle\relax
+  \let\@maketitle\relax
+  \gdef\@thanks{}\gdef\@author{}\gdef\@title{}\gdef\@abstract{}%
+  \let\thanks\relax}
+\makeatother
+
+\date{13 September 2026}
+
+\title{Space-charge distortion of ionization profile monitor
+measurements in the CSNS rapid-cycling synchrotron}
+
+\author{CSNS IPM working group}
+
+\institute{Institute of High Energy Physics, Chinese Academy of Sciences,
+Beijing~100049, China\\[2pt]
+China Spallation Neutron Source, Dongguan~523803, China}
+
+\begin{abstract}
+The ionization profile monitor (IPM) of the CSNS rapid-cycling synchrotron
+records the transverse proton distribution by collecting residual-gas
+electrons or ions. During their drift to the collector the secondaries are
+deflected by the bunch space-charge field, so that the detected r.m.s.\
+width differs from the beam size. Particle tracking with Virtual-IPM~2.3.1
+is used to quantify that error for the CSNS geometry and to assess the
+available mitigations. In electron mode a guiding field of
+$300\,\mathrm{G}$ reduces the relative expansion to the one-percent level
+for all beam families, intensities, cage voltages and orbit offsets
+examined; the design field of $0.1\,\mathrm{T}$ is conservative. In ion
+mode the same-sign kick always inflates the profile: at $100\,\mathrm{kW}$
+a $10\,\mathrm{mm}$ beam is expanded by $92\%$ ($\mathrm{H}_2^+$,
+injection) and $104\%$ ($\mathrm{H}_2^+$, extraction). Raising the cage
+voltage from $5$ to $30\,\mathrm{kV}$ reduces but does not remove the
+bias. The residual-gas species is identified in the time-of-flight
+spectrum and the width of one peak ($\mathrm{H}_2\mathrm{O}^+$ or
+$\mathrm{N}_2^+$) is inverted on a look-up against bunch charge and
+cage voltage. Because that width has a minimum at a size that grows
+with intensity ($8$--$19\,\mathrm{mm}$ at injection,
+$6$--$15\,\mathrm{mm}$ at extraction for $100$--$500\,\mathrm{kW}$),
+the invert returns two candidates, a core size and a painted-beam
+size. The guiding magnet is not yet installed, so the electron mode is
+read at $B=0$, where its width is itself space-charge biased and no
+size of its own; it decides between the two candidates by
+consistency---each candidate predicts a $B=0$ electron width, and the
+one that matches the measured electron width is kept---and the second
+ion species confirms the choice. Tested leave-one-out at $100$, $200$,
+$300$ and $500\,\mathrm{kW}$ at injection ($80\,\mathrm{MeV}$) and
+aligned extraction ($1.6\,\mathrm{GeV}$), the electron width picks
+the right root at every tabulated size (median margin $34\%$) and the
+selected size is within $1\%$ at $92\%$ of them; the $10\,\mathrm{mm}$ design core is recovered to $\le 1\%$ at
+every power except within one step of the fold, where the electron
+width is the measurement. At $500\,\mathrm{kW}$ injection sizes below
+$10\,\mathrm{mm}$ are lost on the cage. The recommended operating
+point is electron collection at $B\gtrsim 300\,\mathrm{G}$.
+\end{abstract}
+
+\keywords{ionization profile monitor; space charge; CSNS RCS;
+electron collection; beam-size measurement}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+An ionization profile monitor infers the transverse beam density from
+residual-gas ionization products collected on a position-sensitive
+detector~\cite{Huang2009,Rehman2026}. The CSNS rapid-cycling synchrotron
+(RCS) IPM~\cite{Rehman2024,Rehman2025,Rehman2026,Xiao2026} uses a
+$220\times 231\,\mathrm{mm}$ cage biased at a design voltage of
+$25\,\mathrm{kV}$ ($E_y\simeq 108\,\mathrm{kV\,m^{-1}}$) and a magnet
+specified at $0.1\,\mathrm{T}$ (available to $0.2\,\mathrm{T}$). Electrons
+are collected at the top electrode; the three ion species resolved in the
+time-of-flight spectrum---$\mathrm{H}_2^+$, $\mathrm{H}_2\mathrm{O}^+$ and
+$\mathrm{N}_2^+$---are collected at the bottom. Two proton bunches
+circulate. At $100\,\mathrm{kW}$ each carries
+$N=7.8\times 10^{12}$ particles (scaled linearly with beam power $P$).
+Injection is at $80\,\mathrm{MeV}$ ($\beta=0.39$,
+$\sigma_t=120\,\mathrm{ns}$, painted $\sigma_0\simeq 25\,\mathrm{mm}$ or
+a $10\,\mathrm{mm}$ core); extraction is at $1.6\,\mathrm{GeV}$
+($\beta=0.93$, $\sigma_t=20\,\mathrm{ns}$,
+$\sigma_0\simeq 10\,\mathrm{mm}$).
+
+While the secondaries drift they experience the bunch electric field and
+the Lorentz-boosted bunch magnetic field. The detected r.m.s.\ width
+$\sigma_m$ is therefore not the beam width $\sigma_0$. The same mechanism
+has been analysed for magnetic electron IPMs by Vilsmeier, Sapinski and
+Storey~\cite{Vilsmeier2019} and for ion IPMs by Shiltsev~\cite{Shiltsev2021}
+and by the ISIS group~\cite{Pine2006}. The question for CSNS is
+quantitative: how large is the error, how does it grow with bunch charge
+and shrink with beam size, and how efficiently do the available
+mitigations---guiding $B$, cage voltage, and an identified-species
+correction---remove it?
+
+The calculation uses Virtual-IPM~2.3.1~\cite{Vilsmeier2017} with uniform
+cage fields and $10^5$ secondaries per case. Distortion is isolated by
+comparing bunch space charge on and off at fixed guiding $E$ and $B$,
+\begin{equation}
+\label{eq:delta}
+\Delta \;=\;
+\frac{\sigma_{\mathrm{SC}}-\sigma_{\mathrm{off}}}{\sigma_{\mathrm{off}}}\,.
+\end{equation}
+A positive $\Delta$ is an inflated size; a negative $\Delta$ is
+compression. Microchannel-plate saturation, electromagnetic interference,
+secondary electrons from the ion trap and the measured cage map are not
+included. Those hardware effects, rather than space charge, are identified
+in Refs.~\cite{Rehman2024,Rehman2025,Xiao2026} as the present electron-mode
+limit once a sufficient guiding field is applied.
+
+\section{Space-charge interaction with collected secondaries}
+\label{sec:mech}
+
+Characteristic times fix the regime. At $25\,\mathrm{kV}$ an electron
+crosses the $115.5\,\mathrm{mm}$ half-gap in
+$\tau\simeq 3.5\,\mathrm{ns}$. The same path takes
+$\tau_2\simeq 210$, $631$ and $787\,\mathrm{ns}$ for $\mathrm{H}_2^+$,
+$\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$. The time to leave a
+$10\,\mathrm{mm}$ beam is $\tau_0\simeq 74$, $221$ and
+$275\,\mathrm{ns}$. Injection bunches ($120\,\mathrm{ns}$) are longer
+than $\tau_0$ for $\mathrm{H}_2^+$; extraction bunches
+($20\,\mathrm{ns}$) are shorter than every $\tau_0$. The bunch spacing
+is $980\,\mathrm{ns}$ at injection and $409\,\mathrm{ns}$ at extraction.
+
+Electrons are attracted to the proton bunch. A moderate kick focuses them
+towards the axis (compression). When the bunch field exceeds the cage
+field they cross the axis and the collected profile is wider than the
+beam (over-focusing). Peak transverse bunch fields on a $10\,\mathrm{mm}$
+beam are approximately $29\,\mathrm{kV\,m^{-1}}$ (injection) and
+$73\,\mathrm{kV\,m^{-1}}$ (extraction) at $100\,\mathrm{kW}$, versus
+$145$ and $363\,\mathrm{kV\,m^{-1}}$ at $500\,\mathrm{kW}$; the cage
+field is $108\,\mathrm{kV\,m^{-1}}$. At $500\,\mathrm{kW}$ extraction
+electrons are trapped in the beam potential during the passage, the
+regime identified in Ref.~\cite{Vilsmeier2019} as requiring a magnetic
+field rather than an increase of $V$.
+
+A guiding field converts the kick into cyclotron motion. If the impulse
+is delivered early in the flight, the displacement at the collector is
+proportional to $\sin(\omega_c\tau)/\omega_c$ and vanishes whenever
+$\omega_c\tau=n\pi$. Successive zeros of $\Delta(B)$ are therefore spaced
+by
+\begin{equation}
+\label{eq:dB}
+\Delta B \;=\; \frac{\pi m_e}{e\tau}
+\;\propto\; \sqrt{V}\,.
+\end{equation}
+The envelope of the oscillation falls as $B$ increases. Magnetic
+mitigation is the decay of that envelope, not the choice of a particular
+zero. The same cyclotron-phase picture is the ``one gyration'' tuning
+rule used at GSI and J-PARC~\cite{Forck2011,Satou2010}.
+
+Ions have the same sign as the beam, so the kick is always outward and
+$\Delta$ is always positive. In the impulsive limit
+(bunch length $\ll\tau_0$) the transverse impulse scales as
+$N/\sigma_0^2$ and the subsequent drift as
+$\tau_2\propto 1/\sqrt{V}$, giving~\cite{Shiltsev2021}
+\begin{equation}
+\label{eq:h}
+h-1 \;\equiv\; \Delta
+\;\propto\; \frac{N}{V\,\sigma_0^2}\,,
+\end{equation}
+with a mass dependence $\propto M^{-1/2}$. CSNS occupies a mixed
+regime: extraction is impulsive, whereas at injection $\mathrm{H}_2^+$
+leaves the beam while the $120\,\mathrm{ns}$ bunch is still passing.
+Magnetic confinement is an electron-mode instrument~\cite{Vilsmeier2019,Shiltsev2021}
+and is not treated further as an ion-mode correction.
+
+\section{Profile distortion and growth of the measured size}
+\label{sec:dist}
+
+\subsection{Electron collection without a guiding field}
+\label{sec:e0}
+
+At $B=0$ the collected electron width is not a reliable size. On the
+$10\,\mathrm{mm}$ injection beam at $100\,\mathrm{kW}$, $\Delta$ changes
+from expansion to compression at $13\,\mathrm{kV}$
+($+9\%$ at $12\,\mathrm{kV}$, $\approx 0$ at $13\,\mathrm{kV}$,
+$-8\%$ at $14\,\mathrm{kV}$). At $500\,\mathrm{kW}$ the same voltage
+scan never changes sign: $\Delta$ remains positive and grows with $V$
+from $+29\%$ at $5\,\mathrm{kV}$ to $+83\%$ at $30\,\mathrm{kV}$
+(Fig.~\ref{fig:eV}). That is the trapping regime of
+Section~\ref{sec:mech}: raising $V$ does not un-trap a
+$500\,\mathrm{kW}$ bunch. The same intensity-dependent sign reversal is
+reported at GSI (electrons shrink without $B$ at moderate
+intensity)~\cite{Forck2011} and at J-PARC (a factor-of-two shrink in
+electron mode)~\cite{Satou2010}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_emode_voltage.png}
+\caption{Relative expansion $\Delta$ of the electron profile as a
+function of guiding field for cage voltages from $5$ to
+$30\,\mathrm{kV}$, on the $10\,\mathrm{mm}$ injection beam.
+At $B=0$ the $100\,\mathrm{kW}$ family crosses zero; the
+$500\,\mathrm{kW}$ family does not.}
+\label{fig:eV}
+\end{figure}
+
+The map $\sigma_m(\sigma_0)$ is not monotonic at $B=0$: a small beam
+may appear larger or smaller than a large one, according to whether the
+kick focuses or over-focuses. The Voitkiv $\mathrm{H}_2$ double
+differential cross-section used by Virtual-IPM contributes a
+$\sigma$-independent quadrature smear of $2.9$--$3.2\,\mathrm{mm}$
+($\approx 2$--$2.5\,\mathrm{eV}$ per transverse axis), which is
+$+40$--$48\%$ at $\sigma_0=3\,\mathrm{mm}$ and only $+1\%$ at
+$20\,\mathrm{mm}$. One cyclotron period removes that smear
+(Section~\ref{sec:Be}).
+
+Along the energy ramp at $B=0$, a long bunch ($120\,\mathrm{ns}$) is
+compressed and a short bunch ($20\,\mathrm{ns}$) is inflated. Both
+errors become milder as $\beta$ rises, because the electrons spend less
+time in the bunch: at $100\,\mathrm{kW}$ the $120\,\mathrm{ns}$ family
+goes from $-46\%$ ($200\,\mathrm{MeV}$) to $-32\%$
+($1.6\,\mathrm{GeV}$), and the $20\,\mathrm{ns}$ family from
+$+77\%$ ($80\,\mathrm{MeV}$) to $+38\%$ ($1.2\,\mathrm{GeV}$). Energy
+alone does not restore the profile.
+
+\subsection{Ion collection}
+\label{sec:ion}
+
+Every ion case has $\Delta>0$. Figure~\ref{fig:isize} shows
+$\sigma_m$ versus $\sigma_0$ at $B=0$ and at the design
+$0.1\,\mathrm{T}$, $100\,\mathrm{kW}$: every species and both rings
+lie above the diagonal, and the guiding field leaves the ion image
+unchanged. Figures~\ref{fig:iexpi} and~\ref{fig:iexpx} show the same
+map versus bunch charge at injection and at extraction: the expansion
+grows with $P$ and falls with $\sigma_0$ as required by
+Eq.~(\ref{eq:h}), and the observed width lies above
+$\sigma_m=\sigma_0$ at every power.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{csns_imode_size_obtained.png}
+\caption{Ion-mode obtained width $\sigma_m$ versus true width
+$\sigma_0$ at $100\,\mathrm{kW}$ for the three species (rows) at
+$B=0$ (left) and $0.1\,\mathrm{T}$ (right). The dotted line is
+$\sigma_m=\sigma_0$. Space charge inflates every point; the guiding
+field does not change the ion image.}
+\label{fig:isize}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{csns_imode_size_expansion.png}
+\caption{Injection, $80\,\mathrm{MeV}$, $0.1\,\mathrm{T}$,
+$25\,\mathrm{kV}$. Left column: ion-mode expansion $\Delta$ versus
+true size $\sigma_0$ for $100$--$500\,\mathrm{kW}$; right column:
+observed width $\sigma_m$ versus $\sigma_0$ for the same points, one
+row per species. The dashed line is $\sigma_m=\sigma_0$. The
+$3\,\mathrm{mm}$/$500\,\mathrm{kW}$ family saturates on the cage
+wall ($\sigma_m\approx 56\,\mathrm{mm}$).}
+\label{fig:iexpi}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{csns_imode_size_expansion_ext.png}
+\caption{As Fig.~\ref{fig:iexpi} for extraction ($1.6\,\mathrm{GeV}$),
+with the ions generated in time with the bunch.}
+\label{fig:iexpx}
+\end{figure}
+
+For $\mathrm{H}_2^+$ at injection, $\sigma_0=10\,\mathrm{mm}$ and
+$0.1\,\mathrm{T}$, the expansion grows from $+82\%$
+($18.2\,\mathrm{mm}$) at $100\,\mathrm{kW}$ to $+175\%$, $+279\%$,
+$+390\%$ and $+422\%$ ($52.1\,\mathrm{mm}$) at $200$, $300$, $400$ and
+$500\,\mathrm{kW}$. Between $100$ and $400\,\mathrm{kW}$ the growth is
+$\propto P^{1.12}$, consistent with the linear kick plus the
+second-order term of
+$\sigma_m^2=\sigma_0^2+\kappa N+\cdots$~\cite{Shiltsev2021}. At
+$500\,\mathrm{kW}$ the profile reaches the $110\,\mathrm{mm}$
+half-cage and the exponent saturates.
+
+At extraction, with ions born in time with the bunch,
+$10\,\mathrm{mm}$, $100\,\mathrm{kW}$ and $25\,\mathrm{kV}$, the
+expansions are $+104\%$ ($\mathrm{H}_2^+$), $+41\%$
+($\mathrm{H}_2\mathrm{O}^+$) and $+40\%$ ($\mathrm{N}_2^+$) at
+$B=0$, in agreement with a reduced line-charge integration of the same
+equations to $\pm 1\%$ absolute (Fig.~\ref{fig:kick}; model values
+$+102\%$, $+40\%$ and $+39\%$). The $20\,\mathrm{ns}$ bunch is
+impulsive, so $\mathrm{H}_2^+$ is the most distorted species. At
+$500\,\mathrm{kW}$ the same family reaches $+408\%$, $+243\%$ and
+$+235\%$. Between $\sigma_0=5$ and $20\,\mathrm{mm}$ at
+$100\,\mathrm{kW}$, $\Delta\propto\sigma_0^{-1.84\ldots-2.01}$, the
+impulsive $\sigma_0^{-2}$ of Eq.~(\ref{eq:h}) rather than the
+continuous-beam $\sigma_0^{-1.5}$. Aligned extraction $\mathrm{H}_2^+$
+widths at $0\,\mathrm{G}$ and $100\,\mathrm{kW}$ are listed in
+Table~\ref{tab:esize}. A $3\,\mathrm{mm}$ extraction beam is already
+unusable as a size measurement at $100\,\mathrm{kW}$. The most severe
+case remains injection at $3\,\mathrm{mm}$ and $500\,\mathrm{kW}$,
+where $\sigma_m\approx 56\,\mathrm{mm}$ ($+1700\%$) for all three
+species.
+
+\begin{table}[htbp]
+\centering
+\caption{Aligned extraction, $\mathrm{H}_2^+$, $0\,\mathrm{G}$,
+$100\,\mathrm{kW}$, $25\,\mathrm{kV}$: obtained width and expansion
+versus true size.}
+\label{tab:esize}
+\begin{tabular}{lcccccc}
+\hline\hline
+$\sigma_0$\,(mm) & 3 & 5 & 7 & 10 & 15 & 20 \\
+\hline
+$\sigma_m$\,(mm) & 38.2 & 26.8 & 22.4 & 20.4 & 21.7 & 24.9 \\
+$\Delta$\,(\%)   & $+1172$ & $+435$ & $+219$ & $+104$ & $+44$ & $+24$ \\
+\hline\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_review_imode_model.png}
+\caption{Left: ion-mode expansion at $0\,\mathrm{G}$,
+$100\,\mathrm{kW}$ and $25\,\mathrm{kV}$, reduced kick model versus
+Virtual-IPM. Filled markers: injection $\sigma_0=3$--$20\,\mathrm{mm}$.
+Open markers: extraction ($3$, $5$, $7$, $10$, $15$,
+$20\,\mathrm{mm}$). Right: expansion versus cage voltage, injection
+$10\,\mathrm{mm}$. Curves: kick model. Markers: Virtual-IPM. Agreement is $\pm 1\%$ absolute on the left and
+$\le 4\%$ relative on the right.}
+\label{fig:kick}
+\end{figure}
+
+Species ordering follows the mixed regime. At injection,
+$10\,\mathrm{mm}$, $0\,\mathrm{G}$ and $100\,\mathrm{kW}$ the
+expansions are $+92\%$ ($\mathrm{H}_2^+$), $+65\%$
+($\mathrm{H}_2\mathrm{O}^+$) and $+56\%$ ($\mathrm{N}_2^+$): lighter
+ions expand more, but less than a pure $M^{-1/2}$ law because
+$\mathrm{H}_2^+$ leaves during the $120\,\mathrm{ns}$ bunch. Painted
+injection ($25\,\mathrm{mm}$) is milder ($+17\%$, $+10\%$, $+9\%$). A
+second extraction bunch, still in the cage when the heavy ions arrive,
+adds a few points of extra width (single-bunch $+36\%$ and $+29\%$
+versus three-bunch $+41\%$ and $+40\%$ for $\mathrm{H}_2\mathrm{O}^+$
+and $\mathrm{N}_2^+$); $\mathrm{H}_2^+$ does not see that bunch
+($+104\%$ either way). At commissioning power, aligned extraction
+$\mathrm{H}_2^+$ ($10\,\mathrm{mm}$, $0\,\mathrm{G}$) is already
+$+19\%$ at $20\,\mathrm{kW}$ and $+82\%$ at $80\,\mathrm{kW}$. These
+magnitudes are of the same order as the operational ion-mode biases
+reported at J-PARC RCS ($20$--$30\%$ wider than the
+MWPM)~\cite{Satou2010} and at the Fermilab
+Booster~\cite{Shiltsev2021}.
+
+\section{Mitigation}
+\label{sec:mit}
+
+\subsection{Magnetic confinement of electrons}
+\label{sec:Be}
+
+Figure~\ref{fig:eB} shows the electron expansion versus $B$ for the
+three reference beams and $100$--$500\,\mathrm{kW}$. The curves
+oscillate through focusing and over-kick. Painted injection recovers
+first; extraction and the $10\,\mathrm{mm}$ injection core still
+oscillate through $150$--$250\,\mathrm{G}$. At $300\,\mathrm{G}$ every
+family has settled inside $\pm 1\%$ (right column of
+Fig.~\ref{fig:eB}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.74\textwidth]{csns_emode_bscan300.png}
+\caption{Electron-mode expansion versus guiding field for painted
+injection ($25\,\mathrm{mm}$; a,~b), extraction ($10\,\mathrm{mm}$;
+c,~d) and the $10\,\mathrm{mm}$ injection core (e,~f), at
+$100$--$500\,\mathrm{kW}$. Left: $0$--$300\,\mathrm{G}$, the grey band
+is $\pm 1\%$. Right: $150$--$300\,\mathrm{G}$ on a $\pm 3\%$ scale,
+dashed lines at $\pm 1\%$. At $300\,\mathrm{G}$ every family lies
+inside $\pm 1\%$.}
+\label{fig:eB}
+\end{figure}
+
+\clearpage
+Figure~\ref{fig:eB} does not fall monotonically:
+$\Delta(B)$ oscillates through focusing ($\Delta<0$) and over-kick
+($\Delta>0$). Figure~\ref{fig:cyc} identifies that oscillation as the
+cyclotron phase of a nearly impulsive space-charge kick.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_review_emode_cyclotron.png}
+\caption{(a)~Relative expansion $\Delta$ versus guiding field at two
+cage voltages ($100\,\mathrm{kW}$, $10\,\mathrm{mm}$ injection).
+Dotted vertical lines (colour-matched to the curves) are the predicted
+zeros $B_n=n\pi m_e/(e\tau)$; circles are the simulated crossings. The
+grey band is $\pm 1\%$. The frame is $\pm 35\%$; the $25\,\mathrm{kV}$
+point at $B=0$ ($\Delta=-48\%$) remains off-scale. (b)~Mean spacing of
+those zeros versus cage voltage, compared with
+$\pi m_e/(e\tau)\propto\sqrt{V}$ (no free parameter).}
+\label{fig:cyc}
+\end{figure}
+
+An electron born on a $10\,\mathrm{mm}$ beam leaves the bunch in
+$\lesssim 1\,\mathrm{ns}$ and then drifts the remaining
+$\tau\simeq 3.5\,\mathrm{ns}$ ($25\,\mathrm{kV}$) in the uniform cage
+field. The transverse impulse $\Delta v$ acquired inside the bunch is
+converted into cyclotron motion at $\omega_c=eB/m_e$. The displacement
+at the collector is $(\Delta v/\omega_c)\sin(\omega_c\tau)$ and
+therefore vanishes whenever the electron completes an integer number of
+half-turns, $\omega_c\tau=n\pi$ ($n=1,2,\ldots$). Those fields are
+exactly the equally spaced zeros $B_n=n\,\pi m_e/(e\tau)$ of
+Eq.~(\ref{eq:dB}). Because $\tau\propto V^{-1/2}$ in a uniform field,
+the spacing itself scales as $\sqrt{V}$. The amplitude of each
+successive lobe falls as $1/B$ (the $1/\omega_c$ prefactor). Magnetic
+mitigation is the decay of that envelope, not the choice of a particular
+zero: a zero can be moved by a few kilovolts or a change of orbit,
+whereas the envelope is a property of $B$.
+
+Panel~(a) shows $\Delta(B)$ at $100\,\mathrm{kW}$ and
+$10\,\mathrm{mm}$ injection for $10$ and $25\,\mathrm{kV}$. Vertical
+dotted lines are the predicted zeros $B_n=n\pi m_e/(e\tau)$ for each
+voltage; filled circles mark the simulated crossings. The
+$10\,\mathrm{kV}$ curve oscillates faster
+because the flight is longer ($\tau=5.51\,\mathrm{ns}$ versus
+$3.48\,\mathrm{ns}$), so a given phase $n\pi$ is reached at a weaker
+$B$. The first $25\,\mathrm{kV}$ point, $\Delta=-48\%$ at $B=0$, lies
+below the frame. At $25\,\mathrm{kV}$ the remaining lobes sit near
+$85$, $140$, $195$, $240$ and $295\,\mathrm{G}$ with amplitudes $13$,
+$4$, $1.4$, $0.9$ and $0.6\%$.
+
+Panel~(b) extracts the mean spacing between successive zeros for
+$5$--$30\,\mathrm{kV}$ (Table~\ref{tab:cyc}). The points follow the
+$\sqrt{V}$ curve to $\le 5\%$ above $9\,\mathrm{kV}$; at
+$5$--$8\,\mathrm{kV}$ the lobes are narrower than the field
+resolution of the simulation and the extracted spacing sits
+$5$--$11\%$ low. There is no free parameter. That is the evidence
+that the oscillation in Fig.~\ref{fig:eB} is the cyclotron phase, and
+it is why
+$300\,\mathrm{G}$---the first field at which the envelope itself lies
+inside $\pm 1\%$ at every power---is the operating point rather than
+any particular zero.
+
+\begin{table}[htbp]
+\centering
+\caption{Electron time of flight from the cage mid-plane and the
+spacing of $\Delta(B)$ zeros versus cage voltage (injection
+$10\,\mathrm{mm}$, $100\,\mathrm{kW}$). The prediction is
+Eq.~(\ref{eq:dB}) with $\tau=\sqrt{2 d m_e/(eE)}$ and
+$d=115.5\,\mathrm{mm}$.}
+\label{tab:cyc}
+{\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{cccc@{\hspace{1.6em}}cccc}
+\hline\hline
+$V$ & $\tau$ & pred. & sim. &
+$V$ & $\tau$ & pred. & sim. \\
+(kV) & (ns) & (G) & (G) &
+(kV) & (ns) & (G) & (G) \\
+\hline
+5 & 7.79 & 22.9 & 20.3 & 18 & 4.11 & 43.5 & 42.9 \\
+6 & 7.11 & 25.1 & 22.7 & 19 & 4.00 & 44.7 & 44.2 \\
+7 & 6.58 & 27.1 & 25.9 & 20 & 3.89 & 45.9 & 45.7 \\
+8 & 6.16 & 29.0 & 27.1 & 21 & 3.80 & 47.0 & 46.9 \\
+9 & 5.81 & 30.8 & 29.0 & 22 & 3.71 & 48.1 & 48.2 \\
+10 & 5.51 & 32.4 & 30.9 & 23 & 3.63 & 49.2 & 49.4 \\
+11 & 5.25 & 34.0 & 32.9 & 24 & 3.56 & 50.2 & 50.5 \\
+12 & 5.03 & 35.5 & 34.3 & 25 & 3.48 & 51.3 & 51.7 \\
+13 & 4.83 & 37.0 & 36.1 & 26 & 3.42 & 52.3 & 52.8 \\
+14 & 4.66 & 38.4 & 37.4 & 27 & 3.35 & 53.3 & 53.9 \\
+15 & 4.50 & 39.7 & 39.1 & 28 & 3.29 & 54.3 & 55.0 \\
+16 & 4.35 & 41.0 & 40.6 & 29 & 3.23 & 55.2 & 56.2 \\
+17 & 4.22 & 42.3 & 41.5 & 30 & 3.18 & 56.2 & 57.2 \\
+\hline\hline
+\end{tabular}
+}
+\end{table}
+
+Table~\ref{tab:Bth} lists the smallest field above which
+$\lvert\Delta\rvert$ remains below $1\%$, together with the residual at
+$300\,\mathrm{G}$. Painted injection is restored first. The last curve
+to settle is the $10\,\mathrm{mm}$ injection core at $200\,\mathrm{kW}$
+($290\,\mathrm{G}$). A field of $300\,\mathrm{G}$ keeps every power at
+$\lvert\Delta\rvert\lesssim 1\%$.
+
+\begin{table}[htbp]
+\centering
+\caption{Smallest guiding field above which $\lvert\Delta\rvert\le 1\%$
+up to $300\,\mathrm{G}$. The residual at
+$300\,\mathrm{G}$ is given in parentheses.}
+\label{tab:Bth}
+{\small
+\begin{tabular}{lccccc}
+\hline\hline
+Beam & 100\,kW & 200\,kW & 300\,kW & 400\,kW & 500\,kW \\
+\hline
+Inj.\ $25\,\mathrm{mm}$
+  & $105\,\mathrm{G}$ ($+0.03\%$)
+  & $115\,\mathrm{G}$ ($+0.09\%$)
+  & $155\,\mathrm{G}$ ($+0.16\%$)
+  & $155\,\mathrm{G}$ ($+0.19\%$)
+  & $155\,\mathrm{G}$ ($+0.15\%$) \\
+Ext.\ $10\,\mathrm{mm}$
+  & $240\,\mathrm{G}$ ($-0.11\%$)
+  & $190\,\mathrm{G}$ ($-0.24\%$)
+  & $185\,\mathrm{G}$ ($-0.17\%$)
+  & $195\,\mathrm{G}$ ($-0.02\%$)
+  & $205\,\mathrm{G}$ ($+0.08\%$) \\
+Inj.\ $10\,\mathrm{mm}$
+  & $210\,\mathrm{G}$ ($+0.61\%$)
+  & $290\,\mathrm{G}$ ($+0.40\%$)
+  & $235\,\mathrm{G}$ ($-0.04\%$)
+  & $190\,\mathrm{G}$ ($-0.16\%$)
+  & $190\,\mathrm{G}$ ($-0.15\%$) \\
+\hline\hline
+\end{tabular}
+}
+\end{table}
+
+The same $300\,\mathrm{G}$ point holds when the remaining axes are
+varied. From $200\,\mathrm{G}$ the obtained-versus-true plot lies on
+the diagonal except at $3\,\mathrm{mm}$ (Fig.~\ref{fig:esize}). At
+$300\,\mathrm{G}$, injection at $3\,\mathrm{mm}$ is still $+1\%$
+($100\,\mathrm{kW}$) to $+4\%$ ($500\,\mathrm{kW}$); $0.1\,\mathrm{T}$
+places $3$, $10$ and $20\,\mathrm{mm}$ on the diagonal at every power
+($\lvert\Delta\rvert\le 0.05\%$). At $300\,\mathrm{G}$ and
+$10$--$25\,\mathrm{kV}$, both $100$ and $500\,\mathrm{kW}$ remain
+$\lesssim 1\%$. Higher $V$ requires slightly more $B$ at
+$100\,\mathrm{kW}$ ($150\,\mathrm{G}$ at $10\,\mathrm{kV}$ to
+$210\,\mathrm{G}$ at $25\,\mathrm{kV}$) because $\tau$ is shorter and
+the first lobes move out; $500\,\mathrm{kW}$ recovers earlier at every
+voltage. Along the energy ramp, $300\,\mathrm{G}$ and
+$100\,\mathrm{kW}$ give $\lvert\Delta\rvert\le 0.5\%$ from
+$80\,\mathrm{MeV}$ to $1.6\,\mathrm{GeV}$ for both $120\,\mathrm{ns}$
+and $20\,\mathrm{ns}$ bunches. At commissioning powers
+($20$/$50$/$80\,\mathrm{kW}$) and $300\,\mathrm{G}$ the residuals are
+$+0.00$/$+0.01$/$+0.02\%$ (painted injection),
+$+0.28$/$+0.56$/$+0.18\%$ (extraction $10\,\mathrm{mm}$) and
+$+0.11$/$+0.29$/$+0.49\%$ (injection $10\,\mathrm{mm}$).
+
+A few millimetres of vertical orbit offset change $\Delta$ by a few
+percent at $B=0$ and by $\lesssim 1\%$ at $300\,\mathrm{G}$; the
+$1\%$ threshold moves by at most $\sim 10\,\mathrm{G}$. A horizontal
+offset is a translation of a uniform cage and does not change the
+width. The space-charge-induced centroid shift falls as $1/B$
+(the $\mathbf{E}\times\mathbf{B}$ / polarisation drift of
+Ref.~\cite{Vilsmeier2019}): $0.9\,\mathrm{mm}$ at $100\,\mathrm{G}$ to
+$0.2\,\mathrm{mm}$ at $300\,\mathrm{G}$ on the extraction beam.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.62\textwidth]{csns_emode_size_obtained.png}
+\caption{Electron-mode obtained width versus true width at
+$B=0$, $100$, $200$ and $300\,\mathrm{G}$ (rows) at injection (left)
+and extraction (right), $100$--$500\,\mathrm{kW}$. From
+$200\,\mathrm{G}$ the points lie on the diagonal except at
+$3\,\mathrm{mm}$.}
+\label{fig:esize}
+\end{figure}
+
+Thus $B=300\,\mathrm{G}$ reduces an electron-mode error of tens of
+percent (and the wrong sign at $100\,\mathrm{kW}$ and high $V$) to
+$\lesssim 1\%$. The design $0.1\,\mathrm{T}$ provides a factor-of-three
+margin and is the appropriate field for a $3\,\mathrm{mm}$ beam. The
+CSNS magnet ($0.2\,\mathrm{T}$) is not the limiting device. The SNS
+ring IPM was designed for $300\,\mathrm{G}$ at twenty-five times this
+bunch charge, with an estimated residual of about
+$7\%$~\cite{Bartkoski2014}; a residual $\lesssim 1\%$ at CSNS is the
+expected scaling. The CERN PS beam-gas ionization monitor operates at
+$200\,\mathrm{mT}$ for LHC-type bunches~\cite{Levasseur2026}, at the
+high-field end of the same scaling.
+
+\subsection{Cage voltage}
+\label{sec:V}
+
+For electrons at $B=0$, voltage is not a size correction: it can reverse
+the sign of $\Delta$ at $100\,\mathrm{kW}$ and cannot reverse it at
+$500\,\mathrm{kW}$ (Section~\ref{sec:e0}). Once
+$B\ge 300\,\mathrm{G}$ the design $25\,\mathrm{kV}$ already lies inside
+$1\%$, so the voltage may be chosen for collection efficiency and
+detector operation.
+
+For ions, a higher $V$ shortens $\tau_2$ and reduces the integrated
+kick, as at ISIS (broadening $\propto 1/E$)~\cite{Pine2006}. The
+relevant ion-mode dependence is therefore $\Delta(V)$, not $\Delta(B)$:
+even at the design $0.1\,\mathrm{T}$ the ion cyclotron phase is
+$\omega_c\tau_2\lesssim 1\,\mathrm{rad}$, so a guiding field is not a
+size correction.
+
+Figure~\ref{fig:iV} shows that voltage dependence for the three
+time-of-flight-resolved species on the $10\,\mathrm{mm}$ injection
+beam at $100\,\mathrm{kW}$ and $B=0$. Curves are the line-charge kick
+model; markers are Virtual-IPM. The model tracks every marker to
+$\le 4\%$ relative ($\le 4$ points absolute). Expansion remains
+positive at every voltage: from $5$ to $30\,\mathrm{kV}$,
+$\mathrm{H}_2^+$ falls from $+395\%$ to $+77\%$,
+$\mathrm{H}_2\mathrm{O}^+$ from $+227\%$ to $+56\%$, and
+$\mathrm{N}_2^+$ from $+221\%$ to $+49\%$ (Table~\ref{tab:iV}). The
+tracking results scale as
+$V^{-0.96}$ ($\mathrm{H}_2^+$),
+$V^{-0.75}$ ($\mathrm{H}_2\mathrm{O}^+$) and $V^{-0.80}$
+($\mathrm{N}_2^+$). Aligned extraction $\mathrm{H}_2^+$
+($10\,\mathrm{mm}$, $100\,\mathrm{kW}$) falls from $+280\%$ at
+$5\,\mathrm{kV}$ to $+104\%$ at $25\,\mathrm{kV}$ and $+93\%$ at
+$30\,\mathrm{kV}$. Extrapolating $V^{-0.96}$ from the $25\,\mathrm{kV}$
+injection point, a $10\%$ bias would require approximately
+$250\,\mathrm{kV}$ across the cage, which is not a practical path. ESS
+can operate an ion IPM at $300\,\mathrm{kV\,m^{-1}}$ because its
+bunches are weaker by about $5000$~\cite{Marroncle2023}; that choice
+does not transfer to CSNS.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{csns_imode_voltage.png}
+\caption{Ion-mode expansion versus cage voltage for
+$\mathrm{H}_2^+$, $\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$
+(injection $10\,\mathrm{mm}$, $100\,\mathrm{kW}$, $B=0$). Curves: kick
+model. Markers: Virtual-IPM.}
+\label{fig:iV}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{Ion-mode expansion versus cage voltage at $B=0$
+(injection $10\,\mathrm{mm}$, $100\,\mathrm{kW}$), Virtual-IPM.}
+\label{tab:iV}
+{\small
+\begin{tabular}{lcccccc}
+\hline\hline
+$V$\,(kV) & 5 & 10 & 15 & 20 & 25 & 30 \\
+\hline
+$\mathrm{H}_2^+$
+  & $+395$ & $+229$ & $+153$ & $+115$ & $+92$ & $+77$ \\
+$\mathrm{H}_2\mathrm{O}^+$
+  & $+227$ & $+126$ & $+94$ & $+77$ & $+65$ & $+56$ \\
+$\mathrm{N}_2^+$
+  & $+221$ & $+110$ & $+81$ & $+66$ & $+56$ & $+49$ \\
+\hline\hline
+\end{tabular}
+}
+\end{table}
+
+Voltage is therefore a useful lever on the ion bias (a factor of about
+five for $\mathrm{H}_2^+$ from $5$ to $30\,\mathrm{kV}$) but not a
+substitute for correction or for electron-mode operation.
+
+\subsection{Closed-orbit offset}
+\label{sec:off}
+
+A few millimetres of closed-orbit error are routine in the RCS. The
+space-charge kick is centred on the beam, so a horizontal offset
+$\Delta x$ is a translation of a uniform cage and must leave the
+measured width unchanged. A vertical offset $\Delta y$ changes the
+drift length $d=115.5\,\mathrm{mm}+\Delta y$ and therefore the flight
+time; that is the only first-order geometric lever.
+
+Figure~\ref{fig:eoff} is the electron check on the $10\,\mathrm{mm}$
+beams at $100\,\mathrm{kW}$. Panel~(a) varies $\Delta y$ over
+$\pm 10\,\mathrm{mm}$. At $B=0$
+extraction expands from $+25\%$ ($\Delta y=-10\,\mathrm{mm}$) to
+$+42\%$ ($\Delta y=+10\,\mathrm{mm}$), $0.85\%$ per millimetre, because
+the electron stays longer in the bunch field when the beam is farther
+from the collector; injection at $B=0$ is compressed
+($\Delta\simeq -48\%$) and almost flat. At $300\,\mathrm{G}$ both
+beams lie inside the $\pm 1\%$ band over the whole $\pm 10\,\mathrm{mm}$
+range ($\lvert\Delta\rvert\le 0.65\%$). Panel~(b) varies $\Delta x$
+from $0$ to $10\,\mathrm{mm}$ at that operating field: $\Delta$ is
+unchanged to the line thickness
+(injection $+0.61\%$, extraction $-0.11\%$ at the centred point). The
+$\mathbf{E}\times\mathbf{B}$ centroid shift
+($0.24\,\mathrm{mm}$ on extraction at $300\,\mathrm{G}$) is independent
+of $\Delta x$ and is a fixed, correctable offset.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_orbit_offset_emode.png}
+\caption{Electron-mode closed-orbit offset, $10\,\mathrm{mm}$ beams,
+$100\,\mathrm{kW}$. (a)~$\Delta$ versus vertical offset $\Delta y$.
+Dashed: $B=0$. Solid: $300\,\mathrm{G}$. The grey band is $\pm 1\%$.
+(b)~$\Delta$ versus horizontal offset $\Delta x$ at
+$300\,\mathrm{G}$.}
+\label{fig:eoff}
+\end{figure}
+
+Figure~\ref{fig:ioff} is the ion check at $B=0$ (a guiding field is
+not an ion-mode lever). Panel~(a) plots $\Delta$ versus $\Delta y$ for
+the three species. Filled markers are injection; open markers are
+extraction. Lines are
+$\sigma_m^2-\sigma_0^2\propto d$, anchored at the centred
+Virtual-IPM point, with no free parameter. Injection $\mathrm{H}_2^+$
+is $+89.2\%$, $+92.0\%$ and $+94.7\%$ at
+$\Delta y=-5$, $0$ and $+5\,\mathrm{mm}$; the prediction is
+$+88.9\%$ and $+95.0\%$. Aligned extraction $\mathrm{H}_2^+$ is
+$+101\%$, $+104\%$ and $+107\%$ at the same offsets, and the
+intermediate offsets stay on that line. Every species and both beams
+agree with the drift-length law to $0.5\%$ absolute. Panel~(b): a
+horizontal offset of up to $10\,\mathrm{mm}$ leaves every width
+unchanged to $0.1\%$, as
+required by a kick centred on the beam and as stated for ISIS within
+about $10\,\mathrm{mm}$ of the axis~\cite{Pine2006}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_orbit_offset_imode.png}
+\caption{Ion-mode closed-orbit offset at $B=0$, $10\,\mathrm{mm}$,
+$100\,\mathrm{kW}$, $25\,\mathrm{kV}$. (a)~$\Delta$ versus vertical
+offset $\Delta y$. Filled: injection. Open: extraction. Lines:
+$\sigma_m^2-\sigma_0^2\propto d$. (b)~$\Delta$ versus horizontal
+offset $\Delta x$; the width is translation-invariant.}
+\label{fig:ioff}
+\end{figure}
+
+At $500\,\mathrm{kW}$ an uncorrected injection $\mathrm{H}_2^+$
+profile ($\sigma_m\approx 52\,\mathrm{mm}$) is clipped by the
+$110\,\mathrm{mm}$ half-cage. A $10\,\mathrm{mm}$ horizontal offset
+then pulls the centroid by $4\,\mathrm{mm}$. That is an aperture
+effect, not a failure of the electron-mode operating point and not a
+space-charge shift of the ion image.
+
+\subsection{Inversion of ion-mode widths}
+\label{sec:inv}
+
+The ion bias is large, smooth, and reproduced by the kick model
+(Fig.~\ref{fig:kick}), so $\sigma_0$ can be recovered from $\sigma_m$
+without changing the hardware. The residual-gas species is identified
+from the time-of-flight spectrum, and the working peak is a single
+identified species---$\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$,
+which are less impulsive than $\mathrm{H}_2^+$
+(Section~\ref{sec:mech}). Its look-up table $\sigma_m(\sigma_0,N,V)$
+at $B=0$, tabulated at $25\,\mathrm{kV}$ for
+$\sigma_0=3$--$20\,\mathrm{mm}$ in $1\,\mathrm{mm}$ steps with the
+extraction ions generated in time with the bunch, is then inverted.
+The guiding magnet is not yet installed, so both the
+ion mode and the electron mode are read at $B=0$ throughout this
+section.
+
+\medskip\noindent\textbf{Two roots.}
+The inversion is not single-valued. At fixed $N$ and $V$ the collected
+width of a heavy ion has a minimum $\sigma_{m,\min}$ at
+$\sigma_0=\sigma_0^*(N)$: below it the kick term ($\propto N/\sigma_0$)
+dominates and $\sigma_m$ \emph{falls} as the beam grows; above it the
+beam size dominates and $\sigma_m$ rises. A measured width above
+$\sigma_{m,\min}$ therefore has two roots,
+$\sigma_S\le\sigma_0^*\le\sigma_L$. $\sigma_S$ is the \emph{core}
+hypothesis (a small, dense beam whose ions are blown out), $\sigma_L$
+the \emph{painted-beam} hypothesis (a large beam whose ions are barely
+displaced). The fold moves out with intensity, roughly as $N^{1/2}$
+($\mathrm{H}_2\mathrm{O}^+$ at injection: $8$, $12$, $15$ and
+$19\,\mathrm{mm}$ at $100$, $200$, $300$ and $500\,\mathrm{kW}$;
+extraction: $6$, $9$, $11$ and $15\,\mathrm{mm}$), so the same
+$10\,\mathrm{mm}$ design core is the large root at $100\,\mathrm{kW}$
+and the small root at $300\,\mathrm{kW}$. The closed-form Shiltsev law
+$\sigma_m=\sigma_0+\kappa/\sigma_0$~\cite{Shiltsev2021} has the same
+two roots but not the shape of the minimum; each branch of the CSNS
+table is therefore interpolated separately with a monotone cubic.
+
+\medskip\noindent\textbf{Choosing the root.}
+Both roots are returned, and the electron mode decides between them.
+Without a guiding field the electron width $\sigma_e$ is not a size
+of its own: the electrons are focused or over-focused in the bunch
+potential during their drift, and $\sigma_e(\sigma_0)$ swings from
+$-48\%$ ($10\,\mathrm{mm}$, $100\,\mathrm{kW}$ injection) to $+80\%$
+($500\,\mathrm{kW}$) and is itself non-monotonic
+(Section~\ref{sec:e0}; black curves in Figs.~\ref{fig:invinj}
+and~\ref{fig:invext}). It is, however, a deterministic function of the
+same $(\sigma_0,N,V)$, tabulated by the same Virtual-IPM runs. The
+check is therefore one of consistency: each ion root predicts an
+electron width, $T_e(\sigma_S)$ and $T_e(\sigma_L)$, from the $B=0$
+electron table at the measured $N$ and $V$, and the root whose
+prediction matches the measured $\sigma_e$ is kept. The discriminating
+power is the margin $|T_e(\sigma_S)-T_e(\sigma_L)|/\sigma_e$: it is
+$34\%$ in the median over the table, above $9\%$ at $90\%$ of the
+points, and below $5\%$ at six of $165$ two-root points---five of them
+within one step of the fold, where the two roots are anyway within a
+few percent of each other, and one at $17\,\mathrm{mm}$,
+$100\,\mathrm{kW}$ injection ($\mathrm{H}_2\mathrm{O}^+$, $3.7\%$;
+$\mathrm{N}_2^+$ gives $6\%$ there). A measured electron width good to
+a few percent therefore settles the choice everywhere it matters. The
+second identified species is an independent check that needs no
+electron data: the correct roots of $\mathrm{H}_2\mathrm{O}^+$ and
+$\mathrm{N}_2^+$ agree to $\lesssim 0.1\%$ (median; $1\%$ on the
+two-point $100\,\mathrm{kW}$ extraction core branch), while their
+wrong roots disagree by $10$--$15\%$ at injection and $14$--$30\%$ at
+$100$--$300\,\mathrm{kW}$ extraction, because a wrong root scales with
+the kick strength of the species. Only at $500\,\mathrm{kW}$
+extraction, where the two heavy-ion curves nearly coincide, does that
+separation shrink to $3$--$4\%$, and the electron check carries the
+decision. Once the magnet is installed, $\sigma_e$ at
+$B\ge 300\,\mathrm{G}$ is within one percent of $\sigma_0$
+(Section~\ref{sec:Be}) and the check reduces to keeping the root
+nearer to $\sigma_e$; the wrong root is never closer than $7\%$.
+
+\medskip\noindent\textbf{Sequence.}
+(i)~Identify the $\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$ ToF
+peak; read $\sigma_m$, the DCCT bunch charge $N$ and the cage voltage
+$V$. (ii)~On that species' table at $(N,V)$ locate $\sigma_0^*$ and
+$\sigma_{m,\min}$; if $\sigma_m\le\sigma_{m,\min}$ within the width
+error, the beam is at the fold and $\sigma_0=\sigma_0^*$.
+(iii)~Otherwise return $\sigma_S$ and $\sigma_L$. If $\sigma_m$ exceeds
+the range of the small branch, $\sigma_S<3\,\mathrm{mm}$ is not an RCS
+beam and only $\sigma_L$ remains; if it exceeds the large branch,
+$\sigma_L>20\,\mathrm{mm}$ lies beyond the table. (iv)~Read $\sigma_e$
+from the electron mode at the same $N$ and $V$, predict $T_e(\sigma_S)$
+and $T_e(\sigma_L)$ from the $B=0$ electron table, keep the root whose
+prediction matches, and confirm it with the other species; a root
+beyond the $20\,\mathrm{mm}$ end of the electron table cannot be
+checked and the other root is accepted only if its own prediction
+matches within $10\%$. (v)~Check the detected
+fraction: sizes whose ions reach the $110\,\mathrm{mm}$ half-cage
+(fraction $<99.5\%$) are not inverted; widths above $40\,\mathrm{mm}$
+(within $2.75\sigma$ of the wall) are inverted but flagged, because the
+real cage map matters most there. Cage voltage and a BPM $\Delta y$
+enter as parameters of the same table ($\Delta\propto 1/V$ and
+$\sigma_m^2-\sigma_0^2\propto d$, Sections~\ref{sec:V}
+and~\ref{sec:off}). $\mathrm{H}_2^+$ is not the working peak: at $100\,\mathrm{kW}$ its minimum sits at the design
+core itself ($9\,\mathrm{mm}$ at injection, $10\,\mathrm{mm}$ at
+extraction), so its two roots merge exactly where the measurement is
+wanted.
+
+The test below is leave-one-out: each tabulated $\sigma_0$ is removed,
+its $\sigma_m$ is inverted on the remaining points, $\sigma_e$ is the
+Virtual-IPM $B=0$ electron width of the same beam, $T_e$ is built from
+the electron table with the same point removed, and the residual is
+quoted against the true $\sigma_0$. The end points of the table are
+extrapolations under this test and are left out of the statistics.
+Figures~\ref{fig:invinj} and~\ref{fig:invext} show each power
+separately, one row per power; Table~\ref{tab:invcore} follows the
+$10\,\mathrm{mm}$ design core and Table~\ref{tab:invp} the two
+branches.
+
+\subsubsection{Injection, 80\,MeV}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\textwidth]{csns_imode_inversion_injection_cases.png}
+\caption{Injection, $80\,\mathrm{MeV}$, $25\,\mathrm{kV}$, $B=0$,
+one row per power ($100$, $200$, $300$, $500\,\mathrm{kW}$). Left:
+collected $\sigma_m$ of $\mathrm{H}_2\mathrm{O}^+$ (red) and
+$\mathrm{N}_2^+$ (green) versus true $\sigma_0$; thin blue is
+$\mathrm{H}_2^+$; the black curve is
+the electron width at $B=0$; the dashed line is $\sigma_m=\sigma_0$.
+Open coloured markers are collected in full but above
+$40\,\mathrm{mm}$; grey markers lose ions on the cage. The green
+dotted line is the $\mathrm{N}_2^+$ width of a $10\,\mathrm{mm}$ beam
+with its two roots $\sigma_S$ (open square) and $\sigma_L$ (filled
+square); the black dotted line is the electron width of the same
+beam, and the diamonds are the electron widths the two roots predict,
+$T_e(\sigma_S)$ (open) and $T_e(\sigma_L)$ (filled)---the one on the
+dotted line is the consistent root. Right: leave-one-out roots
+$\sigma_S$ (open) and $\sigma_L$ (filled) for both species; the black
+ring marks the root confirmed by the electron width; the dotted
+vertical is the $\mathrm{N}_2^+$ fold.}
+\label{fig:invinj}
+\end{figure}
+
+\noindent\textbf{100\,kW} (panels a, b). The fold is at
+$8\,\mathrm{mm}$ for both species ($\sigma_{m,\min}=16.01$ and
+$15.02\,\mathrm{mm}$). The design core is on the large branch:
+$\sigma_m=16.44$ / $15.60\,\mathrm{mm}$ gives $\sigma_S=6.2$ /
+$5.6\,\mathrm{mm}$ and $\sigma_L=10.05$ / $10.02\,\mathrm{mm}$;
+the electron width of the same beam is $\sigma_e=5.43\,\mathrm{mm}$
+(the $-48\%$ compression of Section~\ref{sec:e0}), the roots predict
+$T_e(\sigma_S)=8.4$ / $9.2\,\mathrm{mm}$ and
+$T_e(\sigma_L)=5.6\,\mathrm{mm}$, so $\sigma_L$ is the consistent
+root ($+0.5\%$ / $+0.2\%$; margin $52\%$ / $66\%$). The slope $\mathrm{d}\sigma_m/\mathrm{d}\sigma_0$ at
+$10\,\mathrm{mm}$ is $0.36$ / $0.42$, so a $1\%$ width error is a
+$2.4$--$2.8\%$ size error on this branch. Painted beams
+$9$--$19\,\mathrm{mm}$ are recovered to a median $0.02\%$ (maxima
+$3.0\%$ and $1.8\%$ at $9\,\mathrm{mm}$, next to the fold). The small
+branch $4$--$7\,\mathrm{mm}$ recovers to $0.9\%$ / $2.0\%$ median but
+$7.6\%$ / $13.5\%$ at $7\,\mathrm{mm}$, one step below the fold, where
+the width no longer changes with size. A wrong choice would be at
+least $15$--$24\%$ off; the two species disagree on their wrong roots
+by $10\%$.
+
+\noindent\textbf{200\,kW} (c, d). The fold has moved to $12$ /
+$11\,\mathrm{mm}$ ($23.21$ / $21.59\,\mathrm{mm}$) and the
+$10\,\mathrm{mm}$ core is now the small root. $\sigma_m=23.49$ /
+$21.70\,\mathrm{mm}$, only $1.2\%$ / $0.5\%$ above the minimum, gives
+$\sigma_S=9.89$ / $10.42\,\mathrm{mm}$ and $\sigma_L=13.73$ /
+$12.19\,\mathrm{mm}$. Here $\sigma_e=11.44\,\mathrm{mm}$ ($+10\%$):
+$T_e(\sigma_S)=11.6$ / $10.9\,\mathrm{mm}$ against
+$T_e(\sigma_L)=7.9$ / $8.9\,\mathrm{mm}$, so $\sigma_S$ is consistent
+($-1.1\%$ / $+4.2\%$; margin $32\%$ / $17\%$). The $\mathrm{N}_2^+$ core sits one step below
+its fold (slope $-0.23$) and is ill-conditioned there, so $\sigma_e$
+carries the measurement and the $\mathrm{N}_2^+$ width confirms
+$\sigma_0\simeq\sigma_0^*$. Away from the fold the selected root is
+within $0.22\%$ (median) and $1.3\%$ (maximum) for both species: the
+core branch below the fold to $0.6\%$, the painted branch above it
+to $0.04\%$. Wrong roots are $\ge 12\%$ off,
+and the two species disagree on them by $13\%$.
+
+\noindent\textbf{300\,kW} (e, f). Fold $15$ / $14\,\mathrm{mm}$
+($28.74$ / $26.67\,\mathrm{mm}$). The core is well inside the small
+branch: $\sigma_m=30.89$ / $28.07\,\mathrm{mm}$, $\sigma_S=10.02\,
+\mathrm{mm}$ for both species (slope $-1.14$ / $-0.90$, better
+conditioned than at $100\,\mathrm{kW}$), $\sigma_L>20$ /
+$18.8\,\mathrm{mm}$. The electron width is $17.20\,\mathrm{mm}$
+($+65\%$); $T_e(\sigma_S)=17.1\,\mathrm{mm}$ matches it, while the
+$\mathrm{N}_2^+$ painted root predicts $9.6\,\mathrm{mm}$ (margin
+$44\%$): $\sigma_S$, $+0.2\%$. Sizes
+$\le 4\,\mathrm{mm}$ ($\mathrm{H}_2\mathrm{O}^+$) and $3\,\mathrm{mm}$
+($\mathrm{N}_2^+$) lose ions to the cage; $5$--$6$ /
+$4$--$5\,\mathrm{mm}$ are collected in full but above
+$40\,\mathrm{mm}$. The core branch recovers to $0.35\%$ / $0.48\%$, the painted branch
+to $0.17\%$ / $0.08\%$; within one step of the fold up to $4.8\%$.
+
+\noindent\textbf{500\,kW} (g, h). The fold has reached $19$ /
+$18\,\mathrm{mm}$: the whole operating range is the small branch and
+there is no painted-beam root inside the table. Sizes $\le 9$ /
+$8\,\mathrm{mm}$ lose $1.5$--$27\%$ / $0.7$--$24\%$ of their ions on
+the $110\,\mathrm{mm}$ half-cage and are not inverted. The
+$10\,\mathrm{mm}$ core is collected in full ($99.9\%$ / $100\%$) at
+$\sigma_m=46.3$ / $41.4\,\mathrm{mm}$, above the $40\,\mathrm{mm}$
+flag; its small root is $9.90$ / $10.05\,\mathrm{mm}$ ($-1.0\%$ /
+$+0.5\%$) with a slope of $-1.9$ / $-2.3$, the best conditioned of all
+powers; it is the only root, and the electron width confirms it
+($\sigma_e=18.79\,\mathrm{mm}$, $+80\%$; $T_e(\sigma_S)=18.7$ /
+$18.8\,\mathrm{mm}$). Inside the cage, the core branch from $10\,\mathrm{mm}$ up
+($9\,\mathrm{mm}$ for $\mathrm{N}_2^+$) is recovered to $0.15\%$ /
+$0.19\%$ median (maxima $1.4\%$ / $2.3\%$). With the fold
+at the end of the table, $18$--$19\,\mathrm{mm}$ painted beams are read from
+$\sigma_e$. A single-branch invert on $\sigma_0\ge\sigma_0^*$ has no
+inside-cage recovery at this power; the core hypothesis works down to
+$10\,\mathrm{mm}$, provided the field-cage map near the electrodes is
+known.
+
+\subsubsection{Aligned extraction, 1.6\,GeV}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\textwidth]{csns_imode_inversion_extraction_cases.png}
+\caption{As Fig.~\ref{fig:invinj} for extraction ($1.6\,\mathrm{GeV}$,
+$\beta=0.929$, $\sigma_t=20\,\mathrm{ns}$, ions generated in time
+with the bunch), $25\,\mathrm{kV}$, $B=0$. The thin blue
+$\mathrm{H}_2^+$ curve is tabulated on a coarser size grid.}
+\label{fig:invext}
+\end{figure}
+
+\noindent\textbf{100\,kW} (a, b). Fold $6$ / $6\,\mathrm{mm}$
+($12.66$ / $11.89\,\mathrm{mm}$). The core is on the large branch with
+a steeper slope than at injection ($0.65$ / $0.73$):
+$\sigma_m=14.11$ / $14.03\,\mathrm{mm}$, $\sigma_S=4.1$ /
+$3.1\,\mathrm{mm}$, $\sigma_L=10.00$ / $10.00\,\mathrm{mm}$,
+$\sigma_e=13.99\,\mathrm{mm}$ ($+33\%$) is matched by
+$T_e(\sigma_L)=14.0\,\mathrm{mm}$ and not by $T_e(\sigma_S)=11.1$ /
+$9.4\,\mathrm{mm}$: $\sigma_L$ ($-0.02\%$; margin $21\%$ / $33\%$). Painted
+beams $7$--$20\,\mathrm{mm}$: median $0.02\%$ / $0.01\%$, maxima
+$9.9\%$ ($7\,\mathrm{mm}$, at the fold) / $2.2\%$; $8$--$20\,\mathrm{mm}$
+within $2.7\%$. The small branch is $4$--$5\,\mathrm{mm}$, two points
+that are not RCS sizes. The wrong root is $\ge 16\%$ off and the two
+species disagree on it by $30\%$.
+
+\noindent\textbf{200\,kW} (c, d). Fold $9$ / $8\,\mathrm{mm}$
+($18.45$ / $17.95\,\mathrm{mm}$). $\sigma_m(10)=18.59$ /
+$18.41\,\mathrm{mm}$, $\sigma_S=7.9$ / $6.3\,\mathrm{mm}$,
+$\sigma_L=9.72$ / $10.05\,\mathrm{mm}$. $\sigma_e=18.60\,\mathrm{mm}$
+($+77\%$) against $T_e(\sigma_L)=18.3$ / $18.7\,\mathrm{mm}$ and
+$T_e(\sigma_S)=16.1$ / $14.0\,\mathrm{mm}$: $\sigma_L$ ($-2.8\%$ /
+$+0.5\%$; margin $12\%$ / $25\%$). The
+$\mathrm{H}_2\mathrm{O}^+$ core is one step above its fold (slope
+$0.23$); $\mathrm{N}_2^+$ is the better-conditioned peak here. Painted
+branch to $0.02\%$; core branch to $0.7\%$; within one step of the fold up to
+$7.6\%$.
+
+\noindent\textbf{300\,kW} (e, f). Fold $11$ / $10\,\mathrm{mm}$
+($23.33$ / $23.13\,\mathrm{mm}$): the design core sits at the fold.
+$\mathrm{N}_2^+$ has its minimum at $10\,\mathrm{mm}$ (slope $-0.04$)
+and returns the fold, $10.26\,\mathrm{mm}$; $\mathrm{H}_2\mathrm{O}^+$
+returns $\sigma_S=10.50$ and $\sigma_L=11.91\,\mathrm{mm}$;
+$\sigma_e=18.13\,\mathrm{mm}$ is nearer to $T_e(\sigma_S)=18.7$ than
+to $T_e(\sigma_L)=20.1\,\mathrm{mm}$ (margin $8\%$): $\sigma_S$
+($+5.0\%$). The ion
+width cannot resolve a $10\,\mathrm{mm}$ beam at this power;
+$\sigma_e$ is the measurement and the ions confirm
+$\sigma_0\simeq 10$--$11\,\mathrm{mm}$. Away from the fold the
+core branch recovers to $0.7\%$ / $0.9\%$ and the painted branch to
+$0.03\%$. The $3\,\mathrm{mm}$
+$\mathrm{H}_2\mathrm{O}^+$ beam loses ions.
+
+\noindent\textbf{500\,kW} (g, h). Fold $15$ / $14\,\mathrm{mm}$
+($31.76$ / $31.62\,\mathrm{mm}$). The core is again well inside the
+small branch: $\sigma_m=34.33$ / $33.55\,\mathrm{mm}$,
+$\sigma_S=10.03\,\mathrm{mm}$ for both species (slope $-1.5$ /
+$-1.1$), $\sigma_L=22.3$ / $21.1\,\mathrm{mm}$. The painted root lies beyond
+the $20\,\mathrm{mm}$ end of the electron table and cannot be checked;
+$\sigma_S$ is accepted because its own prediction,
+$T_e(\sigma_S)=17.4\,\mathrm{mm}$, matches $\sigma_e=17.37\,\mathrm{mm}$
+($+66\%$) to $0.3\%$: $+0.3\%$. Sizes $\le 6$ / $5\,\mathrm{mm}$
+lose ions ($21\%$ / $15\%$ at $3\,\mathrm{mm}$); $7$ / $6\,\mathrm{mm}$
+are collected above $40\,\mathrm{mm}$. Core branch to
+$0.45\%$ / $0.37\%$, painted branch to $0.06\%$ / $0.09\%$; within one step of the
+fold up to $6.3\%$. This is the one case where the species
+cross-check is weak (wrong roots differ by only $3$--$4\%$): at
+$500\,\mathrm{kW}$ the $\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$
+curves nearly coincide, and the electron check carries the decision.
+
+\subsubsection{Selected root and design core}
+
+Figures~\ref{fig:invsel100}--\ref{fig:invsel500} show, one power at a
+time, the residual of the confirmed root and the electron margin at
+both rings. The $B=0$
+electron width chose the right root at every one of the $247$
+inside-cage tabulated sizes ($165$ of them with two roots inside the
+tables; the rest have a single root, which the electron width confirms
+to within $10\%$). Away from the fold
+($|\sigma_0-\sigma_0^*|>1\,\mathrm{mm}$, $200$ points) the residual
+is $0.07\%$ median; $92\%$ of the points are within $1\%$ and $97\%$
+within $2\%$, the painted branch to $0.02\%$ and the core branch to
+$0.4\%$ median. Within one step of the fold the two roots merge, the
+slope falls below about $0.25$, and the leave-one-out residual rises
+to $3$--$8\%$ ($17\%$ at the two-point $100\,\mathrm{kW}$ extraction
+fold); there $\sigma_e$ is the measurement. These are interpolation
+errors of the table. A measured width adds
+$|\mathrm{d}\sigma_0/\mathrm{d}\sigma_m|$ times its own error:
+$1.4$--$2.8$ at $100\,\mathrm{kW}$, and below $1.1$ on the core branch
+at $300$--$500\,\mathrm{kW}$, where the small root is the best
+conditioned measurement of all (Table~\ref{tab:invcore}). Field-cage
+non-uniformity---J-PARC reported a factor-of-two shrink from the
+external map alone~\cite{Satou2010}---is not in the table and will
+have to be folded in once the CSNS measured map is available.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{csns_imode_inversion_selected_100kw.png}
+\caption{100\,kW, $B=0$, $25\,\mathrm{kV}$. (a,~b)~Residual of the root
+confirmed by the $B=0$ electron width versus true $\sigma_0$
+(leave-one-out, interior of the table, ions inside the cage) at
+injection and extraction. Red circles: $\mathrm{H}_2\mathrm{O}^+$; green
+triangles: $\mathrm{N}_2^+$; open markers are collected above
+$40\,\mathrm{mm}$; the grey band is $\pm 2\%$; dotted verticals are
+the folds $\sigma_0^*$ of the two species. (c,~d)~Electron margin
+$|T_e(\sigma_S)-T_e(\sigma_L)|/\sigma_e$ at the points with two roots
+inside the tables; the dotted horizontal is $5\%$.}
+\label{fig:invsel100}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{csns_imode_inversion_selected_200kw.png}
+\caption{As Fig.~\ref{fig:invsel100}, at 200\,kW.}
+\label{fig:invsel200}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{csns_imode_inversion_selected_300kw.png}
+\caption{As Fig.~\ref{fig:invsel100}, at 300\,kW.}
+\label{fig:invsel300}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{csns_imode_inversion_selected_500kw.png}
+\caption{As Fig.~\ref{fig:invsel100}, at 500\,kW.}
+\label{fig:invsel500}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{The $10\,\mathrm{mm}$ design core through the two-root
+invert, $B=0$, $25\,\mathrm{kV}$, leave-one-out. $\sigma_0^*$ locates
+the fold;
+$\sigma_m(10)$ and its slope are the tabulated ion width and
+$\mathrm{d}\sigma_m/\mathrm{d}\sigma_0$ at $10\,\mathrm{mm}$;
+$\sigma_S$, $\sigma_L$ are the two roots; $\sigma_e$ is the $B=0$
+electron width of the same beam and $T_e(\sigma_S)$, $T_e(\sigma_L)$
+the electron widths the two roots predict; the last columns give the
+consistent root and its error. ``$>20$'': the root lies beyond the
+ion table; ``$>$tab.'': beyond the electron table. ``fold'': the width
+equals the minimum.}
+\label{tab:invcore}
+{\footnotesize
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{llccccccccccc}
+\hline\hline
+Beam & $P$ & peak & $\sigma_0^*$ & $\sigma_m(10)$ & slope &
+$\sigma_S$ & $\sigma_L$ & $\sigma_e$ & $T_e(\sigma_S)$ & $T_e(\sigma_L)$ & sel. & $e$ \\
+ & (kW) & & (mm) & (mm) & & (mm) & (mm) & (mm) & (mm) & (mm) & (mm) & (\%) \\
+\hline
+Inj.\ $80\,\mathrm{MeV}$ & $100$ & $\mathrm{H}_2\mathrm{O}^+$ & $8$ & $16.44$ & $+0.36$ & $6.16$ & $10.05$ & $5.43$ & $8.43$ & $5.63$ & $\sigma_L$ & $+0.5$ \\
+ & $100$ & $\mathrm{N}_2^+$ & $8$ & $15.60$ & $+0.42$ & $5.61$ & $10.02$ & $5.43$ & $9.23$ & $5.63$ & $\sigma_L$ & $+0.2$ \\
+ & $200$ & $\mathrm{H}_2\mathrm{O}^+$ & $12$ & $23.49$ & $-0.37$ & $9.89$ & $13.73$ & $11.44$ & $11.60$ & $7.90$ & $\sigma_S$ & $-1.1$ \\
+ & $200$ & $\mathrm{N}_2^+$ & $11$ & $21.70$ & $-0.23$ & $10.42$ & $12.19$ & $11.44$ & $10.90$ & $8.94$ & $\sigma_S$ & $+4.2$ \\
+ & $300$ & $\mathrm{H}_2\mathrm{O}^+$ & $15$ & $30.89$ & $-1.14$ & $10.02$ & $>20$ & $17.20$ & $17.06$ & --- & $\sigma_S$ & $+0.2$ \\
+ & $300$ & $\mathrm{N}_2^+$ & $14$ & $28.07$ & $-0.90$ & $10.02$ & $18.82$ & $17.20$ & $17.07$ & $9.56$ & $\sigma_S$ & $+0.2$ \\
+ & $500$ & $\mathrm{H}_2\mathrm{O}^+$ & $19$ & $46.29^\ddagger$ & $-1.88$ & $9.90$ & $>20$ & $18.79$ & $18.65$ & --- & $\sigma_S$ & $-1.0$ \\
+ & $500$ & $\mathrm{N}_2^+$ & $18$ & $41.39^\ddagger$ & $-2.29$ & $10.05$ & $>20$ & $18.79$ & $18.82$ & --- & $\sigma_S$ & $+0.5$ \\
+\hline
+Ext.\ $1.6\,\mathrm{GeV}$ & $100$ & $\mathrm{H}_2\mathrm{O}^+$ & $6$ & $14.11$ & $+0.65$ & $4.05$ & $10.00$ & $13.99$ & $11.14$ & $14.02$ & $\sigma_L$ & $-0.0$ \\
+ & $100$ & $\mathrm{N}_2^+$ & $6$ & $14.03$ & $+0.73$ & $3.09$ & $10.00$ & $13.99$ & $9.41$ & $14.02$ & $\sigma_L$ & $-0.0$ \\
+ & $200$ & $\mathrm{H}_2\mathrm{O}^+$ & $9$ & $18.59$ & $+0.23$ & $7.91$ & $9.72$ & $18.60$ & $16.14$ & $18.31$ & $\sigma_L$ & $-2.8$ \\
+ & $200$ & $\mathrm{N}_2^+$ & $8$ & $18.41$ & $+0.38$ & $6.28$ & $10.05$ & $18.60$ & $14.04$ & $18.65$ & $\sigma_L$ & $+0.5$ \\
+ & $300$ & $\mathrm{H}_2\mathrm{O}^+$ & $11$ & $23.42$ & $-0.24$ & $10.50$ & $11.91$ & $18.13$ & $18.67$ & $20.14$ & $\sigma_S$ & $+5.0$ \\
+ & $300$ & $\mathrm{N}_2^+$ & $10$ & $23.13$ & $-0.04$ & fold & fold & $18.13$ & --- & --- & $\sigma_0^*$ & $+2.6$ \\
+ & $500$ & $\mathrm{H}_2\mathrm{O}^+$ & $15$ & $34.33$ & $-1.46$ & $10.03$ & $22.29$ & $17.37$ & $17.42$ & $>$tab. & $\sigma_S$ & $+0.3$ \\
+ & $500$ & $\mathrm{N}_2^+$ & $14$ & $33.55$ & $-1.13$ & $10.03$ & $21.14$ & $17.37$ & $17.42$ & $>$tab. & $\sigma_S$ & $+0.3$ \\
+\hline\hline
+\end{tabular}
+}
+\\[2pt]
+{\footnotesize $^\ddagger$Collected in full ($\ge 99.9\%$) but above
+$40\,\mathrm{mm}$, within $2.75\sigma$ of the $110\,\mathrm{mm}$
+half-cage.}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Leave-one-out residual of the two branches, $B=0$,
+$25\,\mathrm{kV}$, interior of the table, ions inside the cage. For each
+branch: the sizes it covers, the median and maximum $|e|$ of the
+confirmed root. ``fold'': maximum $|e|$ within one step of
+$\sigma_0^*$. ``pick'': tabulated sizes at which the $B=0$ electron
+width confirmed the correct root. ``margin'': smallest electron margin
+$|T_e(\sigma_S)-T_e(\sigma_L)|/\sigma_e$. ``lost'': sizes
+whose ions reach the cage (not inverted). ``$>40$'': sizes collected
+in full but above $40\,\mathrm{mm}$.}
+\label{tab:invp}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llcccccccccccc}
+\hline\hline
+Beam & $P$ & peak & \multicolumn{3}{c}{core branch $\sigma_S$} &
+\multicolumn{3}{c}{painted branch $\sigma_L$} & fold & pick & margin & lost & $>40$ \\
+ & (kW) & & (mm) & med.\,(\%) & max.\,(\%) & (mm) & med.\,(\%) & max.\,(\%) & (\%) & & (\%) & (mm) & (mm) \\
+\hline
+Inj.\ $80\,\mathrm{MeV}$ & $100$ & $\mathrm{H}_2\mathrm{O}^+$ & $4$--$7$ & 0.89 & 7.6 & $9$--$19$ & 0.02 & 3.0 & 7.6 & $16/16$ & 3.7 & --- & --- \\
+ & $100$ & $\mathrm{N}_2^+$ & $4$--$7$ & 1.97 & 13.5 & $9$--$19$ & 0.02 & 1.8 & 13.5 & $16/16$ & 1.1 & --- & --- \\
+ & $200$ & $\mathrm{H}_2\mathrm{O}^+$ & $4$--$11$ & 0.62 & 5.9 & $13$--$19$ & 0.04 & 1.8 & 5.9 & $16/16$ & 7.0 & --- & $3$ \\
+ & $200$ & $\mathrm{N}_2^+$ & $4$--$10$ & 0.55 & 4.2 & $12$--$19$ & 0.03 & 3.1 & 4.2 & $16/16$ & 17.1 & --- & --- \\
+ & $300$ & $\mathrm{H}_2\mathrm{O}^+$ & $5$--$14$ & 0.35 & 4.7 & $16$--$19$ & 0.17 & 1.4 & 4.7 & $15/15$ & 5.5 & $3$--$4$ & $5$--$6$ \\
+ & $300$ & $\mathrm{N}_2^+$ & $4$--$13$ & 0.48 & 6.3 & $15$--$19$ & 0.08 & 1.6 & 4.8 & $16/16$ & 6.6 & $3$ & $4$--$5$ \\
+ & $500$ & $\mathrm{H}_2\mathrm{O}^+$ & $10$--$18$ & 0.15 & 1.4 & --- & --- & --- & 5.3 & $10/10$ & --- & $3$--$9$ & $10$--$13$ \\
+ & $500$ & $\mathrm{N}_2^+$ & $9$--$17$ & 0.19 & 2.3 & $19$ & 2.61 & 2.6 & 2.6 & $11/11$ & 8.6 & $3$--$8$ & $9$--$10$ \\
+\hline
+Ext.\ $1.6\,\mathrm{GeV}$ & $100$ & $\mathrm{H}_2\mathrm{O}^+$ & $4$--$5$ & 4.08 & 7.4 & $7$--$20$ & 0.02 & 9.9 & 9.9 & $17/17$ & 2.7 & --- & --- \\
+ & $100$ & $\mathrm{N}_2^+$ & $4$--$5$ & 9.92 & 16.9 & $7$--$20$ & 0.01 & 2.2 & 16.9 & $17/17$ & 3.2 & --- & --- \\
+ & $200$ & $\mathrm{H}_2\mathrm{O}^+$ & $4$--$8$ & 0.70 & 6.5 & $10$--$20$ & 0.02 & 2.8 & 6.5 & $17/17$ & 9.4 & --- & --- \\
+ & $200$ & $\mathrm{N}_2^+$ & $4$--$7$ & 0.62 & 7.6 & $9$--$20$ & 0.02 & 3.0 & 7.6 & $17/17$ & 11.9 & --- & --- \\
+ & $300$ & $\mathrm{H}_2\mathrm{O}^+$ & $4$--$10$ & 0.67 & 5.0 & $12$--$20$ & 0.03 & 2.4 & 5.0 & $17/17$ & 8.1 & $3$ & --- \\
+ & $300$ & $\mathrm{N}_2^+$ & $4$--$9$ & 0.90 & 4.4 & $11$--$20$ & 0.03 & 4.0 & 4.4 & $17/17$ & 6.0 & --- & $3$ \\
+ & $500$ & $\mathrm{H}_2\mathrm{O}^+$ & $7$--$14$ & 0.45 & 4.9 & $16$--$20$ & 0.06 & 1.4 & 4.9 & $14/14$ & 2.6 & $3$--$6$ & $7$ \\
+ & $500$ & $\mathrm{N}_2^+$ & $6$--$13$ & 0.37 & 2.0 & $15$--$20$ & 0.09 & 6.3 & 6.3 & $15/15$ & 0.3 & $3$--$5$ & $6$ \\
+\hline\hline
+\end{tabular}
+}
+\end{table}
+
+
+\clearpage
+\subsection{Summary}
+\label{sec:sum}
+
+Table~\ref{tab:eff} collects the efficiencies. Magnetic confinement at
+$300\,\mathrm{G}$ is the only mitigation that returns a faithful
+electron size. Cage voltage reduces the ion bias but does not bring an
+uncorrected $10\,\mathrm{mm}$, $100\,\mathrm{kW}$ profile to the
+$10\%$ level. An identified $\mathrm{H}_2\mathrm{O}^+$ or
+$\mathrm{N}_2^+$ invert does, at injection and at aligned extraction,
+once the $B=0$ electron width has chosen between its core and
+painted-beam roots and provided the ions stay inside the cage.
+
+\begin{table}[htbp]
+\centering
+\caption{Efficiency of the mitigations examined. Residuals are quoted
+for the families of Sections~\ref{sec:dist} and~\ref{sec:mit}.}
+\label{tab:eff}
+\begin{tabular}{p{3.4cm}p{5.4cm}p{5.4cm}}
+\hline\hline
+Mitigation & Electron mode & Ion mode \\
+\hline
+$B=300\,\mathrm{G}$
+  & tens of percent $\to\lesssim 1\%$
+    (all $P$, $V$, energy; $\sigma\ge 4\,\mathrm{mm}$)
+  & --- \\
+Design $B=0.1\,\mathrm{T}$
+  & $3\,\mathrm{mm}$ on the diagonal; residual $\le 0.05\%$
+  & --- \\
+Raise $V$ ($5\to 30\,\mathrm{kV}$)
+  & not a size fix at $B=0$; unused once $B\ge 300\,\mathrm{G}$
+  & $+395\%\to +77\%$ ($\mathrm{H}_2^+$, inj.\ $10\,\mathrm{mm}$,
+    $100\,\mathrm{kW}$, $B=0$); $10\%$ would require
+    $\sim 250\,\mathrm{kV}$ \\
+Orbit $\lesssim 10\,\mathrm{mm}$
+  & $300\,\mathrm{G}$ still $\lesssim 1\%$
+  & $\Delta x$: none; $\Delta y$: a few percent \\
+Invert $\sigma_m=\sigma_0\,h(\sigma_0,N,V)$
+  & unnecessary at $\ge 300\,\mathrm{G}$
+  & identify $\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$; two
+    roots $\sigma_S$ (core) / $\sigma_L$ (paint); the $B=0$ electron
+    width selects the root whose predicted electron width it matches
+    (median margin $34\%$), the other species confirms; away from the fold $0.02\%$ (paint) / $0.4\%$ (core)
+    median, $92\%$ within $1\%$; within one step of the fold
+    $3$--$8\%$ and $\sigma_e$ is used; $10\,\mathrm{mm}$ core
+    $\le 1\%$ at $100$--$500\,\mathrm{kW}$ except $200\,\mathrm{kW}$
+    $\mathrm{N}_2^+$ inj.\ and $300\,\mathrm{kW}$ ext.\ (at the fold);
+    lost on the cage: $\le 9\,\mathrm{mm}$ at $500\,\mathrm{kW}$ inj.,
+    $\le 6\,\mathrm{mm}$ at $500\,\mathrm{kW}$ ext.;
+    $\mathrm{H}_2^+$ is not used for the size \\
+\hline\hline
+\end{tabular}
+\end{table}
+
+\section{Conclusions}
+\label{sec:conc}
+
+Space-charge distortion of the CSNS RCS IPM has been quantified with
+uniform-field tracking and checked against a reduced kick model and
+against the published electron-mode and ion-mode scalings.
+
+Electrons experience an attractive kick that can focus or over-focus.
+The resulting $\Delta(B)$ is a cyclotron-phase oscillation whose
+envelope falls below $1\%$ at $300\,\mathrm{G}$ for every beam, power,
+voltage and offset examined, and along the energy ramp. Size growth
+with charge, and the non-monotonic $\sigma_m(\sigma_0)$ at $B=0$, both
+disappear at that field. The design $0.1\,\mathrm{T}$ is a margin,
+except for the smallest ($3\,\mathrm{mm}$) beams.
+
+Ions experience a repulsive kick and are always collected with
+$\sigma_m>\sigma_0$. The inflation scales as $N/\sigma_0^2$
+(impulsive) and as approximately $1/V$, and matches the kick model to
+$1\%$. Raising the cage voltage cannot bring a $10\,\mathrm{mm}$,
+$100\,\mathrm{kW}$ ion profile to the $10\%$ level. The width of one
+identified species ($\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$)
+has a minimum at a size that grows with intensity, so its look-up
+inversion returns two candidates, a core size $\sigma_S$ and a
+painted-beam size $\sigma_L$. With no guiding magnet yet, the $B=0$
+electron width chooses between them by consistency: each root
+predicts a $B=0$ electron width from the electron table at the same
+bunch charge and voltage, the predictions differ by $34\%$ in the
+median (below $5\%$ only at the fold, where the roots coincide), and
+the root that matches the measured electron width is kept; the second
+ion species confirms the choice. Once the magnet is installed the
+electron width at $\ge 300\,\mathrm{G}$ is the size itself and the
+choice is immediate. Tested at $100$, $200$, $300$
+and $500\,\mathrm{kW}$ at both rings, the selected root is within
+$1\%$ of the true size at $92\%$ of the tabulated sizes (painted branch
+$0.02\%$, core branch $0.4\%$ median), and the $10\,\mathrm{mm}$
+design core is returned to $\le 1\%$ at every power except within one
+step of the fold ($200\,\mathrm{kW}$ $\mathrm{N}_2^+$ at injection,
+$300\,\mathrm{kW}$ at extraction), where the ion width is flat and the
+electron width is the measurement. At $500\,\mathrm{kW}$ the core
+branch is the best conditioned of all, but sizes below
+$10\,\mathrm{mm}$ at injection and $7\,\mathrm{mm}$ at extraction
+lose ions on the cage. $\mathrm{H}_2^+$ is not used for the size.
+
+The recommended operating point is therefore electron collection at
+$B\gtrsim 300\,\mathrm{G}$. Ion time-of-flight identifies the residual
+gas; the beam profile is then taken from the
+$\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$ peak after inversion,
+with the $B=0$ electron width deciding between the core and the
+painted-beam root.
+Once space charge is removed, the remaining electron-mode
+systematic is hardware: microchannel-plate saturation after
+$\sim 200\,\mu\mathrm{s}$, electromagnetic interference, secondary
+electrons, and the real cage map~\cite{Rehman2024,Rehman2025,Xiao2026}.
+
+\section*{Acknowledgements}
+
+The hardware parameters follow Ref.~\cite{Rehman2026}. Tracking was
+performed with Virtual-IPM~2.3.1~\cite{Vilsmeier2017}.
+
+\begin{thebibliography}{99}
+
+\bibitem{Huang2009}
+W.~Huang \emph{et al.}, Ionization beam profile monitor designed for
+CSNS, Proc.\ PAC'09, TH5RFP022.
+
+\bibitem{Rehman2024}
+M.A.~Rehman \emph{et al.}, Troubleshooting the ionization profile
+monitor (IPM) for CSNS $1.6\,\mathrm{GeV}$ RCS, Proc.\ IBIC'24, WEP18.
+
+\bibitem{Rehman2025}
+M.A.~Rehman, Y.~Guo, Z.~Xu, X.~Nie, M.~Liu, B.~Zhang and R.~Yang,
+Preliminary data analysis of an IPM prototype CSNS RCS, Proc.\ IBIC'25,
+TUPMO41.
+
+\bibitem{Rehman2026}
+M.A.~Rehman \emph{et al.}, Fast residual gas ionization profile monitor
+for bunch-by-bunch beam profile measurements in the CSNS rapid cycling
+synchrotron, \emph{Nucl.\ Instrum.\ Methods} A \textbf{1092} (2026)
+171809.
+
+\bibitem{Xiao2026}
+Xiao, Liu, Rehman and Yang, Optimization of the ion trap for secondary
+electron suppression in the CSNS RCS IPM, IBIC'26, MOP026.
+
+\bibitem{Vilsmeier2017}
+D.~Vilsmeier, A modular framework for simulations of ionization profile
+monitors, M.Sc.\ thesis (2017);
+D.~Vilsmeier, P.~Forck and M.~Sapinski, Proc.\ IBIC'17, WEPCC07.
+
+\bibitem{Vilsmeier2019}
+D.~Vilsmeier, M.~Sapinski and R.~Storey, Space-charge distortion of
+transverse profiles measured by electron-based ionization profile
+monitors and correction methods, \emph{Phys.\ Rev.\ Accel.\ Beams}
+\textbf{22} (2019) 052801.
+
+\bibitem{Shiltsev2021}
+V.~Shiltsev, Space-charge effects in ionization beam profile monitors,
+\emph{Nucl.\ Instrum.\ Methods} A \textbf{986} (2021) 164744;
+V.~Shiltsev \emph{et al.}, \emph{Phys.\ Rev.\ Accel.\ Beams}
+\textbf{24} (2021) 044001.
+
+\bibitem{Pine2006}
+B.G.~Pine, S.J.~Payne, C.M.~Warsop \emph{et al.}, ISIS IPM studies,
+Proc.\ EPAC'06 and DIPAC'07.
+
+\bibitem{Forck2011}
+P.~Forck \emph{et al.}, Ionization profile monitors --- IPM @ GSI,
+Proc.\ DIPAC'11, TUPD51.
+
+\bibitem{Satou2010}
+K.~Satou \emph{et al.}, IPM systems for J-PARC RCS and MR, Proc.\
+HB2010, WEO1C05.
+
+\bibitem{Bartkoski2014}
+D.A.~Bartkoski, C.~Deibele and Y.~Polsky, Design of an ionization
+profile monitor for the SNS accumulator ring,
+\emph{Nucl.\ Instrum.\ Methods} A \textbf{767} (2014) 379.
+
+\bibitem{Levasseur2026}
+S.~Levasseur \emph{et al.}, Detection of ionization electrons with
+hybrid pixel detectors at the CERN Proton Synchrotron,
+\emph{Nucl.\ Instrum.\ Methods} A \textbf{1081} (2026) 170845.
+
+\bibitem{Marroncle2023}
+J.~Marroncle \emph{et al.}, Proc.\ IBIC'23, WEP001;
+F.~Benedetti \emph{et al.}, \emph{JINST} \textbf{15} (2020) T05007.
+
+\end{thebibliography}
+
+\end{document}

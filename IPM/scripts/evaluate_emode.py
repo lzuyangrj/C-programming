@@ -13,11 +13,13 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evaluate_bscan import load_xy, stats, summarize_pair  # noqa: E402
+from plot_conf import load_summary, plot_conf  # noqa: E402
 from generate_csns_configs import (  # noqa: E402
     EMODE_BSCAN_GS,
     EMODE_CHECK_POWERS_KW,
     EMODE_FINE_B_GS,
     EMODE_FINE_DIAG_B_GS,
+    EMODE_FINE_DX_MM,
     EMODE_FINE_VOLT_BFINE_KV,
     EMODE_FINE_VOLTAGES_KV,
     EMODE_OFFSET_B_GS,
@@ -310,10 +312,15 @@ def plot_offset_fine(rows: list[dict], plot_dir: Path) -> None:
 def collect_offset_rows(emode_dir: Path) -> list[dict]:
     """Block D plus the centred baseline from Block A (10 mm inj. and ext.)."""
     rows: list[dict] = []
+    offsets = {(0, 0), *EMODE_OFFSETS_MM}
+    offsets |= {(dx, 0) for dx in EMODE_FINE_DX_MM}
     for beam, _sigma in EMODE_OFFSET_BEAMS:
-        for dx, dy in ((0, 0), *EMODE_OFFSETS_MM):
+        for dx, dy in sorted(offsets):
+            b_list = (300,) if (dx, dy) not in ((0, 0), *EMODE_OFFSETS_MM) else EMODE_OFFSET_B_GS
             for power_kw in EMODE_CHECK_POWERS_KW:
-                for b_gs in EMODE_OFFSET_B_GS:
+                if (dx, dy) not in ((0, 0), *EMODE_OFFSETS_MM) and power_kw != 100:
+                    continue
+                for b_gs in b_list:
                     if (dx, dy) == (0, 0):
                         on, off = emode_paths(emode_dir, beam, 10, power_kw, b_gs)
                     else:
@@ -441,8 +448,11 @@ def threshold_1pct(series: list[dict]) -> int | None:
 
 
 def plot_bscan(rows: list[dict], plot_dir: Path) -> None:
-    fig, axes = plt.subplots(1, 3, figsize=(15.0, 4.6), sharey=True)
-    for ax, (beam, sigma_mm) in zip(axes, EMODE_REF_BEAMS):
+    """One row per reference beam: full 0-300 G range (left) and the
+    150-300 G tail on a ±3 % scale (right)."""
+    fig, axes = plt.subplots(3, 2, figsize=(10.0, 10.5))
+    for row_i, (beam, sigma_mm) in enumerate(EMODE_REF_BEAMS):
+        ax_full, ax_tail = axes[row_i]
         for power_kw in POWERS_KW:
             series = sorted(
                 (
@@ -456,62 +466,43 @@ def plot_bscan(rows: list[dict], plot_dir: Path) -> None:
             )
             if not series:
                 continue
-            ax.plot(
+            ax_full.plot(
                 [r["b_gs"] for r in series],
                 [r["expansion_vs_no_sc_pct"] for r in series],
                 "-",
                 lw=1.3,
                 label=f"{power_kw} kW",
             )
-        ax.axhline(0.0, color="0.5", lw=0.8)
-        ax.axhspan(-1.0, 1.0, color="0.85", alpha=0.5, lw=0)
-        ax.set_title(ref_title(beam, sigma_mm))
-        ax.set_xlabel("B [G]")
-        ax.set_xlim(EMODE_BSCAN_GS[0], EMODE_BSCAN_GS[-1])
-        ax.grid(True, alpha=0.3)
-        ax.legend(fontsize=8)
-    axes[0].set_ylabel("profile expansion vs no SC [%]")
-    fig.tight_layout()
-    fig.savefig(plot_dir / "csns_emode_bscan300.png", dpi=150)
-    print(f"Wrote {plot_dir / 'csns_emode_bscan300.png'}")
-
-    # Zoom on the ±3% band to show the tail 150–300 G.
-    fig, axes = plt.subplots(1, 3, figsize=(15.0, 4.6), sharey=True)
-    for ax, (beam, sigma_mm) in zip(axes, EMODE_REF_BEAMS):
-        for power_kw in POWERS_KW:
-            series = sorted(
-                (
-                    r
-                    for r in rows
-                    if r["beam"] == beam
-                    and r["sigma_x_mm"] == sigma_mm
-                    and r["power_kw"] == power_kw
-                    and r["b_gs"] >= 150
-                ),
-                key=lambda r: r["b_gs"],
-            )
-            if not series:
-                continue
-            ax.plot(
-                [r["b_gs"] for r in series],
-                [r["expansion_vs_no_sc_pct"] for r in series],
+            tail = [r for r in series if r["b_gs"] >= 150]
+            ax_tail.plot(
+                [r["b_gs"] for r in tail],
+                [r["expansion_vs_no_sc_pct"] for r in tail],
                 "o-",
                 ms=3,
                 lw=1.2,
                 label=f"{power_kw} kW",
             )
-        ax.axhline(0.0, color="0.5", lw=0.8)
-        ax.axhline(-1.0, color="0.6", ls="--", lw=0.8)
-        ax.axhline(1.0, color="0.6", ls="--", lw=0.8)
-        ax.set_ylim(-3.0, 3.0)
-        ax.set_title(ref_title(beam, sigma_mm))
+        ax_full.axhline(0.0, color="0.5", lw=0.8)
+        ax_full.axhspan(-1.0, 1.0, color="0.85", alpha=0.5, lw=0)
+        ax_full.set_xlim(EMODE_BSCAN_GS[0], EMODE_BSCAN_GS[-1])
+        ax_full.set_ylim(-65, 90)
+        ax_tail.axhline(0.0, color="0.5", lw=0.8)
+        ax_tail.axhline(-1.0, color="0.6", ls="--", lw=0.8)
+        ax_tail.axhline(1.0, color="0.6", ls="--", lw=0.8)
+        ax_tail.set_ylim(-3.0, 3.0)
+        ax_tail.set_xlim(150, 300)
+        for ax in (ax_full, ax_tail):
+            ax.set_title(ref_title(beam, sigma_mm), fontsize=11)
+            ax.grid(True, alpha=0.3)
+            ax.set_ylabel("profile expansion vs no SC [%]")
+        ax_full.legend(fontsize=8)
+        ax_full.text(0.03, 0.95, f"({'ace'[row_i]})", transform=ax_full.transAxes, va="top")
+        ax_tail.text(0.03, 0.95, f"({'bdf'[row_i]})", transform=ax_tail.transAxes, va="top")
+    for ax in axes[2]:
         ax.set_xlabel("B [G]")
-        ax.grid(True, alpha=0.3)
-        ax.legend(fontsize=8)
-    axes[0].set_ylabel("profile expansion vs no SC [%]")
     fig.tight_layout()
-    fig.savefig(plot_dir / "csns_emode_bscan300_tail.png", dpi=150)
-    print(f"Wrote {plot_dir / 'csns_emode_bscan300_tail.png'}")
+    fig.savefig(plot_dir / "csns_emode_bscan300.png", dpi=150)
+    print(f"Wrote {plot_dir / 'csns_emode_bscan300.png'}")
 
 
 def plot_size_grid(
@@ -521,12 +512,14 @@ def plot_size_grid(
     ylabel: str,
     filename: str,
     diagonal: bool = False,
+    b_fields: tuple[int, ...] | None = None,
 ) -> None:
-    ncol = len(EMODE_SIZE_B_GS)
-    fig, axes = plt.subplots(2, ncol, figsize=(3.4 * ncol + 1.0, 8.0), sharex=True, sharey=True)
+    fields = EMODE_SIZE_B_GS if b_fields is None else b_fields
+    nrow = len(fields)
+    fig, axes = plt.subplots(nrow, 2, figsize=(9.0, 3.1 * nrow + 0.6), sharex=True, sharey=True)
     lims = np.array(SIZE_MM, dtype=float)
-    for row_i, beam in enumerate(("injection", "extraction")):
-        for col_i, b_gs in enumerate(EMODE_SIZE_B_GS):
+    for row_i, b_gs in enumerate(fields):
+        for col_i, beam in enumerate(("injection", "extraction")):
             ax = axes[row_i, col_i]
             for power_kw in POWERS_KW:
                 series = sorted(
@@ -553,9 +546,9 @@ def plot_size_grid(
                 ax.plot(lims, lims, "k--", lw=0.9, label="obtained = true")
             else:
                 ax.axhline(0.0, color="0.5", lw=0.8)
-            ax.set_title(f"{BEAM_TITLES[beam]}, {b_label(b_gs)}", fontsize=9)
+            ax.set_title(f"{BEAM_TITLES[beam]}, {b_label(b_gs)}", fontsize=10)
             ax.grid(True, alpha=0.3)
-            if row_i == 1:
+            if row_i == nrow - 1:
                 ax.set_xlabel("True beam size [mm]")
             if col_i == 0:
                 ax.set_ylabel(ylabel)
@@ -592,27 +585,46 @@ def main() -> None:
         action="store_true",
         help="Also evaluate the fine C/D grids and write *_fine plots/summaries.",
     )
+    parser.add_argument(
+        "--from-summary",
+        action="store_true",
+        help="Replot from existing summary CSVs; do not read particle CSVs.",
+    )
     args = parser.parse_args()
+    plot_conf()
     args.plot_dir.mkdir(parents=True, exist_ok=True)
 
-    b_rows = collect_bscan_rows(args.emode_dir)
-    size_rows = collect_size_rows(args.emode_dir)
-    v_rows = collect_voltage_rows(args.emode_dir)
-    o_rows = collect_offset_rows(args.emode_dir)
-    vf_rows = collect_voltage_fine_rows(args.emode_dir) if args.fine_cd else []
-    of_rows = collect_offset_fine_rows(args.emode_dir) if args.fine_cd else []
+    if args.from_summary:
+        b_rows = load_summary(args.summary_b)
+        size_rows = load_summary(args.summary_size)
+        v_rows = load_summary(args.summary_voltage)
+        o_rows = load_summary(args.summary_offset)
+        vf_rows = load_summary(args.summary_voltage_fine)
+        of_rows = load_summary(args.summary_offset_fine)
+        if not args.fine_cd:
+            args.fine_cd = bool(vf_rows or of_rows)
+    else:
+        b_rows = collect_bscan_rows(args.emode_dir)
+        size_rows = collect_size_rows(args.emode_dir)
+        v_rows = collect_voltage_rows(args.emode_dir)
+        o_rows = collect_offset_rows(args.emode_dir)
+        vf_rows = collect_voltage_fine_rows(args.emode_dir) if args.fine_cd else []
+        of_rows = collect_offset_fine_rows(args.emode_dir) if args.fine_cd else []
     if v_rows:
         plot_voltage(v_rows, args.plot_dir)
     if o_rows:
         plot_offset(o_rows, args.plot_dir)
     if vf_rows:
         plot_voltage_fine(vf_rows, args.plot_dir)
-        write_csv(Path(args.summary_voltage_fine), vf_rows)
+        if not args.from_summary:
+            write_csv(Path(args.summary_voltage_fine), vf_rows)
     if of_rows:
         plot_offset_fine(of_rows, args.plot_dir)
-        write_csv(Path(args.summary_offset_fine), of_rows)
-    write_csv(Path(args.summary_voltage), v_rows)
-    write_csv(Path(args.summary_offset), o_rows)
+        if not args.from_summary:
+            write_csv(Path(args.summary_offset_fine), of_rows)
+    if not args.from_summary:
+        write_csv(Path(args.summary_voltage), v_rows)
+        write_csv(Path(args.summary_offset), o_rows)
 
     if b_rows:
         plot_bscan(b_rows, args.plot_dir)
@@ -623,6 +635,7 @@ def main() -> None:
             "expansion_vs_no_sc_pct",
             "Expansion vs no SC [%]",
             "csns_emode_size_expansion.png",
+            b_fields=(0, 100, 200, 300),
         )
         plot_size_grid(
             size_rows,
@@ -631,9 +644,11 @@ def main() -> None:
             "Obtained beam size [mm]",
             "csns_emode_size_obtained.png",
             diagonal=True,
+            b_fields=(0, 100, 200, 300),
         )
-    write_csv(Path(args.summary_b), b_rows)
-    write_csv(Path(args.summary_size), size_rows)
+    if not args.from_summary:
+        write_csv(Path(args.summary_b), b_rows)
+        write_csv(Path(args.summary_size), size_rows)
 
     print()
     print("B-scan: |Δ| < 1% thereafter (G), and Δ at 300 G:")
