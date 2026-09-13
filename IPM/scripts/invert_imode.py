@@ -581,49 +581,55 @@ def plot_cases(beam: str, table: dict, cases: dict) -> Path:
     return path
 
 
-def plot_selected(cases: dict) -> Path:
-    """Top: residual of the root confirmed by the B = 0 electron width.
-    Bottom: the electron margin |T_e(σ_S) − T_e(σ_L)| / σ_e that separated
-    the two hypotheses."""
-    fig, axes = plt.subplots(2, 2, figsize=(12.2, 8.2), sharex=True)
-    pmk = {100: "o", 200: "s", 300: "^", 500: "D"}
+def plot_selected_power(cases: dict, power: int) -> Path:
+    """One power per figure: residual of the root confirmed by the B = 0
+    electron width (a: injection, b: extraction) and the electron margin
+    |T_e(σ_S) − T_e(σ_L)| / σ_e that separated the two hypotheses
+    (c: injection, d: extraction)."""
+    fig, axes = plt.subplots(1, 4, figsize=(13.4, 3.7))
     for j, beam in enumerate(("injection", "extraction")):
-        ax, axm = axes[0, j], axes[1, j]
-        for slug, _lab in WORKING:
-            for power in POWERS:
-                c = cases.get((beam, power, slug))
-                if c is None:
-                    continue
-                s0, res, mg = c["sigma0"], c["res"], c["margin"]
-                inner = c["interior"] & np.isfinite(res) & ~c["lost"]
-                g = inner & ~c["near_wall"]
-                w = inner & c["near_wall"]
-                lab = rf"{power}\,kW" if slug == "n2_ions" else None
-                ax.plot(s0[g], res[g], pmk[power], color=COLORS[slug], ms=5.5, label=lab)
-                if w.any():
-                    ax.plot(s0[w], res[w], pmk[power], color=COLORS[slug], ms=5.5, fillstyle="none")
-                gm = inner & np.isfinite(mg)
-                axm.plot(s0[gm & ~c["near_wall"]], mg[gm & ~c["near_wall"]], pmk[power], color=COLORS[slug], ms=5.5)
-                if (gm & c["near_wall"]).any():
-                    axm.plot(s0[gm & c["near_wall"]], mg[gm & c["near_wall"]], pmk[power],
-                             color=COLORS[slug], ms=5.5, fillstyle="none")
-        ax.plot([], [], "o", color="r", ms=5.5, label=r"H$_2$O$^+$")
-        ax.plot([], [], "o", color="g", ms=5.5, label=r"N$_2^+$")
+        ax, axm = axes[j], axes[2 + j]
+        for slug, lab in WORKING:
+            c = cases.get((beam, power, slug))
+            if c is None:
+                continue
+            s0, res, mg = c["sigma0"], c["res"], c["margin"]
+            mk = MARKERS[slug]
+            inner = c["interior"] & np.isfinite(res) & ~c["lost"]
+            g = inner & ~c["near_wall"]
+            w = inner & c["near_wall"]
+            ax.plot(s0[g], res[g], mk, color=COLORS[slug], ms=6, label=lab)
+            if w.any():
+                ax.plot(s0[w], res[w], mk, color=COLORS[slug], ms=6, fillstyle="none")
+            gm = inner & np.isfinite(mg)
+            axm.plot(s0[gm & ~c["near_wall"]], mg[gm & ~c["near_wall"]], mk, color=COLORS[slug], ms=6, label=lab)
+            if (gm & c["near_wall"]).any():
+                axm.plot(s0[gm & c["near_wall"]], mg[gm & c["near_wall"]], mk,
+                         color=COLORS[slug], ms=6, fillstyle="none")
+            axm.axvline(c["fold_s0"], color=COLORS[slug], ls=":", lw=0.8)
+            ax.axvline(c["fold_s0"], color=COLORS[slug], ls=":", lw=0.8)
         ax.axhline(0, color="k", lw=0.6)
         ax.axhspan(-2, 2, color="0.90", zorder=0)
         ax.set_xlim(2.5, 20.5)
         ax.set_ylim(-15, 15)
-        ax.text(0.03, 0.96, f"({'ab'[j]})", transform=ax.transAxes, va="top")
-        ax.legend(fontsize=8, loc="upper right", ncol=2)
+        ax.set_xlabel(r"true $\sigma_0$ [mm]")
+        ax.set_title("injection" if beam == "injection" else "extraction", fontsize=12)
+        ax.text(0.04, 0.95, f"({'ab'[j]})", transform=ax.transAxes, va="top", fontsize=11)
         axm.axhline(EMODE_MARGIN_PCT, color="k", ls=":", lw=0.8)
         axm.set_yscale("log")
         axm.set_ylim(0.2, 200)
+        axm.set_xlim(2.5, 20.5)
         axm.set_xlabel(r"true $\sigma_0$ [mm]")
-        axm.text(0.03, 0.96, f"({'cd'[j]})", transform=axm.transAxes, va="top")
-    axes[0, 0].set_ylabel(r"confirmed-root residual [\%]")
-    axes[1, 0].set_ylabel(r"e-mode margin [\%]")
-    fig.tight_layout(h_pad=0.4)
-    path = PLOTS / "csns_imode_inversion_selected.png"
+        axm.set_title("injection" if beam == "injection" else "extraction", fontsize=12)
+        axm.text(0.04, 0.95, f"({'cd'[j]})", transform=axm.transAxes, va="top", fontsize=11)
+    axes[0].set_ylabel(r"confirmed-root residual [\%]")
+    axes[2].set_ylabel(r"e-mode margin [\%]")
+    axes[0].legend(fontsize=9, loc="lower right")
+    for ax in axes:
+        ax.tick_params(labelsize=11)
+    fig.suptitle(rf"{power}\,\mathrm{{kW}}", fontsize=13, y=1.0)
+    fig.tight_layout(w_pad=0.8)
+    path = PLOTS / f"csns_imode_inversion_selected_{power}kw.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
     return path
@@ -746,7 +752,8 @@ def main() -> None:
     print("wrote", write_table(cases))
     print("wrote", plot_cases("injection", inj, cases))
     print("wrote", plot_cases("extraction", ext, cases))
-    print("wrote", plot_selected(cases))
+    for power in POWERS:
+        print("wrote", plot_selected_power(cases, power))
     print_report(cases)
 
 

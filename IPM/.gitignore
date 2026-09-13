@@ -63,7 +63,10 @@ plots/*.png
 !plots/csns_orbit_offset_imode.png
 !plots/csns_imode_inversion_injection_cases.png
 !plots/csns_imode_inversion_extraction_cases.png
-!plots/csns_imode_inversion_selected.png
+!plots/csns_imode_inversion_selected_100kw.png
+!plots/csns_imode_inversion_selected_200kw.png
+!plots/csns_imode_inversion_selected_300kw.png
+!plots/csns_imode_inversion_selected_500kw.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml
