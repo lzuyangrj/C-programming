@@ -5,11 +5,14 @@ For a fixed bunch charge and cage voltage the collected width of an
 identified residual-gas ion (H₂O⁺ or N₂⁺) has a minimum at σ₀*(P). A
 measured width above that minimum therefore has two candidate sizes: a
 small root σ_S ≤ σ₀* (the core hypothesis) and a large root σ_L ≥ σ₀*
-(the painted-beam hypothesis). Both are returned. The electron-mode
-width at B ≥ 300 G (within one percent of σ₀, Sec. 4.1) selects the
-root; the second identified species is an independent consistency
-check, because a wrong root of H₂O⁺ and a wrong root of N₂⁺ do not
-agree while the right roots do.
+(the painted-beam hypothesis). Both are returned. The magnet is not
+installed, so the electron mode is read at B = 0, where its width is
+itself space-charge biased and not a size on its own; it confirms a
+root by consistency: each ion root predicts a B = 0 electron width
+from the electron table at the same (N, V), and the root whose
+prediction matches the measured electron width is kept. The second
+identified species is an independent check, because a wrong root of
+H₂O⁺ and a wrong root of N₂⁺ do not agree while the right roots do.
 
 Summary CSVs only; no Virtual-IPM runs. Leave-one-out on the 1 mm
 Block B (injection) and aligned I2 (extraction) tables.
@@ -35,7 +38,9 @@ WORKING = (("h2o_ions", r"H$_2$O$^+$"), ("n2_ions", r"N$_2^+$"))
 COLORS = {"ions": "b", "h2o_ions": "r", "n2_ions": "g"}
 MARKERS = {"h2o_ions": "o", "n2_ions": "^"}
 POWERS = (100, 200, 300, 500)
-EMODE_B_GS = 300
+EMODE_B_GS = 0
+EMODE_MARGIN_PCT = 5.0
+EMODE_ACCEPT_PCT = 10.0
 WALL_FRAC = 0.995
 WALL_SIGMA_MM = 40.0
 
@@ -113,7 +118,7 @@ def extraction_aligned_table() -> dict[tuple[str, int], dict[str, np.ndarray]]:
 
 
 def emode_size_table(beam: str, power: int, b_gs: int = EMODE_B_GS) -> dict[str, np.ndarray] | None:
-    """Electron-mode σ_e(σ₀) at the guiding field used to select the root."""
+    """Electron-mode σ_e(σ₀) at the field used to confirm the root (B = 0 until the magnet exists)."""
     rows = load_summary(OUT / "csns_emode_size_summary.csv")
     pts = sorted(
         (_f(r, "sigma_x_mm"), _f(r, "sigma_sc_on_mm"), _f(r, "expansion_vs_no_sc_pct"))
@@ -174,17 +179,65 @@ def two_roots(sigma_m: float, sigma0: np.ndarray, sigmam: np.ndarray) -> tuple[f
     return small, large, vert
 
 
-def select_root(small: float, large: float, fold: float, sigma_e: float) -> tuple[float, str]:
-    """Pick the root nearest the electron-mode width."""
+def select_root(
+    small: float,
+    large: float,
+    fold: float,
+    sigma_e: float,
+    te_small: float,
+    te_large: float,
+) -> tuple[float, str, float]:
+    """Keep the root whose predicted electron width matches the measured one.
+
+    te_small / te_large are the B = 0 electron widths the electron table
+    predicts for each root (NaN if the root lies outside that table).
+    Returns (σ₀, branch, margin) with margin = |te_small − te_large| / σ_e
+    in percent (NaN when only one prediction exists).
+    """
     if np.isnan(small) and np.isnan(large):
-        return fold, "fold"
+        return fold, "fold", float("nan")
     if np.isnan(small):
-        return large, "large"
+        return large, "large", float("nan")
     if np.isnan(large):
-        return small, "small"
-    if abs(small - sigma_e) <= abs(large - sigma_e):
-        return small, "small"
-    return large, "large"
+        return small, "small", float("nan")
+    ms = abs(te_small - sigma_e) if np.isfinite(te_small) else np.inf
+    ml = abs(te_large - sigma_e) if np.isfinite(te_large) else np.inf
+    margin = 100 * abs(te_small - te_large) / sigma_e if np.isfinite(te_small) and np.isfinite(te_large) else float("nan")
+    if not np.isfinite(te_small) and not np.isfinite(te_large):
+        return fold, "undecided", margin
+    # only one root inside the electron table: accept it if it matches,
+    # otherwise the other (unchecked) root is the consistent one
+    if not np.isfinite(te_large):
+        if ms <= EMODE_ACCEPT_PCT / 100 * sigma_e:
+            return small, "small", margin
+        return large, "large*", margin
+    if not np.isfinite(te_small):
+        if ml <= EMODE_ACCEPT_PCT / 100 * sigma_e:
+            return large, "large", margin
+        return small, "small*", margin
+    if ms <= ml:
+        return small, "small", margin
+    return large, "large", margin
+
+
+def _emode_predictor(emode: dict, exclude: float | None):
+    """Monotone-cubic B = 0 electron width versus σ₀, with one grid point
+    removed for the leave-one-out test; NaN outside the tabulated range."""
+    s0, se = emode["sigma0"], emode["sigmam"]
+    if exclude is not None:
+        m = ~np.isclose(s0, exclude)
+        s0, se = s0[m], se[m]
+    f = PchipInterpolator(s0, se, extrapolate=True)
+    step = float(np.min(np.diff(s0)))
+    lo, hi = float(s0.min()) - step, float(s0.max()) + step
+
+    def predict(x: float) -> float:
+        # at most one grid step of extrapolation beyond the electron table
+        if not np.isfinite(x) or x < lo - 1e-9 or x > hi + 1e-9:
+            return float("nan")
+        return float(f(x))
+
+    return predict
 
 
 def leave_one_out_two_roots(sigma0: np.ndarray, sigmam: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -217,21 +270,34 @@ def invert_case(beam: str, power: int, slug: str, a: dict, emode: dict | None) -
     wall = lost
     small, large, fold_loo = leave_one_out_two_roots(s0, sm)
     fold_s0, fold_sm, fold_vertex = fold_of(s0, sm)
-    if emode is None:
-        se = s0.copy()
-    else:
-        se = np.interp(s0, emode["sigma0"], emode["sigmam"])
-    pick = np.full(len(s0), np.nan)
-    which = np.empty(len(s0), dtype=object)
-    for i in range(len(s0)):
-        pick[i], which[i] = select_root(small[i], large[i], fold_loo[i], se[i])
+    n = len(s0)
+    se = np.full(n, np.nan)
+    te_small = np.full(n, np.nan)
+    te_large = np.full(n, np.nan)
+    margin = np.full(n, np.nan)
+    pick = np.full(n, np.nan)
+    which = np.empty(n, dtype=object)
+    for i in range(n):
+        if emode is None:
+            # no electron data: nearest root to the true size (upper bound only)
+            se[i] = s0[i]
+            te_small[i], te_large[i] = small[i], large[i]
+        else:
+            se[i] = float(np.interp(s0[i], emode["sigma0"], emode["sigmam"]))
+            predict = _emode_predictor(emode, s0[i])
+            te_small[i] = predict(small[i])
+            te_large[i] = predict(large[i])
+        pick[i], which[i], margin[i] = select_root(
+            small[i], large[i], fold_loo[i], se[i], te_small[i], te_large[i]
+        )
     res = 100 * (pick / s0 - 1)
-    other = np.where(which == "small", large, np.where(which == "large", small, np.nan))
+    base = np.array([str(w).rstrip("*") for w in which], dtype=object)
+    other = np.where(base == "small", large, np.where(base == "large", small, np.nan))
     cost = 100 * np.abs(other / s0 - 1)
     truth = np.where(s0 < fold_s0 - 0.5, "small", np.where(s0 > fold_s0 + 0.5, "large", "fold"))
     correct = np.array(
         [
-            (t == "fold") or (w == t) or (w == "fold")
+            (t == "fold") or (str(w).rstrip("*") == t) or (w in ("fold", "undecided"))
             for t, w in zip(truth, which)
         ]
     )
@@ -249,6 +315,9 @@ def invert_case(beam: str, power: int, slug: str, a: dict, emode: dict | None) -
         lost=lost,
         near_wall=near_wall,
         sigma_e=se,
+        te_small=te_small,
+        te_large=te_large,
+        margin=margin,
         small=small,
         large=large,
         fold_loo=fold_loo,
@@ -267,6 +336,7 @@ def invert_case(beam: str, power: int, slug: str, a: dict, emode: dict | None) -
         emode_delta10=(
             float(np.interp(10.0, emode["sigma0"], emode["delta"])) if emode is not None else float("nan")
         ),
+        emode_table=emode,
     )
 
 
@@ -316,6 +386,18 @@ def case_row(c: dict) -> dict:
         small10_mm=float(c["small"][i10]),
         large10_mm=float(c["large"][i10]),
         se10_mm=float(c["sigma_e"][i10]),
+        te_small10_mm=float(c["te_small"][i10]),
+        te_large10_mm=float(c["te_large"][i10]),
+        margin10_pct=float(c["margin"][i10]),
+        margin_min_pct=(
+            float(np.nanmin(c["margin"][ok])) if np.isfinite(c["margin"][ok]).any() else float("nan")
+        ),
+        margin_med_pct=(
+            float(np.nanmedian(c["margin"][ok])) if np.isfinite(c["margin"][ok]).any() else float("nan")
+        ),
+        n_lowmargin=int((ok & (c["margin"] < EMODE_MARGIN_PCT)).sum()),
+        n_undecided=int((ok & (c["which"] == "undecided")).sum()),
+        n_unconfirmed=int((ok & np.array([str(w).endswith("*") for w in c["which"]])).sum()),
         pick10_mm=float(c["pick"][i10]),
         which10=str(c["which"][i10]),
         res10_pct=float(c["res"][i10]),
@@ -410,8 +492,10 @@ def _panel_curves(ax, beam: str, power: int, table: dict, cases: dict, show_lege
         ymax = max(ymax, float(sm.max()))
     c = cases.get((beam, power, "n2_ions"))
     if c is not None:
-        em_s0, em_se = c["sigma0"], c["sigma_e"]
-        ax.plot(em_s0, em_se, "+", color="k", ms=5, mew=1.0, label=rf"e-mode {EMODE_B_GS}\,G")
+        em = c.get("emode_table")
+        if em is not None:
+            ax.plot(em["sigma0"], em["sigmam"], "-", color="k", lw=1.0)
+            ax.plot(em["sigma0"], em["sigmam"], "+", color="k", ms=5, mew=1.0, label=r"e-mode, $B=0$")
         i10 = int(np.argmin(np.abs(c["sigma0"] - 10)))
         sm10 = float(c["sigmam"][i10])
         if not c["lost"][i10]:
@@ -423,6 +507,15 @@ def _panel_curves(ax, beam: str, power: int, table: dict, cases: dict, show_lege
             if np.isfinite(sL):
                 ax.plot([sL], [sm10], "s", color="k", ms=6, mew=1.2)
                 ax.annotate(r"$\sigma_L$", (sL, sm10), xytext=(4, 6), textcoords="offset points", fontsize=9)
+            if em is not None:
+                # the e-mode check: measured σ_e of the 10 mm beam against the
+                # electron widths the two ion roots predict
+                predict = _emode_predictor(em, None)
+                ax.axhline(c["sigma_e"][i10], color="k", ls=":", lw=0.9)
+                for root, fs in ((sS, "none"), (sL, "full")):
+                    te = predict(root)
+                    if np.isfinite(te):
+                        ax.plot([root], [te], "D", color="k", ms=5, fillstyle=fs, mew=1.0)
     ax.set_xlim(2.5, 20.5)
     top = min(65.0, max(22.0, 1.08 * ymax))
     ax.set_ylim(0, top)
@@ -451,12 +544,11 @@ def _panel_roots(ax, beam: str, power: int, cases: dict, show_legend: bool) -> N
         sel = g & np.isfinite(c["pick"])
         near = sel & c["near_wall"]
         ax.plot(s0[sel & ~near], c["pick"][sel & ~near], "o", color="k", ms=9, fillstyle="none", mew=0.9,
-                label="selected" if slug == "n2_ions" else None)
+                label="e-mode confirmed" if slug == "n2_ions" else None)
         if near.any():
             ax.plot(s0[near], c["pick"][near], "o", color="k", ms=9, fillstyle="none", mew=0.9, ls="", alpha=0.45)
     c = cases.get((beam, power, "n2_ions"))
     if c is not None:
-        ax.plot(c["sigma0"], c["sigma_e"], "+", color="k", ms=5, mew=1.0, label=rf"e-mode {EMODE_B_GS}\,G")
         ax.axvline(c["fold_s0"], color="0.5", ls=":", lw=0.8)
     ax.set_xlim(2.5, 20.5)
     ax.set_ylim(0, 30)
@@ -466,8 +558,8 @@ def _panel_roots(ax, beam: str, power: int, cases: dict, show_legend: bool) -> N
 
 def plot_cases(beam: str, table: dict, cases: dict) -> Path:
     """2 x 4 per-power case figure: σ_m(σ₀) with both roots of the 10 mm
-    width (top) and leave-one-out σ_S / σ_L with the e-mode-selected root
-    (bottom)."""
+    width and the B = 0 electron curve (top); leave-one-out σ_S / σ_L with
+    the root confirmed by the electron width (bottom)."""
     fig, axes = plt.subplots(2, 4, figsize=(13.4, 7.0), sharex=True)
     for j, power in enumerate(POWERS):
         _panel_curves(axes[0, j], beam, power, table, cases, show_legend=(j == 0))
@@ -490,16 +582,19 @@ def plot_cases(beam: str, table: dict, cases: dict) -> Path:
 
 
 def plot_selected(cases: dict) -> Path:
-    """Residual of the e-mode-selected root versus σ₀ at both rings."""
-    fig, axes = plt.subplots(1, 2, figsize=(12.2, 4.6), sharey=True)
+    """Top: residual of the root confirmed by the B = 0 electron width.
+    Bottom: the electron margin |T_e(σ_S) − T_e(σ_L)| / σ_e that separated
+    the two hypotheses."""
+    fig, axes = plt.subplots(2, 2, figsize=(12.2, 8.2), sharex=True)
     pmk = {100: "o", 200: "s", 300: "^", 500: "D"}
-    for ax, beam, tag in zip(axes, ("injection", "extraction"), ("a", "b")):
+    for j, beam in enumerate(("injection", "extraction")):
+        ax, axm = axes[0, j], axes[1, j]
         for slug, _lab in WORKING:
             for power in POWERS:
                 c = cases.get((beam, power, slug))
                 if c is None:
                     continue
-                s0, res = c["sigma0"], c["res"]
+                s0, res, mg = c["sigma0"], c["res"], c["margin"]
                 inner = c["interior"] & np.isfinite(res) & ~c["lost"]
                 g = inner & ~c["near_wall"]
                 w = inner & c["near_wall"]
@@ -507,17 +602,27 @@ def plot_selected(cases: dict) -> Path:
                 ax.plot(s0[g], res[g], pmk[power], color=COLORS[slug], ms=5.5, label=lab)
                 if w.any():
                     ax.plot(s0[w], res[w], pmk[power], color=COLORS[slug], ms=5.5, fillstyle="none")
+                gm = inner & np.isfinite(mg)
+                axm.plot(s0[gm & ~c["near_wall"]], mg[gm & ~c["near_wall"]], pmk[power], color=COLORS[slug], ms=5.5)
+                if (gm & c["near_wall"]).any():
+                    axm.plot(s0[gm & c["near_wall"]], mg[gm & c["near_wall"]], pmk[power],
+                             color=COLORS[slug], ms=5.5, fillstyle="none")
         ax.plot([], [], "o", color="r", ms=5.5, label=r"H$_2$O$^+$")
         ax.plot([], [], "o", color="g", ms=5.5, label=r"N$_2^+$")
         ax.axhline(0, color="k", lw=0.6)
         ax.axhspan(-2, 2, color="0.90", zorder=0)
-        ax.set_xlabel(r"true $\sigma_0$ [mm]")
         ax.set_xlim(2.5, 20.5)
         ax.set_ylim(-15, 15)
-        ax.text(0.03, 0.96, f"({tag})", transform=ax.transAxes, va="top")
+        ax.text(0.03, 0.96, f"({'ab'[j]})", transform=ax.transAxes, va="top")
         ax.legend(fontsize=8, loc="upper right", ncol=2)
-    axes[0].set_ylabel(r"selected-root residual [\%]")
-    fig.tight_layout()
+        axm.axhline(EMODE_MARGIN_PCT, color="k", ls=":", lw=0.8)
+        axm.set_yscale("log")
+        axm.set_ylim(0.2, 200)
+        axm.set_xlabel(r"true $\sigma_0$ [mm]")
+        axm.text(0.03, 0.96, f"({'cd'[j]})", transform=axm.transAxes, va="top")
+    axes[0, 0].set_ylabel(r"confirmed-root residual [\%]")
+    axes[1, 0].set_ylabel(r"e-mode margin [\%]")
+    fig.tight_layout(h_pad=0.4)
     path = PLOTS / "csns_imode_inversion_selected.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
@@ -540,9 +645,12 @@ def write_table(cases: dict) -> Path:
         "detected_frac",
         "lost",
         "near_wall",
-        "sigma_e_mm",
+        "sigma_e_b0_mm",
         "root_small_mm",
         "root_large_mm",
+        "te_small_mm",
+        "te_large_mm",
+        "emode_margin_pct",
         "selected_mm",
         "selected_branch",
         "residual_pct",
@@ -571,9 +679,12 @@ def write_table(cases: dict) -> Path:
                     detected_frac=float(c["frac"][i]),
                     lost=bool(c["lost"][i]),
                     near_wall=bool(c["near_wall"][i]),
-                    sigma_e_mm=float(c["sigma_e"][i]),
+                    sigma_e_b0_mm=float(c["sigma_e"][i]),
                     root_small_mm=float(c["small"][i]),
                     root_large_mm=float(c["large"][i]),
+                    te_small_mm=float(c["te_small"][i]),
+                    te_large_mm=float(c["te_large"][i]),
+                    emode_margin_pct=float(c["margin"][i]),
                     selected_mm=float(c["pick"][i]),
                     selected_branch=str(c["which"][i]),
                     residual_pct=float(c["res"][i]),
@@ -588,21 +699,21 @@ def _p(v: float, nd: int = 2) -> str:
 
 
 def print_report(cases: dict) -> None:
-    print("Two-root invert (identified H2O+ / N2+), leave-one-out, e-mode 300 G selects the root.")
+    print("Two-root invert (identified H2O+ / N2+), leave-one-out; B = 0 e-mode width confirms the root by consistency.")
     print("lost = frac<0.995 (excluded); near-wall = σm>40 mm (kept, flagged); interior = grid interior; near-fold = |σ0-σ0*| ≤ 1 mm")
     print(
-        "beam power species | fold σ0* σm,min | 10 mm: σm σS σL σe → pick (res) slope | "
-        "n_ok correct | med/max all | med/max small | med/max large | away-from-fold med/max | fold±1 med/max | wrong-pick min cost | lost | near"
+        "beam power species | fold σ0* σm,min | 10 mm: σm σS σL | σe Te(σS) Te(σL) margin → pick (res) slope | "
+        "n_ok correct undecided low-margin(<5%) margin min/med | med/max all | med/max small | med/max large | away-from-fold med/max | fold±1 med/max | wrong-pick min cost | lost | near"
     )
     for key in sorted(cases, key=lambda k: (k[0] != "injection", k[1], k[2])):
         r = case_row(cases[key])
         print(
             f"  {r['beam']:10s} {r['power_kw']:3d} {r['species']:8s} | "
             f"{r['fold_mm']:4.1f} {r['fold_sm_mm']:6.2f} | "
-            f"{r['sm10_mm']:6.2f} {_p(r['small10_mm'])} {_p(r['large10_mm'])} {r['se10_mm']:.2f} → "
+            f"{r['sm10_mm']:6.2f} {_p(r['small10_mm'])} {_p(r['large10_mm'])} | {r['se10_mm']:.2f} {_p(r['te_small10_mm'])} {_p(r['te_large10_mm'])} {_p(r['margin10_pct'], 0)}% → "
             f"{_p(r['pick10_mm'])} ({r['which10']}, {r['res10_pct']:+.2f}%)"
             f"{' LOST' if r['wall10'] else (' near-wall' if r['near10'] else '')} frac={r['frac10']:.4f} slope={_p(r['slope10'])} | "
-            f"{r['n_ok']:2d} {r['n_correct']:2d} | {_p(r['med_pct'])}/{_p(r['max_pct'])} | "
+            f"{r['n_ok']:2d} {r['n_correct']:2d} und={r['n_undecided']} unc={r['n_unconfirmed']} low={r['n_lowmargin']} {_p(r['margin_min_pct'],1)}/{_p(r['margin_med_pct'],0)} | {_p(r['med_pct'])}/{_p(r['max_pct'])} | "
             f"{_p(r['med_small_pct'])}/{_p(r['max_small_pct'])} (n={r['n_small']}) | "
             f"{_p(r['med_large_pct'])}/{_p(r['max_large_pct'])} (n={r['n_large']}) | "
             f"{_p(r['med_away_pct'])}/{_p(r['max_away_pct'])} (n={r['n_away']}) | "
@@ -619,7 +730,7 @@ def print_report(cases: dict) -> None:
                 f"  {beam:10s} {power:3d} kW: right med {x['right_med_pct']:.2f}% max {x['right_max_pct']:.2f}% ; "
                 f"wrong med {x['wrong_med_pct']:.1f}% min {x['wrong_min_pct']:.1f}%  (n={x['n']})"
             )
-    print("e-mode 300 G at 10 mm (Δ vs no-SC, %):")
+    print(f"e-mode B = {EMODE_B_GS} G at 10 mm (Δ vs no-SC, %):")
     for beam in ("injection", "extraction"):
         print("  " + beam + ": " + ", ".join(
             f"{p} kW {cases[(beam, p, 'n2_ions')]['emode_delta10']:+.2f}" for p in POWERS if (beam, p, "n2_ions") in cases
