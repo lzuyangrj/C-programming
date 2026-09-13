@@ -40,4 +40,5 @@ printf '%s\n' "${CASES[@]}" | xargs -P "${JOBS}" -I{} bash -c '
 
 echo "=== I2 dense ext finished $(date -u +'%Y-%m-%dT%H:%M:%SZ') ===" | tee -a "$LOG"
 python3 scripts/evaluate_v2.py --dense-ext | tee -a "$LOG"
+python3 scripts/csv_archive.py | tee -a "$LOG"
 python3 scripts/invert_imode.py | tee -a "$LOG"

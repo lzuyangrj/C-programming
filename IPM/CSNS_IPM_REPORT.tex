@@ -50,7 +50,11 @@ spectrum; the true size is then recovered from one peak
 look-up of the expansion against bunch charge and cage voltage. At
 $100\,\mathrm{kW}$ that invert returns an $8$--$20\,\mathrm{mm}$ beam
 to $0.2\%$ at injection ($80\,\mathrm{MeV}$) and $0.1\%$ at aligned
-extraction ($1.6\,\mathrm{GeV}$). The recommended operating point is
+extraction ($1.6\,\mathrm{GeV}$). At $200$--$300\,\mathrm{kW}$ the
+fold moves out past the $10\,\mathrm{mm}$ core and the invert is
+taken on the painted branch, or as a core-versus-paint hypothesis;
+at $500\,\mathrm{kW}$ injection the heavies clip the cage and the
+table fails. The recommended operating point is
 electron collection at $B\gtrsim 300\,\mathrm{G}$.
 \end{abstract}
 
@@ -782,16 +786,30 @@ recover $8$--$20\,\mathrm{mm}$ to a median $0.25\%$ and $0.21\%$
 design point returns $9.83\,\mathrm{mm}$ ($\mathrm{H}_2\mathrm{O}^+$)
 and $9.86\,\mathrm{mm}$ ($\mathrm{N}_2^+$). A $5\,\mathrm{mm}$ beam
 has no root on $\sigma_0\ge 8\,\mathrm{mm}$ and is not an RCS
-operating size at this intensity. Panel~(b): the same identified-species
-invert at $200\,\mathrm{kW}$ stays inside a few percent wherever the
-profile is inside the cage (median $2.0\%$ and $1.6\%$); the fold has
-moved out to $12$ and $11\,\mathrm{mm}$, so a $10\,\mathrm{mm}$ core
-is then the small root and must be selected as the core, not the
-paint, hypothesis. At $300\,\mathrm{kW}$ $\mathrm{N}_2^+$ is still
-usable (median $2.4\%$, nine sizes). At $400$ and $500\,\mathrm{kW}$
-the heavies clip
-($\sigma_m\simeq 31$--$47\,\mathrm{mm}$, detected fraction
-$<0.995$) and no table recovers $\sigma_0$.
+operating size at this intensity.
+
+Panel~(b) and Fig.~\ref{fig:invip} are the same invert at
+$200$, $300$ and $500\,\mathrm{kW}$ on the $1\,\mathrm{mm}$
+Block~B grid (Table~\ref{tab:invp}). At $200\,\mathrm{kW}$ the
+minimum has moved to $12\,\mathrm{mm}$ ($\mathrm{H}_2\mathrm{O}^+$)
+and $11\,\mathrm{mm}$ ($\mathrm{N}_2^+$). Sizes on the painted
+branch $\sigma_0\ge\sigma_0^*$ recover to a median $0.46\%$ and
+$0.45\%$ (maxima $2.7\%$ and $4.0\%$). The $10\,\mathrm{mm}$ core
+is then the small root: the paint-branch interpolant returns
+$13.7$ and $12.1\,\mathrm{mm}$ and must not be used as a core
+size. The operator selects the core hypothesis (the root
+$\sigma_0<\sigma_0^*$) when a $10\,\mathrm{mm}$ beam is expected.
+At $300\,\mathrm{kW}$ the fold is at $15$ and $14\,\mathrm{mm}$;
+the painted branch ($15$--$20\,\mathrm{mm}$, inside the cage)
+recovers to $0.84\%$ and $0.66\%$. Four (three) of the smallest
+$\mathrm{H}_2\mathrm{O}^+$ ($\mathrm{N}_2^+$) sizes clip
+($\sigma_m>40\,\mathrm{mm}$). At $500\,\mathrm{kW}$
+$\mathrm{H}_2\mathrm{O}^+$ has no inside-cage invert
+($\sigma_m=46.3\,\mathrm{mm}$ at $10\,\mathrm{mm}$,
+detected fraction $0.999$; eleven sizes fail the wall cut) and
+$\mathrm{N}_2^+$ leaves one usable painted point
+($20\,\mathrm{mm}$). A $10\,\mathrm{mm}$ injection core cannot
+be inverted at $500\,\mathrm{kW}$.
 
 \begin{figure}[ht]
 \centering
@@ -800,10 +818,21 @@ $<0.995$) and no table recovers $\sigma_0$.
 $\mathrm{N}_2^+$ $\sigma_m$ and the identified
 $\mathrm{H}_2\mathrm{O}^+$ and $\mathrm{N}_2^+$ inverts versus true
 $\sigma_0$ (leave-one-out). (b)~Identified-species residual at
-$100$--$300\,\mathrm{kW}$. Red: $\mathrm{H}_2\mathrm{O}^+$. Green:
-$\mathrm{N}_2^+$. The grey band is $\pm 2\%$. Open markers are
-wall-clipped families.}
+$100$, $200$, $300$ and $500\,\mathrm{kW}$. Red:
+$\mathrm{H}_2\mathrm{O}^+$. Green: $\mathrm{N}_2^+$. The grey
+band is $\pm 2\%$. Open markers are wall-clipped families.}
 \label{fig:invr}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.98\textwidth]{csns_imode_inversion_injection_power.png}
+\caption{Injection, $25\,\mathrm{kV}$, $B=0$, $80\,\mathrm{MeV}$.
+Collected $\sigma_m$ versus true $\sigma_0$ at $200$, $300$ and
+$500\,\mathrm{kW}$. The dashed line is $\sigma_m=\sigma_0$.
+The minimum moves out with power; at $500\,\mathrm{kW}$ the
+heavies sit against the cage wall.}
+\label{fig:invip}
 \end{figure}
 
 The same invert is applied to aligned extraction
@@ -832,8 +861,18 @@ maxima $2.8\%$ and $1.4\%$ at the fold ($8\,\mathrm{mm}$). The
 $10\,\mathrm{mm}$ design point returns $9.94\,\mathrm{mm}$
 ($\mathrm{H}_2\mathrm{O}^+$) and $9.97\,\mathrm{mm}$
 ($\mathrm{N}_2^+$). A $5\,\mathrm{mm}$ beam has no root on
-$\sigma_0\ge 6\,\mathrm{mm}$. Other I2 powers
-($20$--$80$, $150$--$500\,\mathrm{kW}$) remain on the
+$\sigma_0\ge 6\,\mathrm{mm}$.
+
+The same $1\,\mathrm{mm}$ I2 fill is evaluated at $200$, $300$
+and $500\,\mathrm{kW}$ (Fig.~\ref{fig:invxp},
+Table~\ref{tab:invp}). The fold moves out with power, as at
+injection: near $10\,\mathrm{mm}$ at $200$--$300\,\mathrm{kW}$
+and near $15\,\mathrm{mm}$ at $500\,\mathrm{kW}$. A
+$10\,\mathrm{mm}$ extraction core is then at or below
+$\sigma_0^*$ and is a core-versus-paint choice. The heavies
+remain inside the cage at $\sigma_0\ge 10\,\mathrm{mm}$ even
+at $500\,\mathrm{kW}$ (unlike injection). Commissioning I2
+powers ($20$--$80$, $150$, $250\,\mathrm{kW}$) stay on the
 $5\,\mathrm{mm}$ size grid and are not quoted as a
 $0.1\%$ invert. Field-cage non-uniformity---J-PARC reported a
 factor-of-two shrink from the external map
@@ -854,6 +893,83 @@ or $\mathrm{N}_2^+$ table on $\sigma_0\ge\sigma_0^*$. Grey squares:
 uncorrected $\mathrm{N}_2^+$ $\sigma_m$.}
 \label{fig:invx}
 \end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.72\textwidth]{csns_imode_inversion_extraction_power.png}
+\caption{Aligned extraction identified-species residual versus
+$\sigma_0$ at $100$, $200$, $300$ and $500\,\mathrm{kW}$
+($1\,\mathrm{mm}$ I2 grid; $B=0$, $25\,\mathrm{kV}$,
+$1.6\,\mathrm{GeV}$). Red: $\mathrm{H}_2\mathrm{O}^+$. Green:
+$\mathrm{N}_2^+$. The grey band is $\pm 2\%$. Open markers are
+wall-clipped families.}
+\label{fig:invxp}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\caption{Identified-species invert on $\sigma_0\ge\sigma_0^*(P)$
+and $8$--$20\,\mathrm{mm}$, $B=0$, $25\,\mathrm{kV}$.
+Injection is Block~B ($1\,\mathrm{mm}$). Extraction is aligned
+I2 ($1\,\mathrm{mm}$ at the listed powers).
+``$10\,\mathrm{mm}$'' is the leave-one-out recover of the design
+core; a dash means that size is below the fold or on the wall.
+$\mathrm{H}_2^+$ is not inverted.}
+\label{tab:invp}
+{\small
+\begin{tabular}{llccccc}
+\hline\hline
+Beam & $P$ & fold $\sigma_0^*$ & $10\,\mathrm{mm}$ recover &
+med.\ $|e|$ & max.\ $|e|$ & wall \\
+ & (kW) & (mm) & (mm) & (\%) & (\%) & \\
+\hline
+Inj.\ $80\,\mathrm{MeV}$
+  & $100$
+  & $8$ / $8$
+  & $9.83$ / $9.86$
+  & $0.25$ / $0.21$
+  & $4.3$ / $3.0$
+  & $0$ / $0$ \\
+  & $200$
+  & $12$ / $11$
+  & core$^\dagger$
+  & $0.46$ / $0.45$
+  & $2.7$ / $4.0$
+  & $1$ / $0$ \\
+  & $300$
+  & $15$ / $14$
+  & core$^\dagger$
+  & $0.84$ / $0.66$
+  & $2.2$ / $2.4$
+  & $4$ / $3$ \\
+  & $500$
+  & $19$ / $18$
+  & ---
+  & --- / $2.6$
+  & --- / $2.6$
+  & $11$ / $8$ \\
+Ext.\ $1.6\,\mathrm{GeV}$
+  & $100$
+  & $6$ / $6$
+  & $9.94$ / $9.97$
+  & $0.10$ / $0.09$
+  & $2.8$ / $1.4$
+  & $0$ / $0$ \\
+  & $200$
+  & \multicolumn{5}{l}{$1\,\mathrm{mm}$ I2 fill (see text)} \\
+  & $300$
+  & \multicolumn{5}{l}{$1\,\mathrm{mm}$ I2 fill (see text)} \\
+  & $500$
+  & \multicolumn{5}{l}{$1\,\mathrm{mm}$ I2 fill (see text)} \\
+\hline\hline
+\end{tabular}
+}
+\\[2pt]
+{\footnotesize Each pair is $\mathrm{H}_2\mathrm{O}^+$ / $\mathrm{N}_2^+$.
+$^\dagger$The $10\,\mathrm{mm}$ core is the small root
+($\sigma_0<\sigma_0^*$); the painted-branch interpolant must not be
+used as a core size.}
+\end{table}
 
 \begin{figure}[ht]
 \centering
@@ -903,12 +1019,12 @@ Orbit $\lesssim 10\,\mathrm{mm}$
 Invert $\sigma_m=\sigma_0\,h(\sigma_0,N,V)$
   & unnecessary at $\ge 300\,\mathrm{G}$
   & identify $\mathrm{H}_2\mathrm{O}^+$ or $\mathrm{N}_2^+$;
-    that peak recovers $\sigma_0$ to $0.2\%$
-    (inj.\ $100\,\mathrm{kW}$, $8$--$20\,\mathrm{mm}$)
-    and $0.1\%$ (aligned ext.\ $100\,\mathrm{kW}$,
-    $8$--$20\,\mathrm{mm}$);
-    $\mathrm{H}_2^+$ is poorly conditioned at $10\,\mathrm{mm}$;
-    fails at the wall ($P\gtrsim 400\,\mathrm{kW}$) \\
+    $100\,\mathrm{kW}$: $0.2\%$ inj.\ / $0.1\%$ aligned ext.\
+    ($8$--$20\,\mathrm{mm}$);
+    $200$--$300\,\mathrm{kW}$: painted branch $\lesssim 1\%$,
+    $10\,\mathrm{mm}$ is the small (core) root;
+    $500\,\mathrm{kW}$ inj.\ fails at the wall;
+    $\mathrm{H}_2^+$ is not used for the size \\
 \hline\hline
 \end{tabular}
 \end{table}
@@ -935,9 +1051,14 @@ $1\%$. Raising the cage voltage cannot bring a $10\,\mathrm{mm}$,
 $100\,\mathrm{kW}$ ion profile to the $10\%$ level. A look-up
 inversion of one identified species ($\mathrm{H}_2\mathrm{O}^+$ or
 $\mathrm{N}_2^+$) recovers $\sigma_0$ to $0.2\%$ at injection and
-$0.1\%$ at aligned extraction, both at $100\,\mathrm{kW}$ on
-$\sigma_0=8$--$20\,\mathrm{mm}$, provided the profile has not
-reached the wall. $\mathrm{H}_2^+$ is not used for the size. The
+$0.1\%$ at aligned extraction at $100\,\mathrm{kW}$ on
+$\sigma_0=8$--$20\,\mathrm{mm}$. At $200$--$300\,\mathrm{kW}$ the
+same table recovers the painted branch to $\lesssim 1\%$; a
+$10\,\mathrm{mm}$ core is then the small root and must be selected
+as the core, not the paint, hypothesis. At $500\,\mathrm{kW}$
+injection the heavies clip the cage and the invert fails; aligned
+extraction remains inside the cage at $\sigma_0\ge 10\,\mathrm{mm}$.
+$\mathrm{H}_2^+$ is not used for the size. The
 extraction column is the aligned generation
 ($+104.1\%/\!+40.8\%/\!+40.0\%$ at $10\,\mathrm{mm}$), not the
 v1 as-run $+33.5\%$.

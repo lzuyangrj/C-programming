@@ -77,7 +77,7 @@ def zip_one(csv_path: Path) -> Path | None:
     tmp = dest.with_suffix(dest.suffix + ".partial")
     if tmp.exists():
         tmp.unlink()
-    with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
+    with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=1) as zf:
         zf.write(csv_path, arcname=csv_path.name)
     tmp.replace(dest)
     if dest.is_file() and dest.stat().st_size > 0:

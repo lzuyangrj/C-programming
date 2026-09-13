@@ -248,6 +248,39 @@ def plot_extraction(ext: dict) -> Path:
     return path
 
 
+def plot_injection_power(inj: dict) -> Path:
+    """σ_m(σ₀) at injection 200/300/500 kW (fig. companion to 100 kW invc)."""
+    fig, axes = plt.subplots(1, 3, figsize=(12.2, 4.2), sharey=True)
+    for ax, power in zip(axes, (200, 300, 500)):
+        ax.plot([2, 22], [2, 22], "k--", lw=0.7)
+        for slug, lab in SPECIES:
+            if (slug, power) not in inj:
+                continue
+            a = inj[(slug, power)]
+            ax.plot(
+                a["sigma0"],
+                a["sigmam"],
+                "o-",
+                color=COLORS[slug],
+                lw=1.4,
+                ms=4,
+                label=lab,
+            )
+        ax.set_xlabel(r"true $\sigma_0$ [mm]")
+        ax.set_xlim(2.5, 20.5)
+        ax.set_ylim(10, 58)
+        ax.set_title(rf"{power}\,\mathrm{{kW}}")
+        ax.text(0.04, 0.96, rf"({chr(ord('a') + (200, 300, 500).index(power))})",
+                transform=ax.transAxes, va="top")
+    axes[0].set_ylabel(r"collected $\sigma_m$ [mm]")
+    axes[0].legend(fontsize=9, loc="upper right")
+    fig.tight_layout()
+    path = PLOTS / "csns_imode_inversion_injection_power.png"
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+    return path
+
+
 def plot_extraction_power(ext: dict) -> Path | None:
     """Identified-species residual versus σ₀ at extraction powers that have a table."""
     powers = sorted({p for (slug, p) in ext if slug in ("h2o_ions", "n2_ions")})
@@ -322,7 +355,7 @@ def plot_recover(inj: dict, ext: dict) -> Path:
     ax1.legend(fontsize=10, loc="upper left")
 
     for slug, color in (("h2o_ions", "r"), ("n2_ions", "g")):
-        for power, mk in ((100, "o"), (200, "s"), (300, "^")):
+        for power, mk in ((100, "o"), (200, "s"), (300, "^"), (500, "D")):
             if (slug, power) not in inj:
                 continue
             a = inj[(slug, power)]
@@ -488,6 +521,50 @@ def report_stats(inj: dict, ext: dict) -> None:
                     print(f"  {power} kW {lab}: no inside-cage recovery (wall)")
 
 
+def _invp_row(beam: str, power: int, slug: str, a: dict) -> dict:
+    s0, sm, fr = a["sigma0"], a["sigmam"], a["frac"]
+    rec = leave_one_out_identified(s0, sm)
+    e = 100 * (rec / s0 - 1)
+    imin = int(np.argmin(sm))
+    i10 = int(np.argmin(np.abs(s0 - 10)))
+    wall = (fr < 0.995) | (sm > 40.0)
+    branch = (s0 >= float(s0[imin]) - 1e-9) & (s0 >= 8) & (s0 <= 20) & np.isfinite(e)
+    usable = branch & ~wall
+    return dict(
+        beam=beam,
+        power_kw=power,
+        species=slug,
+        fold_mm=round(float(s0[imin]), 1),
+        fold_sm_mm=round(float(sm[imin]), 2),
+        rec10_mm="" if not np.isfinite(rec[i10]) else round(float(rec[i10]), 2),
+        res10_pct="" if not np.isfinite(e[i10]) else round(float(e[i10]), 2),
+        med_pct="" if not usable.any() else round(float(np.median(np.abs(e[usable]))), 2),
+        max_pct="" if not usable.any() else round(float(np.max(np.abs(e[usable]))), 2),
+        n_branch=int(usable.sum()),
+        n_wall=int(wall.sum()),
+        n_grid=int(len(s0)),
+        wall10=bool(wall[i10]),
+    )
+
+
+def print_invp(inj: dict, ext: dict) -> None:
+    print("tab:invp  (identified H2O+ / N2+; branch σ0≥σ0* and 8–20 mm; wall = frac<0.995 or σm>40)")
+    print("beam power species fold_mm fold_sm rec10 res10% med% max% n_br n_wall n_grid wall10")
+    for beam, table in (("injection", inj), ("extraction", ext)):
+        for power in (100, 200, 300, 500):
+            for slug in ("h2o_ions", "n2_ions"):
+                if (slug, power) not in table:
+                    continue
+                r = _invp_row(beam, power, slug, table[(slug, power)])
+                print(
+                    f"  {r['beam']:10s} {r['power_kw']:3d} {slug:9s} "
+                    f"fold={r['fold_mm']:.1f} sm*={r['fold_sm_mm']:.2f} "
+                    f"rec10={r['rec10_mm']} ({r['res10_pct']}%) "
+                    f"med={r['med_pct']} max={r['max_pct']} "
+                    f"n={r['n_branch']}/{r['n_grid']} wall={r['n_wall']} wall10={r['wall10']}"
+                )
+
+
 def main() -> None:
     plot_conf()
     PLOTS.mkdir(exist_ok=True)
@@ -496,11 +573,13 @@ def main() -> None:
     report_stats(inj, ext)
     print("wrote", write_table(inj, ext))
     print("wrote", plot_curves(inj))
+    print("wrote", plot_injection_power(inj))
     print("wrote", plot_recover(inj, ext))
     print("wrote", plot_extraction(ext))
     pwr = plot_extraction_power(ext)
     if pwr is not None:
         print("wrote", pwr)
+    print_invp(inj, ext)
 
 
 if __name__ == "__main__":

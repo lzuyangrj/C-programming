@@ -65,6 +65,7 @@ plots/*.png
 !plots/csns_imode_inversion_recover.png
 !plots/csns_imode_inversion_extraction.png
 !plots/csns_imode_inversion_extraction_power.png
+!plots/csns_imode_inversion_injection_power.png
 configs/csns_rcs_ipm/bscan5/*.xml
 configs/csns_rcs_ipm/bscan5_power/*.xml
 configs/csns_rcs_ipm/ionsize/*.xml
